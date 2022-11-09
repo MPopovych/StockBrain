@@ -9,10 +9,12 @@ import utils.printCyan
 import utils.printGreen
 import utils.printYellow
 
-internal fun buildNodes(currentLayer: LayerBuilder<*>, debug: Boolean): HashMap<LayerBuilder<*>, GraphBuffer> {
+internal fun buildNodes(nodes: Collection<LayerBuilder<*>>, debug: Boolean): HashMap<LayerBuilder<*>, GraphBuffer> {
 	val queue = HashMap<LayerBuilder<*>, GraphBuffer>()
 
-	iterateNodes(currentLayer, queue, debug)
+	for (node in nodes) {
+		iterateNodes(node, queue, debug)
+	}
 	return queue
 }
 
@@ -62,12 +64,6 @@ internal fun iterateNodes(
 		}
 	}
 }
-
-//sealed class GraphNode(var layer: Layer) {
-//	class DeadEnd(layer: Layer) : GraphNode(layer)
-//	class SingleParent(layer: Layer, val parent: GraphNode) : GraphNode(layer)
-//	class MultiParent(layer: Layer, val parent: List<GraphNode>) : GraphNode(layer)
-//}
 
 sealed class GraphBuffer(open val layer: Layer, var buffer: Matrix? = null) {
 	class DeadEnd(override val layer: Layer.SingleInputLayer) : GraphBuffer(layer)

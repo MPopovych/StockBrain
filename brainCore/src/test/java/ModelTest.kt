@@ -21,7 +21,36 @@ class ModelTest {
 		val model = builder.build(debug = true)
 
 		val inputData = Suppliers.createMatrix(LayerShape(3, 1), RandomRangeSupplier.INSTANCE)
-		model.getOutput(inputData).print()
+		val r1 = model.getOutput(inputData)
+		val r2 = model.getOutput(inputData)
+		assertEqual(r1, r2)
+
+		r1.print()
+	}
+
+	@Test
+	fun testMultiInputModel() {
+		val input1 = InputLayer(3)
+		val d1 = Dense(4) { input1 }
+		val relu1 = Activation(Activations.ReLu) { d1 }
+
+		val input2 = InputLayer(3)
+		val d2 = Dense(4) { input2 }
+		val relu2 = Activation(Activations.ReLu) { d2 }
+
+		val concat = Concat { listOf(relu1, relu2) }
+		val output = Dense(4) { concat }
+
+		val builder = ModelBuilder(mapOf("a" to input1, "b" to input2), output, debug = false)
+		val model = builder.build(debug = true)
+
+		val inputData1 = Suppliers.createMatrix(LayerShape(3, 1), RandomRangeSupplier.INSTANCE)
+		val inputData2 = Suppliers.createMatrix(LayerShape(3, 1), RandomRangeSupplier.INSTANCE)
+
+		val r1 = model.getOutput(mapOf("a" to inputData1, "b" to inputData2))
+		val r2 = model.getOutput(mapOf("a" to inputData1, "b" to inputData2))
+		assertEqual(r1, r2)
+		r1.print()
 	}
 
 	@Test

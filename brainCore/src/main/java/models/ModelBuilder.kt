@@ -3,33 +3,56 @@ package models
 import layers.*
 import utils.*
 
-class ModelBuilder(val inputLayer: InputLayer, val output: LayerBuilder<*>, val debug: Boolean = true) {
+class ModelBuilder(
+	val inputs: Map<String, InputLayer>,
+	val outputs: Map<String, LayerBuilder<*>>,
+	val debug: Boolean = true,
+) {
 
-	val graph = buildNodes(output)
+	constructor(inputLayer: InputLayer, output: LayerBuilder<*>, debug: Boolean = true)
+			: this(mapOf(Model.SINGLE_IO to inputLayer), mapOf(Model.SINGLE_IO to output), debug)
+
+	constructor(inputLayer: Map<String, InputLayer>, output: LayerBuilder<*>, debug: Boolean = true)
+			: this(inputLayer, mapOf(Model.SINGLE_IO to output), debug)
+
+	constructor(inputLayer: InputLayer, output: Map<String, LayerBuilder<*>>, debug: Boolean = true)
+			: this(mapOf(Model.SINGLE_IO to inputLayer), output, debug)
+
+	private val graph = buildNodes()
+
 	init {
 		// used on init, as a check for structure
-		val root = graph[inputLayer] ?: throw IllegalStateException("input layer disconnected")
-		if (root !is EmptyGraphNode.DeadEnd) {
-			throw IllegalStateException("input layer should be dead end")
+		for (input in inputs.values) {
+			val root = graph[input] ?: throw IllegalStateException("input layer disconnected")
+			if (root !is EmptyGraphNode.DeadEnd) {
+				throw IllegalStateException("input layer should be dead end")
+			}
 		}
-		graph[output] ?: throw IllegalStateException("output layer disconnected")
+		for (output in outputs.values) {
+			graph[output] ?: throw IllegalStateException("output layer disconnected")
+		}
 		if (debug) {
 			printCyan("Size: ${graph.size}")
 		}
 	}
 
 	fun build(debug: Boolean = this.debug): Model {
-		return Model(inputLayer, output, debug = debug)
+		return Model(inputs, outputs, debug = debug)
 	}
 
-	private fun buildNodes(currentLayer: LayerBuilder<*>): HashMap<LayerBuilder<*>, EmptyGraphNode> {
+	private fun buildNodes(): HashMap<LayerBuilder<*>, EmptyGraphNode> {
 		val queue = HashMap<LayerBuilder<*>, EmptyGraphNode>()
 
-		iterateNodes(currentLayer, queue)
+		for (output in outputs.values) {
+			iterateNodes(output, queue)
+		}
 		return queue
 	}
 
-	private fun iterateNodes(currentLayer: LayerBuilder<*>, queue: HashMap<LayerBuilder<*>, EmptyGraphNode>): EmptyGraphNode {
+	private fun iterateNodes(
+		currentLayer: LayerBuilder<*>,
+		queue: HashMap<LayerBuilder<*>, EmptyGraphNode>,
+	): EmptyGraphNode {
 		currentLayer.ifAlso(debug) {
 			printGreen(it)
 		}
