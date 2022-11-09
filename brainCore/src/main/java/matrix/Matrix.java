@@ -1,7 +1,12 @@
 package matrix;
 
+import org.jetbrains.annotations.NotNull;
 import suppliers.OnesSupplier;
 import suppliers.ValueSupplier;
+
+import java.nio.ByteBuffer;
+import java.util.Base64;
+
 // a * b = c
 // [m, i] * [n, m] = [n, i]
 public class Matrix {
@@ -38,5 +43,32 @@ public class Matrix {
 		Matrix m = new Matrix(width, height, null);
 		MatrixMath.transfer(this, m);
 		return m;
+	}
+
+	public String readStringData() {
+		int count = width * height;
+		ByteBuffer buff = ByteBuffer.allocate(count * 4);
+		for (int x = 0; x < width; x++) {
+			for (int y = 0; y < height; y++) {
+				buff.putFloat(values[x][y]); // BIAS VALUES
+			}
+		}
+		return Base64.getEncoder().encodeToString(buff.array());
+	}
+
+	public void writeStringData(@NotNull String data) {
+		byte[] bytes = Base64.getDecoder().decode(data);
+		ByteBuffer buff = ByteBuffer.wrap(bytes);
+
+		int expectedCount = width * height;
+		if (bytes.length != expectedCount * 4) {
+			throw new IllegalStateException("Mismatch of %s vs %s".formatted(bytes.length, expectedCount * 4));
+		}
+
+		for (int x = 0; x < width; x++) {
+			for (int y = 0; y < height; y++) {
+				values[x][y] = buff.getFloat();
+			}
+		}
 	}
 }

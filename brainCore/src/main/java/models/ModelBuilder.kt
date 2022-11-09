@@ -4,9 +4,9 @@ import layers.*
 import utils.*
 
 class ModelBuilder(
-	val inputs: Map<String, InputLayer>,
-	val outputs: Map<String, LayerBuilder<*>>,
-	val debug: Boolean = true,
+	internal val inputs: Map<String, InputLayer>,
+	internal val outputs: Map<String, LayerBuilder<*>>,
+	internal val debug: Boolean = false,
 ) {
 
 	constructor(inputLayer: InputLayer, output: LayerBuilder<*>, debug: Boolean = true)
@@ -18,9 +18,13 @@ class ModelBuilder(
 	constructor(inputLayer: InputLayer, output: Map<String, LayerBuilder<*>>, debug: Boolean = true)
 			: this(mapOf(Model.SINGLE_IO to inputLayer), output, debug)
 
-	private val graph = buildNodes()
+	private val graph = HashMap<LayerBuilder<*>, EmptyGraphNode>()
+	internal val reverseQueue = LinkedHashMap<LayerBuilder<*>, Connection>()
+	internal val sortedConnections = LinkedHashSet<Connection>()
 
 	init {
+		buildNodes()
+		buildDownGraph()
 		// used on init, as a check for structure
 		for (input in inputs.values) {
 			val root = graph[input] ?: throw IllegalStateException("input layer disconnected")
@@ -31,6 +35,7 @@ class ModelBuilder(
 		for (output in outputs.values) {
 			graph[output] ?: throw IllegalStateException("output layer disconnected")
 		}
+
 		if (debug) {
 			printCyan("Size: ${graph.size}")
 		}
@@ -40,50 +45,50 @@ class ModelBuilder(
 		return Model(inputs, outputs, debug = debug)
 	}
 
-	private fun buildNodes(): HashMap<LayerBuilder<*>, EmptyGraphNode> {
-		val queue = HashMap<LayerBuilder<*>, EmptyGraphNode>()
-
+	private fun buildNodes() {
 		for (output in outputs.values) {
-			iterateNodes(output, queue)
+			iterateNodes(output)
 		}
-		return queue
 	}
 
 	private fun iterateNodes(
 		currentLayer: LayerBuilder<*>,
-		queue: HashMap<LayerBuilder<*>, EmptyGraphNode>,
 	): EmptyGraphNode {
 		currentLayer.ifAlso(debug) {
 			printGreen(it)
 		}
 
-		val existing = queue[currentLayer]
+		val existing = graph[currentLayer]
 		if (existing != null) {
 			return existing.ifAlso(debug) {
 				printCyan("already created $it")
 			}
 		}
+		val connection = reverseQueue.getOrPut(currentLayer) { Connection(currentLayer) }
 
 		when (currentLayer) {
 			is LayerBuilder.MultiInput -> {
-				val parents: List<EmptyGraphNode> = currentLayer.parentLayers.map { builder ->
-					iterateNodes(builder, queue)
+				currentLayer.parentLayers.forEach { builder ->
+					val parentCon = reverseQueue.getOrPut(builder) { Connection(builder) }
+					parentCon.children.add(connection)
+					iterateNodes(builder)
 				}
-				val currentNode = EmptyGraphNode.MultiParent(currentLayer, parents)
+				val currentNode = EmptyGraphNode.MultiParent(currentLayer)
 				return currentNode
-					.also { queue[currentLayer] = it }
+					.also { graph[currentLayer] = it }
 					.ifAlso(debug) {
 						printYellow(it)
 					}
 			}
 			is LayerBuilder.SingleInput -> {
 				// at the stage of implementation this is a single parent
-				val p = currentLayer.parentLayer
-				val parentNode = iterateNodes(p, queue)
-				return EmptyGraphNode.SingleParent(currentLayer, parentNode).also { queue[currentLayer] = it }
+				iterateNodes(currentLayer.parentLayer)
+				val parentCon = reverseQueue.getOrPut(currentLayer.parentLayer) { Connection(currentLayer.parentLayer) }
+				parentCon.children.add(connection)
+				return EmptyGraphNode.SingleParent(currentLayer).also { graph[currentLayer] = it }
 			}
 			is InputLayer -> {
-				return EmptyGraphNode.DeadEnd(currentLayer).also { queue[currentLayer] = it }
+				return EmptyGraphNode.DeadEnd(currentLayer).also { graph[currentLayer] = it }
 			}
 			else -> {
 				throw IllegalStateException("Bad graph structure")
@@ -91,5 +96,43 @@ class ModelBuilder(
 		}
 	}
 
+	private fun buildDownGraph() {
+		val nameSet = HashSet<String>()
+		fun iterate(con: Connection) {
+			sortedConnections.add(con)
+			con.children.forEach { iterate(it) }
+		}
+		this.inputs.values.mapNotNull { reverseQueue[it] }.forEach { root ->
+			iterate(root)
+		}
+		sortedConnections.forEachIndexed { i, con ->
+			if (con.parent.name == Layer.DEFAULT_NAME) {
+				con.parent.name = "${con.parent.javaClass.simpleName}_${i}"
+			}
+			if (nameSet.contains(con.parent.name)) {
+				throw IllegalStateException("Duplicate name: ${con.parent.name}")
+			} else {
+				nameSet.add(con.parent.name)
+			}
+		}
+	}
+
+}
+
+internal class Connection(val parent: LB, val children: HashSet<Connection> = HashSet<Connection>()) {
+	fun describe(): String {
+		return "${parent.name} : " +
+				"${parent.getShape()} : " +
+				"children: ${children.size}"
+	}
+}
+
+fun ModelBuilder.summary(): String {
+	val layerDescription = sortedConnections
+		.joinToString("\n") { con ->
+			con.describe()
+		}
+	return "Total layers: ${reverseQueue.size}\n" +
+			layerDescription
 }
 

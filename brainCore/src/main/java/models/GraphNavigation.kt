@@ -3,22 +3,21 @@ package models
 import layers.InputLayer
 import layers.Layer
 import layers.LayerBuilder
-import matrix.Matrix
 import utils.ifAlso
 import utils.printCyan
 import utils.printGreen
 import utils.printYellow
 
-internal fun buildNodes(nodes: Collection<LayerBuilder<*>>, debug: Boolean): HashMap<LayerBuilder<*>, GraphBuffer> {
+internal fun buildBufferNodes(nodes: Collection<LayerBuilder<*>>, debug: Boolean): HashMap<LayerBuilder<*>, GraphBuffer> {
 	val queue = HashMap<LayerBuilder<*>, GraphBuffer>()
 
 	for (node in nodes) {
-		iterateNodes(node, queue, debug)
+		iterateBufferNodes(node, queue, debug)
 	}
 	return queue
 }
 
-internal fun iterateNodes(
+internal fun iterateBufferNodes(
 	currentLayer: LayerBuilder<*>,
 	queue: HashMap<LayerBuilder<*>, GraphBuffer>,
 	debug: Boolean,
@@ -37,9 +36,9 @@ internal fun iterateNodes(
 	when (currentLayer) {
 		is LayerBuilder.MultiInput -> {
 			val parents: List<GraphBuffer> = currentLayer.parentLayers.map { builder ->
-				iterateNodes(builder, queue, debug)
+				iterateBufferNodes(builder, queue, debug)
 			}
-			val currentLayerImpl = currentLayer.createFromList(parents.map { p -> p.layer.getShape() })
+			val currentLayerImpl = currentLayer.create()
 					as Layer.MultiInputLayer
 			val currentNode = GraphBuffer.MultiParent(currentLayerImpl, parents)
 			return currentNode
@@ -51,8 +50,8 @@ internal fun iterateNodes(
 		is LayerBuilder.SingleInput -> {
 			// at the stage of implementation this is a single parent
 			val p = currentLayer.parentLayer
-			val parentNode = iterateNodes(p, queue, debug)
-			val currentLayerImpl = currentLayer.createFrom(parentNode.layer.getShape()) as Layer.SingleInputLayer
+			val parentNode = iterateBufferNodes(p, queue, debug)
+			val currentLayerImpl = currentLayer.create() as Layer.SingleInputLayer
 			return GraphBuffer.SingleParent(currentLayerImpl, parentNode).also { queue[currentLayer] = it }
 		}
 		is InputLayer -> {
@@ -67,22 +66,15 @@ internal fun iterateNodes(
 
 sealed class GraphBuffer(
 	open val layer: Layer,
-//	var buffer: Matrix? = null,
 ) {
 	class DeadEnd(override val layer: Layer.SingleInputLayer) : GraphBuffer(layer)
 	class SingleParent(override val layer: Layer.SingleInputLayer, val parent: GraphBuffer) : GraphBuffer(layer)
 	class MultiParent(override val layer: Layer.MultiInputLayer, val parents: List<GraphBuffer>) : GraphBuffer(layer)
-
-//	fun flush() {
-//		buffer = null
-//	}
 }
 
 sealed class EmptyGraphNode(open val layer: LayerBuilder<*>) {
 	class DeadEnd(override val layer: LayerBuilder.DeadEnd<*>) : EmptyGraphNode(layer)
-	class SingleParent(override val layer: LayerBuilder.SingleInput<*>, val parent: EmptyGraphNode) :
-		EmptyGraphNode(layer)
+	class SingleParent(override val layer: LayerBuilder.SingleInput<*>) : EmptyGraphNode(layer)
 
-	class MultiParent(override val layer: LayerBuilder.MultiInput<*>, val parents: List<EmptyGraphNode>) :
-		EmptyGraphNode(layer)
+	class MultiParent(override val layer: LayerBuilder.MultiInput<*>) : EmptyGraphNode(layer)
 }

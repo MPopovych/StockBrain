@@ -10,34 +10,48 @@ import suppliers.ValueSupplier
 import suppliers.ZeroSupplier
 
 class Direct(
-	val activation: ActivationFunction? = null,
-	val kernelInit: ValueSupplier = RandomRangeSupplier.INSTANCE,
-	val biasInit: ValueSupplier = ZeroSupplier.INSTANCE,
-	parentLayerBlock: (() -> LayerBuilder<*>)
-): LayerBuilder.SingleInput<DirectLayerImpl> {
+	private val activation: ActivationFunction? = null,
+	private val kernelInit: ValueSupplier = RandomRangeSupplier.INSTANCE,
+	private val biasInit: ValueSupplier = ZeroSupplier.INSTANCE,
+	override var name: String = Layer.DEFAULT_NAME,
+	parentLayerBlock: (() -> LayerBuilder<*>),
+) : LayerBuilder.SingleInput<DirectLayerImpl> {
 
 	override val parentLayer: LayerBuilder<*> = parentLayerBlock()
-	override fun createFrom(previousShape: LayerShape): DirectLayerImpl {
-		return DirectLayerImpl(activation = activation).also {
-			it.create(previousShape, previousShape)
-			Suppliers.fillFull(it.kernel, kernelInit)
-			Suppliers.fillFull(it.bias, biasInit)
-		}
+	private val shape = parentLayer.getShape()
+
+	override fun create(): DirectLayerImpl {
+		return DirectLayerImpl(activation = activation,
+			directShape = shape,
+			name = name)
+			.also {
+				it.init()
+				Suppliers.fillFull(it.kernel, kernelInit)
+				Suppliers.fillFull(it.bias, biasInit)
+			}
+	}
+
+	override fun getShape(): LayerShape {
+		return shape
 	}
 }
 
-class DirectLayerImpl(val activation: ActivationFunction? = null) : Layer.SingleInputLayer() {
+class DirectLayerImpl(
+	val activation: ActivationFunction? = null,
+	val directShape: LayerShape,
+	override var name: String,
+) : Layer.SingleInputLayer() {
 
 	override lateinit var outputBuffer: Matrix
 	lateinit var kernel: Matrix
 	lateinit var bias: Matrix
 
-	override fun create(previousShape: LayerShape, currentShape: LayerShape) {
-		kernel = Matrix(currentShape.width, currentShape.height)
+	override fun init() {
+		kernel = Matrix(directShape.width, directShape.height)
 		addWeights("weight", kernel, true)
-		bias = Matrix(currentShape.width, currentShape.height)
+		bias = Matrix(directShape.width, directShape.height)
 		addWeights("bias", bias, true)
-		outputBuffer = Matrix(currentShape.width, currentShape.height)
+		outputBuffer = Matrix(directShape.width, directShape.height)
 	}
 
 	override fun call(input: Matrix): Matrix {

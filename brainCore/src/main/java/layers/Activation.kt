@@ -4,25 +4,36 @@ import activation.ActivationFunction
 import activation.applyFromMatrixTo
 import matrix.Matrix
 
-class Activation (
+class Activation(
 	private val function: ActivationFunction,
-	parentLayerBlock: (() -> LayerBuilder<*>)
-): LayerBuilder.SingleInput<ActivationLayerImpl> {
+	override var name: String = Layer.DEFAULT_NAME,
+	parentLayerBlock: (() -> LayerBuilder<*>),
+) : LayerBuilder.SingleInput<ActivationLayerImpl> {
 
 	override val parentLayer: LayerBuilder<*> = parentLayerBlock()
-	override fun createFrom(previousShape: LayerShape): ActivationLayerImpl {
-		return ActivationLayerImpl(function).also {
-			it.create(previousShape, previousShape)
+	private val activationShape = parentLayer.getShape()
+
+	override fun create(): ActivationLayerImpl {
+		return ActivationLayerImpl(function, activationShape, name).also {
+			it.init()
 		}
+	}
+
+	override fun getShape(): LayerShape {
+		return activationShape
 	}
 }
 
-class ActivationLayerImpl(private val function: ActivationFunction) : Layer.SingleInputLayer() {
+class ActivationLayerImpl(
+	private val function: ActivationFunction,
+	private val activationShape: LayerShape,
+	override var name: String,
+) : Layer.SingleInputLayer() {
 
 	override lateinit var outputBuffer: Matrix
 
-	override fun create(previousShape: LayerShape, currentShape: LayerShape) {
-		outputBuffer = Matrix(currentShape.width, currentShape.height)
+	override fun init() {
+		outputBuffer = Matrix(activationShape.width, activationShape.height)
 	}
 
 	override fun call(input: Matrix): Matrix {

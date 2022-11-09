@@ -10,17 +10,16 @@ import utils.printYellow
 class Model(
 	internal val originInputs: Map<String, InputLayer>,
 	internal val originOutputs: Map<String, LayerBuilder<*>>,
-	internal val debug: Boolean = true,
+	internal val debug: Boolean = false,
 ) {
-
 	companion object {
 		const val SINGLE_IO = "S"
 	}
 
-	private var input: Map<String, GraphBuffer.DeadEnd>
-	private var output: Map<String, GraphBuffer>
+	var input: Map<String, GraphBuffer.DeadEnd>
+	var output: Map<String, GraphBuffer>
 
-	private val nodeGraph = buildNodes(originOutputs.values, debug)
+	private val nodeGraph = buildBufferNodes(originOutputs.values, debug)
 	val layers = nodeGraph.values.map { it.layer }
 
 	init {

@@ -1,12 +1,10 @@
 import activation.Activations
 import layers.*
 import models.ModelBuilder
+import models.summary
 import suppliers.RandomRangeSupplier
 import suppliers.Suppliers
-import utils.print
-import utils.printBlue
-import utils.printGreen
-import utils.printRed
+import utils.*
 import kotlin.test.Test
 
 class ModelTest {
@@ -23,6 +21,7 @@ class ModelTest {
 		val inputData = Suppliers.createMatrix(LayerShape(3, 1), RandomRangeSupplier.INSTANCE)
 		val r1 = model.getOutput(inputData).copy()
 		val r2 = model.getOutput(inputData).copy()
+
 		assertEqual(r1, r2)
 
 		val inputData2 = Suppliers.createMatrix(LayerShape(3, 1), RandomRangeSupplier.INSTANCE)
@@ -38,17 +37,17 @@ class ModelTest {
 	@Test
 	fun testMultiInputModel() {
 		val input1 = InputLayer(3)
-		var d1: LayerBuilder<*> = Dense(4) { input1 }
+		var d1: LB = Dense(4) { input1 }
 		d1 = Dense(4) { d1 }
-		d1 = Direct(biasInit = Suppliers.RandomRange) { d1 }
+		d1 = Direct { d1 }
 
 		val input2 = InputLayer(3)
-		var d2: LayerBuilder<*> = Dense(4) { input2 }
+		var d2: LB = Dense(4) { input2 }
 		d2 = Dense(4) { d2 }
-		d2 = Direct(biasInit = Suppliers.RandomRange) { d2 }
+		d2 = Direct { d2 }
 
 		val concat = Concat { listOf(d1, d2) }
-		val output = Dense(4) { concat }
+		val output = Dense(4, Activations.ReLu) { concat }
 
 		val builder = ModelBuilder(mapOf("a" to input1, "b" to input2), output, debug = false)
 		val model = builder.build(debug = true)
@@ -59,7 +58,13 @@ class ModelTest {
 		val r1 = model.getOutput(mapOf("a" to inputData1, "b" to inputData2)).copy()
 		val r2 = model.getOutput(mapOf("a" to inputData1, "b" to inputData2)).copy()
 		assertEqual(r1, r2)
-		r1.print()
+		r1.printRed()
+
+		val inputData3 = Suppliers.createMatrix(LayerShape(3, 1), RandomRangeSupplier.INSTANCE)
+		val inputData4 = Suppliers.createMatrix(LayerShape(3, 1), RandomRangeSupplier.INSTANCE)
+		val r3 = model.getOutput(mapOf("a" to inputData3, "b" to inputData4)).copy()
+		assertNotEqual(r1, r3)
+		r3.print()
 	}
 
 	@Test
@@ -73,8 +78,10 @@ class ModelTest {
 
 		val concat = Concat { listOf(d1, d2) }
 
-		val builder = ModelBuilder(input, concat, debug = false)
-		builder.build(debug = true)
+		val builder = ModelBuilder(input, concat, debug = true)
+		builder.build(debug = false)
+
+		printYellow(builder.summary())
 	}
 
 	@Test
@@ -105,12 +112,12 @@ class ModelTest {
 
 		val inputImpl = input.create()
 		printGreen("input", inputImpl.getShape())
-		val d1Impl = d1.createFrom(inputImpl.getShape())
+		val d1Impl = d1.create()
 		printGreen("dense 1", inputImpl.getShape())
 		d1Impl.getTrainable().forEach {
 			printBlue("dense w: ${it.describe()}")
 		}
-		val activateImpl = activate.createFrom(d1Impl.getShape())
+		val activateImpl = activate.create()
 		printGreen("activate", activateImpl.getShape())
 
 		val inputData = Suppliers.createMatrix(inputImpl.getShape(), RandomRangeSupplier.INSTANCE)

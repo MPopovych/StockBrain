@@ -6,7 +6,7 @@ import suppliers.RandomRangeSupplier
 import suppliers.Suppliers
 import utils.logBenchmarkResult
 
-class BenchmarkTest2 {
+class BenchmarkTest {
 
 	@Test
 	fun testModelSingle() {

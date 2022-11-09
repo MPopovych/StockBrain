@@ -10,37 +10,50 @@ import suppliers.ValueSupplier
 import suppliers.ZeroSupplier
 
 class Dense(
-	val units: Int,
-	val activation: ActivationFunction? = null,
-	val kernelInit: ValueSupplier = RandomRangeSupplier.INSTANCE,
-	val biasInit: ValueSupplier = ZeroSupplier.INSTANCE,
+	private val units: Int,
+	private val activation: ActivationFunction? = null,
+	private val kernelInit: ValueSupplier = RandomRangeSupplier.INSTANCE,
+	private val biasInit: ValueSupplier = ZeroSupplier.INSTANCE,
+	override var name: String = Layer.DEFAULT_NAME,
 	parentLayerBlock: (() -> LayerBuilder<*>),
 ) : LayerBuilder.SingleInput<DenseLayerImpl> {
 
+	private val shape = LayerShape(units, 1)
+
 	override val parentLayer: LayerBuilder<*> = parentLayerBlock()
-	override fun createFrom(previousShape: LayerShape): DenseLayerImpl {
-		return DenseLayerImpl(activation = activation).also {
-			it.create(previousShape, LayerShape(units, 1))
-			Suppliers.fillFull(it.kernel, kernelInit)
-			Suppliers.fillFull(it.bias, biasInit)
-		}
+	override fun create(): DenseLayerImpl {
+		val weightShape = LayerShape(units, parentLayer.getShape().width)
+
+		return DenseLayerImpl(activation = activation, weightShape = weightShape, biasShape = shape, name = name)
+			.also {
+				it.init()
+				Suppliers.fillFull(it.kernel, kernelInit)
+				Suppliers.fillFull(it.bias, biasInit)
+			}
+	}
+
+	override fun getShape(): LayerShape {
+		return shape
 	}
 }
 
-class DenseLayerImpl(val activation: ActivationFunction? = null) : Layer.SingleInputLayer() {
+class DenseLayerImpl(
+	val activation: ActivationFunction? = null,
+	val weightShape: LayerShape,
+	val biasShape: LayerShape,
+	override var name: String,
+) : Layer.SingleInputLayer() {
 
 	override lateinit var outputBuffer: Matrix
 	lateinit var kernel: Matrix
 	lateinit var bias: Matrix
 
-	override fun create(previousShape: LayerShape, currentShape: LayerShape) {
-		val weightShape = LayerShape(currentShape.width, previousShape.width)
-
+	override fun init() {
 		kernel = Matrix(weightShape.width, weightShape.height)
 		addWeights("weight", kernel, true)
-		bias = Matrix(currentShape.width, currentShape.height)
+		bias = Matrix(biasShape.width, biasShape.height)
 		addWeights("bias", bias, true)
-		outputBuffer = Matrix(currentShape.width, currentShape.height)
+		outputBuffer = Matrix(biasShape.width, biasShape.height)
 	}
 
 	override fun call(input: Matrix): Matrix {

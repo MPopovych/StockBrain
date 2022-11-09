@@ -6,9 +6,9 @@ import matrix.Matrix
 object Suppliers {
 	val Zero = ZeroSupplier.INSTANCE
 	val Ones = OnesSupplier.INSTANCE
-	val Random = RandomSupplier.INSTANCE
+	val RandomZP = RandomSupplier.INSTANCE
 	val RandomBin = RandomBinary.INSTANCE
-	val RandomRange = RandomRangeSupplier.INSTANCE
+	val RandomRangeNP = RandomRangeSupplier.INSTANCE
 
 	fun createMatrix(shape: LayerShape, supplier: ValueSupplier): Matrix {
 		return Matrix(shape.width, shape.height).also {
