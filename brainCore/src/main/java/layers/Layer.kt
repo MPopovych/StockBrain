@@ -19,8 +19,8 @@ sealed class Layer {
 	open fun getShape(): LayerShape = outputBuffer.getShape()
 
 	val weights = LinkedHashMap<String, WeightData>()
-	fun addWeights(name: String, w: Matrix, trainable: Boolean) {
-		weights[name] = WeightData(name, w, trainable)
+	fun addWeights(weightData: WeightData) {
+		weights[weightData.name] = weightData
 	}
 
 	open fun flushBuffer() {
@@ -41,7 +41,7 @@ sealed class Layer {
 class WeightData(
 	val name: String,
 	val matrix: Matrix,
-	val trainable: Boolean,
+	var trainable: Boolean,
 ) {
 	fun describe(): String {
 		return "${name}: ${matrix.getShape()}"

@@ -29,8 +29,8 @@ class Direct(
 			name = name)
 			.also {
 				it.init()
-				Suppliers.fillFull(it.kernel, kernelInit)
-				Suppliers.fillFull(it.bias, biasInit)
+				Suppliers.fillFull(it.kernel.matrix, kernelInit)
+				Suppliers.fillFull(it.bias.matrix, biasInit)
 			}
 	}
 
@@ -54,21 +54,21 @@ class DirectLayerImpl(
 ) : Layer.SingleInputLayer() {
 	override val nameType: String = Direct.defaultNameType
 	override lateinit var outputBuffer: Matrix
-	lateinit var kernel: Matrix
-	lateinit var bias: Matrix
+	lateinit var kernel: WeightData
+	lateinit var bias: WeightData
 
 	override fun init() {
-		kernel = Matrix(directShape.width, directShape.height)
-		addWeights("weight", kernel, true)
-		bias = Matrix(directShape.width, directShape.height)
-		addWeights("bias", bias, true)
+		kernel = WeightData("weight", Matrix(directShape.width, directShape.height), true)
+		addWeights(kernel)
+		bias = WeightData("bias", Matrix(directShape.width, directShape.height), true)
+		addWeights(bias)
 		outputBuffer = Matrix(directShape.width, directShape.height)
 	}
 
 	override fun call(input: Matrix): Matrix {
 		flushBuffer()
-		MatrixMath.hadamard(input, kernel, outputBuffer)
-		MatrixMath.add(outputBuffer, bias, outputBuffer)
+		MatrixMath.hadamard(input, kernel.matrix, outputBuffer)
+		MatrixMath.add(outputBuffer, bias.matrix, outputBuffer)
 		activation?.also {
 			Activations.activate(outputBuffer, outputBuffer, it)
 		}
@@ -76,7 +76,3 @@ class DirectLayerImpl(
 	}
 
 }
-
-data class DirectSerialized(
-	val activation: String?,
-)

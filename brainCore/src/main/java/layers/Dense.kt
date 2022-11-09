@@ -30,8 +30,8 @@ class Dense(
 		return DenseLayerImpl(activation = activation, weightShape = weightShape, biasShape = shape, name = name)
 			.also {
 				it.init()
-				Suppliers.fillFull(it.kernel, kernelInit)
-				Suppliers.fillFull(it.bias, biasInit)
+				Suppliers.fillFull(it.kernel.matrix, kernelInit)
+				Suppliers.fillFull(it.bias.matrix, biasInit)
 			}
 	}
 
@@ -56,21 +56,21 @@ class DenseLayerImpl(
 ) : Layer.SingleInputLayer() {
 	override val nameType: String = Dense.defaultNameType
 	override lateinit var outputBuffer: Matrix
-	lateinit var kernel: Matrix
-	lateinit var bias: Matrix
+	lateinit var kernel: WeightData
+	lateinit var bias: WeightData
 
 	override fun init() {
-		kernel = Matrix(weightShape.width, weightShape.height)
-		addWeights("weight", kernel, true)
-		bias = Matrix(biasShape.width, biasShape.height)
-		addWeights("bias", bias, true)
+		kernel = WeightData("weight", Matrix(weightShape.width, weightShape.height), true)
+		addWeights(kernel)
+		bias = WeightData("bias", Matrix(biasShape.width, biasShape.height), true)
+		addWeights(bias)
 		outputBuffer = Matrix(biasShape.width, biasShape.height)
 	}
 
 	override fun call(input: Matrix): Matrix {
 		flushBuffer()
-		MatrixMath.multiply(input, kernel, outputBuffer)
-		MatrixMath.add(outputBuffer, bias, outputBuffer)
+		MatrixMath.multiply(input, kernel.matrix, outputBuffer)
+		MatrixMath.add(outputBuffer, bias.matrix, outputBuffer)
 		activation?.also {
 			Activations.activate(outputBuffer, outputBuffer, it)
 		}
@@ -78,7 +78,3 @@ class DenseLayerImpl(
 	}
 
 }
-
-data class DenseSerialized(
-	val activation: String?,
-)

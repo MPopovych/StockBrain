@@ -53,7 +53,3 @@ class ActivationLayerImpl(
 	}
 
 }
-
-data class ActivationSerialized(
-	val activation: String?,
-)
