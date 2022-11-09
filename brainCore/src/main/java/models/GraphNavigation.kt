@@ -65,18 +65,24 @@ internal fun iterateNodes(
 	}
 }
 
-sealed class GraphBuffer(open val layer: Layer, var buffer: Matrix? = null) {
+sealed class GraphBuffer(
+	open val layer: Layer,
+//	var buffer: Matrix? = null,
+) {
 	class DeadEnd(override val layer: Layer.SingleInputLayer) : GraphBuffer(layer)
 	class SingleParent(override val layer: Layer.SingleInputLayer, val parent: GraphBuffer) : GraphBuffer(layer)
 	class MultiParent(override val layer: Layer.MultiInputLayer, val parents: List<GraphBuffer>) : GraphBuffer(layer)
 
-	fun flush() {
-		buffer = null
-	}
+//	fun flush() {
+//		buffer = null
+//	}
 }
 
 sealed class EmptyGraphNode(open val layer: LayerBuilder<*>) {
 	class DeadEnd(override val layer: LayerBuilder.DeadEnd<*>) : EmptyGraphNode(layer)
-	class SingleParent(override val layer: LayerBuilder.SingleInput<*>, val parent: EmptyGraphNode) : EmptyGraphNode(layer)
-	class MultiParent(override val layer: LayerBuilder.MultiInput<*>, val parents: List<EmptyGraphNode>) : EmptyGraphNode(layer)
+	class SingleParent(override val layer: LayerBuilder.SingleInput<*>, val parent: EmptyGraphNode) :
+		EmptyGraphNode(layer)
+
+	class MultiParent(override val layer: LayerBuilder.MultiInput<*>, val parents: List<EmptyGraphNode>) :
+		EmptyGraphNode(layer)
 }

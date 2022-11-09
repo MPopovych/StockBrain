@@ -1,5 +1,7 @@
 package layers
 
+import activation.ActivationFunction
+import activation.Activations
 import matrix.Matrix
 import matrix.MatrixMath
 import suppliers.RandomRangeSupplier
@@ -9,14 +11,15 @@ import suppliers.ZeroSupplier
 
 class Dense(
 	val units: Int,
+	val activation: ActivationFunction? = null,
 	val kernelInit: ValueSupplier = RandomRangeSupplier.INSTANCE,
 	val biasInit: ValueSupplier = ZeroSupplier.INSTANCE,
-	parentLayerBlock: (() -> LayerBuilder<*>)
-): LayerBuilder.SingleInput<DenseLayerImpl> {
+	parentLayerBlock: (() -> LayerBuilder<*>),
+) : LayerBuilder.SingleInput<DenseLayerImpl> {
 
 	override val parentLayer: LayerBuilder<*> = parentLayerBlock()
 	override fun createFrom(previousShape: LayerShape): DenseLayerImpl {
-		return DenseLayerImpl().also {
+		return DenseLayerImpl(activation = activation).also {
 			it.create(previousShape, LayerShape(units, 1))
 			Suppliers.fillFull(it.kernel, kernelInit)
 			Suppliers.fillFull(it.bias, biasInit)
@@ -24,7 +27,7 @@ class Dense(
 	}
 }
 
-class DenseLayerImpl : Layer.SingleInputLayer() {
+class DenseLayerImpl(val activation: ActivationFunction? = null) : Layer.SingleInputLayer() {
 
 	override lateinit var outputBuffer: Matrix
 	lateinit var kernel: Matrix
@@ -44,7 +47,10 @@ class DenseLayerImpl : Layer.SingleInputLayer() {
 		flushBuffer()
 		MatrixMath.multiply(input, kernel, outputBuffer)
 		MatrixMath.add(outputBuffer, bias, outputBuffer)
-		return outputBuffer
+		activation?.also {
+			Activations.activate(outputBuffer, outputBuffer, it)
+		}
+		return outputBuffer//.also { it.print() }
 	}
 
 }

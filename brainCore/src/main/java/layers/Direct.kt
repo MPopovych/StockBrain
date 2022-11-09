@@ -1,5 +1,7 @@
 package layers
 
+import activation.ActivationFunction
+import activation.Activations
 import matrix.Matrix
 import matrix.MatrixMath
 import suppliers.RandomRangeSupplier
@@ -8,6 +10,7 @@ import suppliers.ValueSupplier
 import suppliers.ZeroSupplier
 
 class Direct(
+	val activation: ActivationFunction? = null,
 	val kernelInit: ValueSupplier = RandomRangeSupplier.INSTANCE,
 	val biasInit: ValueSupplier = ZeroSupplier.INSTANCE,
 	parentLayerBlock: (() -> LayerBuilder<*>)
@@ -15,7 +18,7 @@ class Direct(
 
 	override val parentLayer: LayerBuilder<*> = parentLayerBlock()
 	override fun createFrom(previousShape: LayerShape): DirectLayerImpl {
-		return DirectLayerImpl().also {
+		return DirectLayerImpl(activation = activation).also {
 			it.create(previousShape, previousShape)
 			Suppliers.fillFull(it.kernel, kernelInit)
 			Suppliers.fillFull(it.bias, biasInit)
@@ -23,7 +26,7 @@ class Direct(
 	}
 }
 
-class DirectLayerImpl : Layer.SingleInputLayer() {
+class DirectLayerImpl(val activation: ActivationFunction? = null) : Layer.SingleInputLayer() {
 
 	override lateinit var outputBuffer: Matrix
 	lateinit var kernel: Matrix
@@ -41,6 +44,9 @@ class DirectLayerImpl : Layer.SingleInputLayer() {
 		flushBuffer()
 		MatrixMath.hadamard(input, kernel, outputBuffer)
 		MatrixMath.add(outputBuffer, bias, outputBuffer)
+		activation?.also {
+			Activations.activate(outputBuffer, outputBuffer, it)
+		}
 		return outputBuffer
 	}
 

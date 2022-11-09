@@ -11,13 +11,25 @@ fun Matrix.getShape(): LayerShape {
 }
 
 fun Matrix.print() {
+	printBlue(describe())
+}
+
+fun Matrix.printRed() {
+	printRed(describe())
+}
+fun Matrix.describe(): String {
 	val sb = StringBuilder()
 	for (y in 0 until height) {
 		val line = "[${values.joinToString { it[y].roundDisplay() }}]"
-		sb.appendLine(line)
+		if (y == height - 1) {
+			sb.append(line)
+		} else {
+			sb.appendLine(line)
+		}
 	}
-	printBlue(sb.toString())
+	return sb.toString()
 }
+
 
 fun Matrix.printTransposed() {
 	val sb = StringBuilder().append("[")

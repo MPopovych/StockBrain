@@ -21,24 +21,33 @@ class ModelTest {
 		val model = builder.build(debug = true)
 
 		val inputData = Suppliers.createMatrix(LayerShape(3, 1), RandomRangeSupplier.INSTANCE)
-		val r1 = model.getOutput(inputData)
-		val r2 = model.getOutput(inputData)
+		val r1 = model.getOutput(inputData).copy()
+		val r2 = model.getOutput(inputData).copy()
 		assertEqual(r1, r2)
 
+		val inputData2 = Suppliers.createMatrix(LayerShape(3, 1), RandomRangeSupplier.INSTANCE)
+		val r3 = model.getOutput(inputData2).copy()
+
+		inputData.printRed()
+		inputData2.printRed()
 		r1.print()
+		r3.print()
+		assertNotEqual(r1, r3)
 	}
 
 	@Test
 	fun testMultiInputModel() {
 		val input1 = InputLayer(3)
-		val d1 = Dense(4) { input1 }
-		val relu1 = Activation(Activations.ReLu) { d1 }
+		var d1: LayerBuilder<*> = Dense(4) { input1 }
+		d1 = Dense(4) { d1 }
+		d1 = Direct(biasInit = Suppliers.RandomRange) { d1 }
 
 		val input2 = InputLayer(3)
-		val d2 = Dense(4) { input2 }
-		val relu2 = Activation(Activations.ReLu) { d2 }
+		var d2: LayerBuilder<*> = Dense(4) { input2 }
+		d2 = Dense(4) { d2 }
+		d2 = Direct(biasInit = Suppliers.RandomRange) { d2 }
 
-		val concat = Concat { listOf(relu1, relu2) }
+		val concat = Concat { listOf(d1, d2) }
 		val output = Dense(4) { concat }
 
 		val builder = ModelBuilder(mapOf("a" to input1, "b" to input2), output, debug = false)
@@ -47,8 +56,8 @@ class ModelTest {
 		val inputData1 = Suppliers.createMatrix(LayerShape(3, 1), RandomRangeSupplier.INSTANCE)
 		val inputData2 = Suppliers.createMatrix(LayerShape(3, 1), RandomRangeSupplier.INSTANCE)
 
-		val r1 = model.getOutput(mapOf("a" to inputData1, "b" to inputData2))
-		val r2 = model.getOutput(mapOf("a" to inputData1, "b" to inputData2))
+		val r1 = model.getOutput(mapOf("a" to inputData1, "b" to inputData2)).copy()
+		val r2 = model.getOutput(mapOf("a" to inputData1, "b" to inputData2)).copy()
 		assertEqual(r1, r2)
 		r1.print()
 	}
@@ -57,13 +66,12 @@ class ModelTest {
 	fun testBranchedModel() {
 		val input = InputLayer(3)
 
-		val d0 = Dense(4) { input }
-		val d1 = Dense(4) { d0 }
-		val relu1 = Activation(Activations.ReLu) { d1 }
-		val d2 = Dense(4) { d0 }
-		val relu2 = Activation(Activations.ReLu) { d2 }
+		val d0 = Dense(4, Activations.ReLu) { input }
+		val d1 = Dense(4, Activations.ReLu) { d0 }
 
-		val concat = Concat { listOf(relu1, relu2) }
+		val d2 = Dense(4, Activations.ReLu) { d0 }
+
+		val concat = Concat { listOf(d1, d2) }
 
 		val builder = ModelBuilder(input, concat, debug = false)
 		builder.build(debug = true)

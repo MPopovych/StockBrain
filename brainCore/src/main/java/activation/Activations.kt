@@ -7,7 +7,8 @@ object Activations {
 	val LeReLu = LeakyReLuFunction()
 	val NegPos = NegPosFunction()
 	val NegZeroPos = NegZeroPosFunction()
-	val ZeroOne = ZeroOneFunction()
+	val Binary = BinaryStepFunction()
+	val Zero = ZeroFunction()
 
 	fun activate(matrix: Matrix, buffer: Matrix, function: ActivationFunction) {
 		for (x in 0 until matrix.width) {
