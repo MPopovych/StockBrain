@@ -47,22 +47,22 @@ class ModelTest {
 		d2 = Direct { d2 }
 
 		val concat = Concat { listOf(d1, d2) }
-		val output = Dense(4, Activations.ReLu, name = "output") { concat }
+		val output = Dense(4, name = "output") { concat }
 
 		val builder = ModelBuilder(mapOf("a" to input1, "b" to input2), output, debug = false)
 		printYellow(builder.summary())
 		val model = builder.build(debug = false)
 
-		val inputData1 = Suppliers.createMatrix(LayerShape(3, 1), RandomRangeSupplier.INSTANCE)
-		val inputData2 = Suppliers.createMatrix(LayerShape(3, 1), RandomRangeSupplier.INSTANCE)
+		val inputData1 = Suppliers.createMatrix(LayerShape(3, 1), Suppliers.RandomRangeNP)
+		val inputData2 = Suppliers.createMatrix(LayerShape(3, 1), Suppliers.RandomRangeNP)
 
 		val r1 = model.getOutput(mapOf("a" to inputData1, "b" to inputData2)).copy()
 		val r2 = model.getOutput(mapOf("a" to inputData1, "b" to inputData2)).copy()
 		assertEqual(r1, r2)
 		r1.printRed()
 
-		val inputData3 = Suppliers.createMatrix(LayerShape(3, 1), RandomRangeSupplier.INSTANCE)
-		val inputData4 = Suppliers.createMatrix(LayerShape(3, 1), RandomRangeSupplier.INSTANCE)
+		val inputData3 = Suppliers.createMatrix(LayerShape(3, 1), Suppliers.RandomRangeNP)
+		val inputData4 = Suppliers.createMatrix(LayerShape(3, 1), Suppliers.RandomRangeNP)
 		val r3 = model.getOutput(mapOf("a" to inputData3, "b" to inputData4)).copy()
 		assertNotEqual(r1, r3)
 		r3.print()
