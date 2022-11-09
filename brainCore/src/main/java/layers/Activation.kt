@@ -1,6 +1,7 @@
 package layers
 
 import activation.ActivationFunction
+import activation.Activations
 import activation.applyFromMatrixTo
 import matrix.Matrix
 
@@ -9,6 +10,10 @@ class Activation(
 	override var name: String = Layer.DEFAULT_NAME,
 	parentLayerBlock: (() -> LayerBuilder<*>),
 ) : LayerBuilder.SingleInput<ActivationLayerImpl> {
+	companion object {
+		const val defaultNameType = "Activation"
+	}
+	override val nameType: String = defaultNameType
 
 	override val parentLayer: LayerBuilder<*> = parentLayerBlock()
 	private val activationShape = parentLayer.getShape()
@@ -22,6 +27,10 @@ class Activation(
 	override fun getShape(): LayerShape {
 		return activationShape
 	}
+
+	override fun getSerializedBuilderData(): Any {
+		return ActivationSerialized(activation = Activations.serialize(function))
+	}
 }
 
 class ActivationLayerImpl(
@@ -29,6 +38,7 @@ class ActivationLayerImpl(
 	private val activationShape: LayerShape,
 	override var name: String,
 ) : Layer.SingleInputLayer() {
+	override val nameType: String = Activation.defaultNameType
 
 	override lateinit var outputBuffer: Matrix
 
@@ -43,3 +53,7 @@ class ActivationLayerImpl(
 	}
 
 }
+
+data class ActivationSerialized(
+	val activation: String?,
+)

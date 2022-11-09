@@ -3,10 +3,16 @@ package layers
 import matrix.Matrix
 import utils.getShape
 
+
+
 class Concat(
 	override var name: String = Layer.DEFAULT_NAME,
 	parentLayerBlock: (() -> List<LayerBuilder<*>>),
 ) : LayerBuilder.MultiInput<ConcatImpl> {
+	companion object {
+		const val defaultNameType = "Concat"
+	}
+	override val nameType: String = defaultNameType
 	override val parentLayers: List<LayerBuilder<*>> = parentLayerBlock()
 
 	val concatShape = LayerShape(parentLayers.sumOf { it.getShape().width }, 1)
@@ -24,7 +30,7 @@ class Concat(
 }
 
 class ConcatImpl(private val concatShape: LayerShape, override var name: String) : Layer.MultiInputLayer() {
-
+	override val nameType: String = Concat.defaultNameType
 	override lateinit var outputBuffer: Matrix
 
 	override fun init() {

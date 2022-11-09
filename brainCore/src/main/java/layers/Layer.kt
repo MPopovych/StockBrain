@@ -12,7 +12,7 @@ sealed class Layer {
 	}
 
 	abstract var name: String
-	val nameType: String = javaClass.simpleName
+	abstract val nameType: String
 
 	abstract var outputBuffer: Matrix
 	abstract fun init()
@@ -28,7 +28,7 @@ sealed class Layer {
 	}
 
 	fun getTrainable() = weights.filter { it.trainable }
-	fun getTrainableNumber() = getTrainable().sumOf { it.w.width * it.w.height }
+	fun getTrainableNumber() = getTrainable().sumOf { it.matrix.width * it.matrix.height }
 
 	abstract class SingleInputLayer : Layer() {
 		abstract fun call(input: Matrix): Matrix
@@ -40,17 +40,18 @@ sealed class Layer {
 
 class WeightData(
 	val name: String,
-	val w: Matrix,
+	val matrix: Matrix,
 	val trainable: Boolean,
 ) {
 	fun describe(): String {
-		return "${name}: ${w.getShape()}"
+		return "${name}: ${matrix.getShape()}"
 	}
 }
 
 typealias LB = LayerBuilder<*>
 sealed interface LayerBuilder<T : Layer> {
 	var name: String
+	val nameType: String
 	fun getShape(): LayerShape
 	fun create(): T
 
@@ -63,6 +64,8 @@ sealed interface LayerBuilder<T : Layer> {
 	interface MultiInput<T : Layer.MultiInputLayer> : LayerBuilder<T> {
 		val parentLayers: List<LayerBuilder<*>>
 	}
+
+	fun getSerializedBuilderData(): Any? { return null }
 }
 
 data class LayerShape(val width: Int, val height: Int) {

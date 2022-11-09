@@ -8,7 +8,10 @@ class InputLayer(
 	val steps: Int = 1,
 	override var name: String = Layer.DEFAULT_NAME,
 ) : LayerBuilder.DeadEnd<InputLayerImpl> {
-
+	companion object {
+		const val defaultNameType = "Input"
+	}
+	override val nameType: String = defaultNameType
 	private val shape = LayerShape(features, steps)
 
 	override fun getShape(): LayerShape {
@@ -24,7 +27,7 @@ class InputLayerImpl(
 	private val inputShape: LayerShape,
 	override var name: String,
 ) : Layer.SingleInputLayer() {
-
+	override val nameType: String = InputLayer.defaultNameType
 	override lateinit var outputBuffer: Matrix
 
 	override fun init() {

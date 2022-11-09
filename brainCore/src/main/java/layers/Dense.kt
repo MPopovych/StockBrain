@@ -17,7 +17,10 @@ class Dense(
 	override var name: String = Layer.DEFAULT_NAME,
 	parentLayerBlock: (() -> LayerBuilder<*>),
 ) : LayerBuilder.SingleInput<DenseLayerImpl> {
-
+	companion object {
+		const val defaultNameType = "Dense"
+	}
+	override val nameType: String = defaultNameType
 	private val shape = LayerShape(units, 1)
 
 	override val parentLayer: LayerBuilder<*> = parentLayerBlock()
@@ -35,6 +38,14 @@ class Dense(
 	override fun getShape(): LayerShape {
 		return shape
 	}
+
+	override fun getSerializedBuilderData(): Any? {
+		return activation?.let {
+			DenseSerialized(
+				activation = Activations.serialize(it)
+			)
+		}
+	}
 }
 
 class DenseLayerImpl(
@@ -43,7 +54,7 @@ class DenseLayerImpl(
 	val biasShape: LayerShape,
 	override var name: String,
 ) : Layer.SingleInputLayer() {
-
+	override val nameType: String = Dense.defaultNameType
 	override lateinit var outputBuffer: Matrix
 	lateinit var kernel: Matrix
 	lateinit var bias: Matrix
@@ -67,3 +78,7 @@ class DenseLayerImpl(
 	}
 
 }
+
+data class DenseSerialized(
+	val activation: String?,
+)

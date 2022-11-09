@@ -91,17 +91,17 @@ class ModelTest {
 
 		val ad0 = Dense(2) { input }
 		val ad1 = Dense(2) { ad0 }
+		val ad2 = Dense(2) { ad1 }
+		val ad3 = Dense(2) { ad2 }
 
 		val bd0 = Dense(4) { input }
 		val bd1 = Dense(4) { bd0 }
-		val relu1 = Activation(Activations.ReLu) { bd1 }
 		val bd2 = Dense(4) { bd0 }
-		val relu2 = Activation(Activations.ReLu) { bd2 }
 
-		val concat = Concat { listOf(relu1, relu2, ad1) }
+		val concat = Concat { listOf(ad3, bd1, bd2) }
 
 		val builder = ModelBuilder(input, concat, debug = false)
-		builder.build(debug = true)
+		printYellow(builder.summary())
 	}
 
 	@Test

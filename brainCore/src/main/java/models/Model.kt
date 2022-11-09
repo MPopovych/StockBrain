@@ -13,13 +13,13 @@ class Model(
 	internal val debug: Boolean = false,
 ) {
 	companion object {
-		const val SINGLE_IO = "S"
+		const val SINGLE_IO = "Default"
 	}
 
 	var input: Map<String, GraphBuffer.DeadEnd>
 	var output: Map<String, GraphBuffer>
 
-	private val nodeGraph = buildBufferNodes(originOutputs.values, debug)
+	val nodeGraph = buildBufferNodes(originOutputs.values, debug)
 	val layers = nodeGraph.values.map { it.layer }
 
 	init {
@@ -42,7 +42,7 @@ class Model(
 
 	// map
 	fun getOutputMap(inputMatrix: Map<String, Matrix>): Map<String, Matrix> {
-		val buffer = HashMap<Layer, Matrix>()
+		val buffer = LinkedHashMap<Layer, Matrix>()
 
 		for (matrix in inputMatrix) {
 			val inputLayer = input[matrix.key] ?: throw IllegalStateException()
@@ -58,19 +58,20 @@ class Model(
 
 	private fun iterateOutput(bufferNode: GraphBuffer, queue: HashMap<Layer, Matrix>): GraphBuffer {
 		if (queue.containsKey(bufferNode.layer)) {
-			printYellow("already found ${bufferNode.layer}")
+			if (debug) printYellow("already found ${bufferNode.layer}")
 			return bufferNode
 		}
 
 		when (bufferNode) {
 			is GraphBuffer.MultiParent -> {
 				val matrices = bufferNode.parents.map { parent ->
-					queue[parent.layer] ?: queue[iterateOutput(parent, queue).layer] ?: throw IllegalStateException()
+					queue[parent.layer]
+						?: queue[iterateOutput(parent, queue).layer]
+						?: throw IllegalStateException()
 				}
 
 				val currentOutput = bufferNode.layer.call(matrices)
-				return bufferNode
-					.also { queue[bufferNode.layer] = currentOutput }
+				return bufferNode.also { queue[bufferNode.layer] = currentOutput }
 			}
 			is GraphBuffer.SingleParent -> {
 				// at the stage of implementation this is a single parent

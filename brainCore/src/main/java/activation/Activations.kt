@@ -22,33 +22,25 @@ object Activations {
 		}
 	}
 
-	fun deserialize(json: String?): ActivationFunction? {
-		json ?: return null
+	fun deserialize(name: String?): ActivationFunction? {
+		name ?: return null
 
-		val parsed: BasicSerializedFunction = gson.fromJson(json)
-
-		return when (parsed.type.lowercase()) {
+		return when (name.lowercase()) {
 			ReLu.nameType() -> ReLu
 			LeReLu.nameType() -> LeReLu
 			NegZeroPos.nameType() -> NegZeroPos
 			BinaryNegPos.nameType() -> BinaryNegPos
 			Binary.nameType() -> Binary
 			Zero.nameType() -> Zero
-			else -> throw IllegalArgumentException("unsupported type or json: $json")
+			else -> throw IllegalArgumentException("unsupported type: $name")
 		}
 	}
 
 	fun serialize(function: ActivationFunction?): String? {
 		function ?: return null
-
-		val type = function.nameType()
-		return gson.toJson(BasicSerializedFunction(type))
+		return function.nameType()
 	}
 }
-
-data class BasicSerializedFunction(
-	val type: String,
-)
 
 fun ActivationFunction.applyFromMatrixTo(matrix: Matrix, buffer: Matrix) {
 	Activations.activate(matrix, buffer, this)

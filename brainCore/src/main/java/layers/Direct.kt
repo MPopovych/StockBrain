@@ -16,7 +16,10 @@ class Direct(
 	override var name: String = Layer.DEFAULT_NAME,
 	parentLayerBlock: (() -> LayerBuilder<*>),
 ) : LayerBuilder.SingleInput<DirectLayerImpl> {
-
+	companion object {
+		const val defaultNameType = "Direct"
+	}
+	override val nameType: String = defaultNameType
 	override val parentLayer: LayerBuilder<*> = parentLayerBlock()
 	private val shape = parentLayer.getShape()
 
@@ -34,6 +37,14 @@ class Direct(
 	override fun getShape(): LayerShape {
 		return shape
 	}
+
+	override fun getSerializedBuilderData(): Any? {
+		return activation?.let {
+			DirectSerialized(
+				activation = Activations.serialize(it)
+			)
+		}
+	}
 }
 
 class DirectLayerImpl(
@@ -41,7 +52,7 @@ class DirectLayerImpl(
 	val directShape: LayerShape,
 	override var name: String,
 ) : Layer.SingleInputLayer() {
-
+	override val nameType: String = Direct.defaultNameType
 	override lateinit var outputBuffer: Matrix
 	lateinit var kernel: Matrix
 	lateinit var bias: Matrix
@@ -65,3 +76,7 @@ class DirectLayerImpl(
 	}
 
 }
+
+data class DirectSerialized(
+	val activation: String?,
+)

@@ -9,7 +9,7 @@ import utils.printGreen
 import utils.printYellow
 
 internal fun buildBufferNodes(nodes: Collection<LayerBuilder<*>>, debug: Boolean): HashMap<LayerBuilder<*>, GraphBuffer> {
-	val queue = HashMap<LayerBuilder<*>, GraphBuffer>()
+	val queue = LinkedHashMap<LayerBuilder<*>, GraphBuffer>()
 
 	for (node in nodes) {
 		iterateBufferNodes(node, queue, debug)
@@ -22,10 +22,6 @@ internal fun iterateBufferNodes(
 	queue: HashMap<LayerBuilder<*>, GraphBuffer>,
 	debug: Boolean,
 ): GraphBuffer {
-	currentLayer.ifAlso(debug) {
-		printGreen(it)
-	}
-
 	val existing = queue[currentLayer]
 	if (existing != null) {
 		return existing.ifAlso(debug) {
@@ -43,20 +39,22 @@ internal fun iterateBufferNodes(
 			val currentNode = GraphBuffer.MultiParent(currentLayerImpl, parents)
 			return currentNode
 				.also { queue[currentLayer] = it }
-				.ifAlso(debug) {
-					printYellow(it)
-				}
+				.ifAlso(debug) { printYellow(it) }
 		}
 		is LayerBuilder.SingleInput -> {
 			// at the stage of implementation this is a single parent
 			val p = currentLayer.parentLayer
 			val parentNode = iterateBufferNodes(p, queue, debug)
 			val currentLayerImpl = currentLayer.create() as Layer.SingleInputLayer
-			return GraphBuffer.SingleParent(currentLayerImpl, parentNode).also { queue[currentLayer] = it }
+			return GraphBuffer.SingleParent(currentLayerImpl, parentNode)
+				.also { queue[currentLayer] = it }
+				.ifAlso(debug) { printYellow(it) }
 		}
 		is InputLayer -> {
 			val layer = currentLayer.create()
-			return GraphBuffer.DeadEnd(layer).also { queue[currentLayer] = it }
+			return GraphBuffer.DeadEnd(layer)
+				.also { queue[currentLayer] = it }
+				.ifAlso(debug) { printYellow(it) }
 		}
 		else -> {
 			throw IllegalStateException("Bad graph structure")

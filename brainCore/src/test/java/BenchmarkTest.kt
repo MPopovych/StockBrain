@@ -1,10 +1,12 @@
 import activation.Activations
 import layers.*
 import models.ModelBuilder
+import models.summary
 import org.junit.jupiter.api.Test
 import suppliers.RandomRangeSupplier
 import suppliers.Suppliers
 import utils.logBenchmarkResult
+import utils.printBlue
 
 class BenchmarkTest {
 
@@ -28,6 +30,7 @@ class BenchmarkTest {
 
 		val builder = ModelBuilder(input, reluC0, debug = false)
 		val model = builder.build(debug = true)
+		printBlue(builder.summary())
 
 		logBenchmarkResult("iteration") {
 			for (i in 0..300000) {
