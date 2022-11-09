@@ -20,7 +20,7 @@ class Model(
 	var output: Map<String, GraphBuffer>
 
 	val nodeGraph = buildBufferNodes(originOutputs.values, debug)
-	val layers = nodeGraph.values.map { it.layer }
+	val layersMap = nodeGraph.values.map { it.layer }.associateBy { it.name }
 
 	init {
 		input = originInputs.mapValues { nodeGraph[it.value] as? GraphBuffer.DeadEnd ?: throw IllegalStateException() }

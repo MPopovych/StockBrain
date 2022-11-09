@@ -40,7 +40,7 @@ class Direct(
 
 	override fun getSerializedBuilderData(): LayerMetaData? {
 		return activation?.let {
-			LayerMetaData.Direct(
+			LayerMetaData.DirectMeta(
 				activation = Activations.serialize(it)
 			)
 		}

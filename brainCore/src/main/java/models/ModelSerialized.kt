@@ -1,5 +1,7 @@
 package models
 
+import layers.LayerMetaData
+
 data class ModelSerialized(
 	val inputs: Map<String, String>, // key : gate
 	val outputs: Map<String, String>, // key : gate
@@ -13,8 +15,16 @@ data class LayerSerialized(
 	val height: Int, // LayerShape.height
 	val weights: List<WeightSerialized>?,
 	val parents: List<String>?,
-	val builderData: Any? = null,
-)
+	private val builderData: Any? = null,
+) {
+	fun getMetaData(): LayerMetaData? {
+		if (builderData == null) return null
+		if (builderData is LayerMetaData) {
+			return builderData
+		}
+		throw IllegalStateException("meta data is not of LayerMetaData")
+	}
+}
 
 data class WeightSerialized(
 	val name: String,

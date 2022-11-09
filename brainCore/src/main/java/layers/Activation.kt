@@ -29,7 +29,7 @@ class Activation(
 	}
 
 	override fun getSerializedBuilderData(): LayerMetaData {
-		return LayerMetaData.Activation(activation = Activations.serialize(function))
+		return LayerMetaData.ActivationMeta(activation = Activations.serialize(function))
 	}
 }
 

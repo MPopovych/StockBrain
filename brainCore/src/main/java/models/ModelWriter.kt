@@ -30,7 +30,7 @@ object ModelWriter {
 				nameType = layer.nameType,
 				width = layer.getShape().width,
 				height = layer.getShape().height,
-				weights = layer.weights.map { w ->
+				weights = layer.weights.values.map { w ->
 					WeightSerialized(name = w.name, w.matrix.readStringData())
 				}.let { wl -> wl.ifEmpty { null } },
 				parents = parents,

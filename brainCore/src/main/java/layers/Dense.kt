@@ -41,7 +41,7 @@ class Dense(
 
 	override fun getSerializedBuilderData(): LayerMetaData? {
 		return activation?.let {
-			LayerMetaData.Dense(
+			LayerMetaData.DenseMeta(
 				activation = Activations.serialize(it)
 			)
 		}

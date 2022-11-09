@@ -18,16 +18,16 @@ sealed class Layer {
 	abstract fun init()
 	open fun getShape(): LayerShape = outputBuffer.getShape()
 
-	val weights = ArrayList<WeightData>()
+	val weights = LinkedHashMap<String, WeightData>()
 	fun addWeights(name: String, w: Matrix, trainable: Boolean) {
-		weights.add(WeightData(name, w, trainable))
+		weights[name] = WeightData(name, w, trainable)
 	}
 
 	open fun flushBuffer() {
 		MatrixMath.flush(outputBuffer)
 	}
 
-	fun getTrainable() = weights.filter { it.trainable }
+	fun getTrainable() = weights.values.filter { it.trainable }
 	fun getTrainableNumber() = getTrainable().sumOf { it.matrix.width * it.matrix.height }
 
 	abstract class SingleInputLayer : Layer() {

@@ -1,7 +1,7 @@
 package layers
 
 sealed interface LayerMetaData {
-	data class Activation(val activation: String): LayerMetaData
-	data class Dense(val activation: String?): LayerMetaData
-	data class Direct(val activation: String?): LayerMetaData
+	data class ActivationMeta(val activation: String): LayerMetaData
+	data class DenseMeta(val activation: String?): LayerMetaData
+	data class DirectMeta(val activation: String?): LayerMetaData
 }
