@@ -97,14 +97,13 @@ class ModelBuilder(
 	}
 
 	private fun buildDownGraph() {
-		val nameSet = HashSet<String>()
-		fun iterate(con: Connection) {
-			sortedConnections.add(con)
-			con.children.forEach { iterate(it) }
-		}
+		val queue = ArrayDeque<Connection>()
 		this.inputs.values.mapNotNull { reverseQueue[it] }.forEach { root ->
-			iterate(root)
+			queue.add(root)
 		}
+		dequeueNodes(queue)
+
+		val nameSet = HashSet<String>()
 		sortedConnections.forEachIndexed { i, con ->
 			if (con.parent.name == Layer.DEFAULT_NAME) {
 				con.parent.name = "${con.parent.javaClass.simpleName}_${i}"
@@ -115,6 +114,19 @@ class ModelBuilder(
 				nameSet.add(con.parent.name)
 			}
 		}
+	}
+
+	private fun dequeueNodes(queue: ArrayDeque<Connection>) {
+		while (queue.isNotEmpty()) {
+			val entry = queue.removeFirst()
+			queueNodes(entry, queue)
+		}
+	}
+
+	private fun queueNodes(con: Connection, queue: ArrayDeque<Connection>) {
+		sortedConnections.add(con)
+		con.children.forEach { queue.add(it) }
+		dequeueNodes(queue)
 	}
 
 }

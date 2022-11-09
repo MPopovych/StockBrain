@@ -47,10 +47,11 @@ class ModelTest {
 		d2 = Direct { d2 }
 
 		val concat = Concat { listOf(d1, d2) }
-		val output = Dense(4, Activations.ReLu) { concat }
+		val output = Dense(4, Activations.ReLu, name = "output") { concat }
 
 		val builder = ModelBuilder(mapOf("a" to input1, "b" to input2), output, debug = false)
-		val model = builder.build(debug = true)
+		printYellow(builder.summary())
+		val model = builder.build(debug = false)
 
 		val inputData1 = Suppliers.createMatrix(LayerShape(3, 1), RandomRangeSupplier.INSTANCE)
 		val inputData2 = Suppliers.createMatrix(LayerShape(3, 1), RandomRangeSupplier.INSTANCE)
@@ -71,10 +72,10 @@ class ModelTest {
 	fun testBranchedModel() {
 		val input = InputLayer(3)
 
-		val d0 = Dense(4, Activations.ReLu) { input }
-		val d1 = Dense(4, Activations.ReLu) { d0 }
+		val d0 = Dense(4, Activations.ReLu, name = "d0") { input }
 
-		val d2 = Dense(4, Activations.ReLu) { d0 }
+		val d1 = Dense(4, Activations.ReLu, name = "d1") { d0 }
+		val d2 = Dense(4, Activations.ReLu, name = "d2") { d0 }
 
 		val concat = Concat { listOf(d1, d2) }
 
