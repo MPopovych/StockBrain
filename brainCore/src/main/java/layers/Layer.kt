@@ -65,7 +65,7 @@ sealed interface LayerBuilder<T : Layer> {
 		val parentLayers: List<LayerBuilder<*>>
 	}
 
-	fun getSerializedBuilderData(): Any? { return null }
+	fun getSerializedBuilderData(): LayerMetaData? { return null }
 }
 
 data class LayerShape(val width: Int, val height: Int) {

@@ -28,8 +28,8 @@ class Activation(
 		return activationShape
 	}
 
-	override fun getSerializedBuilderData(): Any {
-		return ActivationSerialized(activation = Activations.serialize(function))
+	override fun getSerializedBuilderData(): LayerMetaData {
+		return LayerMetaData.Activation(activation = Activations.serialize(function))
 	}
 }
 

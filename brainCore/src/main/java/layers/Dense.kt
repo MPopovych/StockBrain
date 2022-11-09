@@ -39,9 +39,9 @@ class Dense(
 		return shape
 	}
 
-	override fun getSerializedBuilderData(): Any? {
+	override fun getSerializedBuilderData(): LayerMetaData? {
 		return activation?.let {
-			DenseSerialized(
+			LayerMetaData.Dense(
 				activation = Activations.serialize(it)
 			)
 		}

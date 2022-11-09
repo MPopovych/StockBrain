@@ -36,8 +36,7 @@ object Activations {
 		}
 	}
 
-	fun serialize(function: ActivationFunction?): String? {
-		function ?: return null
+	fun serialize(function: ActivationFunction): String {
 		return function.nameType()
 	}
 }

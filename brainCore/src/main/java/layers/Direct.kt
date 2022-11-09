@@ -38,9 +38,9 @@ class Direct(
 		return shape
 	}
 
-	override fun getSerializedBuilderData(): Any? {
+	override fun getSerializedBuilderData(): LayerMetaData? {
 		return activation?.let {
-			DirectSerialized(
+			LayerMetaData.Direct(
 				activation = Activations.serialize(it)
 			)
 		}

@@ -28,23 +28,20 @@ private class LayerDeserializer : JsonDeserializer<LayerSerialized> {
 	): LayerSerialized {
 		val temp = ModelReader.innerGson.fromJson<LayerSerialized>(json)
 
-		when (temp.nameType) {
+		return when (temp.nameType) {
 			Activation.defaultNameType -> {
-				val elem = json.asJsonObject["builderData"]
-				val data = ModelReader.innerGson.fromJson<ActivationSerialized>(elem)
-				return temp.copy(builderData = data)
+				val data = ModelReader.innerGson.fromJson<LayerMetaData.Activation>(json.asJsonObject["builderData"])
+				temp.copy(builderData = data)
 			}
 			Dense.defaultNameType -> {
-				val elem = json.asJsonObject["builderData"]
-				val data = ModelReader.innerGson.fromJson<DenseSerialized>(elem)
-				return temp.copy(builderData = data)
+				val data = ModelReader.innerGson.fromJson<LayerMetaData.Dense>(json.asJsonObject["builderData"])
+				temp.copy(builderData = data)
 			}
 			Direct.defaultNameType -> {
-				val elem = json.asJsonObject["builderData"]
-				val data = ModelReader.innerGson.fromJson<DirectSerialized>(elem)
-				return temp.copy(builderData = data)
+				val data = ModelReader.innerGson.fromJson<LayerMetaData.Direct>(json.asJsonObject["builderData"])
+				temp.copy(builderData = data)
 			}
-			else -> return temp
+			else -> temp
 		}
 	}
 
