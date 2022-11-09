@@ -1,8 +1,5 @@
 import activation.Activations
-import layers.Concat
-import layers.Dense
-import layers.Direct
-import layers.InputLayer
+import layers.*
 import models.ModelBuilder
 import models.ModelReader
 import models.ModelWriter
@@ -12,6 +9,7 @@ import utils.print
 import utils.printRed
 import utils.printYellow
 import kotlin.test.Test
+import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
@@ -45,9 +43,11 @@ class ModelWriterTest {
 	fun testWriteModelReadModelCheckResult() {
 		val input = InputLayer(3)
 		val d0 = Dense(4, activation = Activations.ReLu, name = "d0") { input }
-		val d1 = Dense(4, activation = Activations.LeReLu, name = "d1") { d0 }
-		val d2 = Direct(activation = Activations.ReLu, name = "d2") { d0 }
-		val concat = Concat { listOf(d1, d2) }
+		val d1 = Dense(4, name = "d1") { d0 }
+		val a1 = Activation(Activations.LeReLu) { d1 }
+		val d2 = Direct(activation = Activations.LeReLu, name = "d2") { d0 }
+		val d3 = Direct(name = "d3") { d2 }
+		val concat = Concat { listOf(a1, d3) }
 		val builder = ModelBuilder(input, concat)
 		val modelOriginal = builder.build()
 
@@ -62,7 +62,8 @@ class ModelWriterTest {
 		val resultCopy = modelCopy.getOutput(inputData)
 		resultCopy.printRed()
 
-		assertEqual(resultCopy, resultOriginal)
+		assertNotEquals(modelCopy, modelOriginal) // make sure those are not the same objects, snh
+		assertEqual(resultCopy, resultOriginal) // check array per element
 	}
 
 }

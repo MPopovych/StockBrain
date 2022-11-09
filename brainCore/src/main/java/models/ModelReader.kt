@@ -66,9 +66,8 @@ object ModelReader {
 				}
 			}
 			Dense.defaultNameType -> {
-				val meta = (ls.getMetaData() as LayerMetaData.DenseMeta)
-				val activation = Activations.deserialize(meta.activation)
-					?: throw IllegalStateException("No activation")
+				val meta = (ls.getMetaData() as? LayerMetaData.DenseMeta)
+				val activation = Activations.deserialize(meta?.activation)
 				val parent = ls.parents?.getOrNull(0)
 					?: throw IllegalStateException("No parent in dense")
 				Dense(units = ls.width, activation = activation, name = ls.name) {
@@ -76,9 +75,8 @@ object ModelReader {
 				}
 			}
 			Direct.defaultNameType -> {
-				val meta = (ls.getMetaData() as LayerMetaData.DirectMeta)
-				val activation = Activations.deserialize(meta.activation)
-					?: throw IllegalStateException("No activation")
+				val meta = (ls.getMetaData() as? LayerMetaData.DirectMeta)
+				val activation = Activations.deserialize(meta?.activation)
 				val parent = ls.parents?.getOrNull(0)
 					?: throw IllegalStateException("No parent in direct")
 				Direct(activation = activation, name = ls.name) {
@@ -112,18 +110,18 @@ private class LayerDeserializer : JsonDeserializer<LayerSerialized> {
 
 		return when (temp.nameType) {
 			Activation.defaultNameType -> {
-				val data = ModelReader.innerGson
-					.fromJson<LayerMetaData.ActivationMeta>(json.asJsonObject["builderData"])
+				val element = json.asJsonObject["builderData"] ?: return temp
+				val data = ModelReader.innerGson.fromJson<LayerMetaData.ActivationMeta>(element)
 				temp.copy(builderData = data)
 			}
 			Dense.defaultNameType -> {
-				val data = ModelReader.innerGson
-					.fromJson<LayerMetaData.DenseMeta>(json.asJsonObject["builderData"])
+				val element = json.asJsonObject["builderData"] ?: return temp
+				val data = ModelReader.innerGson.fromJson<LayerMetaData.DenseMeta>(element)
 				temp.copy(builderData = data)
 			}
 			Direct.defaultNameType -> {
-				val data = ModelReader.innerGson
-					.fromJson<LayerMetaData.DirectMeta>(json.asJsonObject["builderData"])
+				val element = json.asJsonObject["builderData"] ?: return temp
+				val data = ModelReader.innerGson.fromJson<LayerMetaData.DirectMeta>(element)
 				temp.copy(builderData = data)
 			}
 			else -> temp
