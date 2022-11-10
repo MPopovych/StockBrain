@@ -1,10 +1,15 @@
+import ga.weights.WeightGenes
 import matrix.Matrix
 import java.util.*
 
-fun assertEqual(a: Matrix, b: Matrix) {
+fun assertEqualModel(a: Matrix, b: Matrix) {
 	assert(Arrays.deepEquals(a.values, b.values))
 }
 
-fun assertNotEqual(a: Matrix, b: Matrix) {
+fun assertNotEqualModel(a: Matrix, b: Matrix) {
 	assert(!Arrays.deepEquals(a.values, b.values))
+}
+
+fun assertNotEqualModel(a: WeightGenes, b: WeightGenes) {
+	assert(!a.genes.toTypedArray().contentDeepEquals(b.genes.toTypedArray()))
 }

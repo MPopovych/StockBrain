@@ -14,6 +14,7 @@ class Dense(
 	private val activation: ActivationFunction? = null,
 	private val kernelInit: ValueSupplier = RandomRangeSupplier.INSTANCE,
 	private val biasInit: ValueSupplier = ZeroSupplier.INSTANCE,
+	private val useBias: Boolean = true,
 	override var name: String = Layer.DEFAULT_NAME,
 	parentLayerBlock: (() -> LayerBuilder<*>),
 ) : LayerBuilder.SingleInput<DenseLayerImpl> {
@@ -27,7 +28,12 @@ class Dense(
 	override fun create(): DenseLayerImpl {
 		val weightShape = LayerShape(units, parentLayer.getShape().width)
 
-		return DenseLayerImpl(activation = activation, weightShape = weightShape, biasShape = shape, name = name)
+		return DenseLayerImpl(
+			activation = activation,
+			weightShape = weightShape,
+			biasShape = shape,
+			useBias = useBias,
+			name = name)
 			.also {
 				it.init()
 				Suppliers.fillFull(it.kernel.matrix, kernelInit)
@@ -38,12 +44,17 @@ class Dense(
 	override fun getShape(): LayerShape {
 		return shape
 	}
+
+	override fun getSerializedBuilderData(): LayerMetaData {
+		return LayerMetaData.DenseMeta(useBias = useBias)
+	}
 }
 
 class DenseLayerImpl(
 	override val activation: ActivationFunction? = null,
-	val weightShape: LayerShape,
-	val biasShape: LayerShape,
+	private val weightShape: LayerShape,
+	private val biasShape: LayerShape,
+	private val useBias: Boolean = true,
 	override var name: String,
 ) : Layer.SingleInputLayer() {
 	override val nameType: String = Dense.defaultNameType
@@ -54,7 +65,11 @@ class DenseLayerImpl(
 	override fun init() {
 		kernel = WeightData("weight", Matrix(weightShape.width, weightShape.height), true)
 		addWeights(kernel)
-		bias = WeightData("bias", Matrix(biasShape.width, biasShape.height), true)
+		bias = if (useBias) {
+			WeightData("bias", Matrix(biasShape.width, biasShape.height), true)
+		} else {
+			WeightData("bias", Matrix(biasShape.width, biasShape.height, Suppliers.Zero), false)
+		}
 		addWeights(bias)
 		outputBuffer = Matrix(biasShape.width, biasShape.height)
 	}

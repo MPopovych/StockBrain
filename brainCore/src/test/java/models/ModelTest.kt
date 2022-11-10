@@ -1,7 +1,9 @@
+package models
+
 import activation.Activations
+import assertEqualModel
+import assertNotEqualModel
 import layers.*
-import models.ModelBuilder
-import models.summary
 import suppliers.RandomRangeSupplier
 import suppliers.Suppliers
 import utils.*
@@ -22,7 +24,7 @@ class ModelTest {
 		val r1 = model.getOutput(inputData).copy()
 		val r2 = model.getOutput(inputData).copy()
 
-		assertEqual(r1, r2)
+		assertEqualModel(r1, r2)
 
 		val inputData2 = Suppliers.createMatrix(LayerShape(3, 1), RandomRangeSupplier.INSTANCE)
 		val r3 = model.getOutput(inputData2).copy()
@@ -31,7 +33,7 @@ class ModelTest {
 		inputData2.printRed()
 		r1.print()
 		r3.print()
-		assertNotEqual(r1, r3)
+		assertNotEqualModel(r1, r3)
 	}
 
 	@Test
@@ -58,13 +60,13 @@ class ModelTest {
 
 		val r1 = model.getOutput(mapOf("a" to inputData1, "b" to inputData2)).copy()
 		val r2 = model.getOutput(mapOf("a" to inputData1, "b" to inputData2)).copy()
-		assertEqual(r1, r2)
+		assertEqualModel(r1, r2)
 		r1.printRed()
 
 		val inputData3 = Suppliers.createMatrix(LayerShape(3, 3), Suppliers.RandomRangeNP)
 		val inputData4 = Suppliers.createMatrix(LayerShape(3, 3), Suppliers.RandomRangeNP)
 		val r3 = model.getOutput(mapOf("a" to inputData3, "b" to inputData4)).copy()
-		assertNotEqual(r1, r3)
+		assertNotEqualModel(r1, r3)
 		r3.print()
 	}
 

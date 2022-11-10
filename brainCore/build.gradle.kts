@@ -18,6 +18,10 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test:1.6.20")
     implementation("org.jetbrains.kotlin:kotlin-reflect:1.6.20")
     implementation("com.google.code.gson:gson:2.8.9")
+
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.1")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-rx2:1.6.1")
+
 }
 
 tasks.test {

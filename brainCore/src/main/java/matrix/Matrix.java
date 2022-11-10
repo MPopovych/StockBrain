@@ -71,4 +71,20 @@ public class Matrix {
 			}
 		}
 	}
+
+	public float[] readFloatData() {
+		int count = width * height;
+		float[] array = new float[count];
+		for (int x = 0; x < width; x++) {
+			if (height >= 0) System.arraycopy(values[x], 0, array, x * height, height);
+		}
+		return array;
+	}
+
+
+	public void writeFloatData(@NotNull float[] data) {
+		for (int x = 0; x < width; x++) {
+			if (height >= 0) System.arraycopy(data, x * height, values[x], 0, height);
+		}
+	}
 }

@@ -9,14 +9,14 @@ class ModelBuilder(
 	private val debug: Boolean = false,
 ) {
 
-	constructor(inputLayer: InputLayer, output: LayerBuilder<*>, debug: Boolean = false)
-			: this(mapOf(Model.SINGLE_IO to inputLayer), mapOf(Model.SINGLE_IO to output), debug)
+	constructor(input: InputLayer, output: LayerBuilder<*>, debug: Boolean = false)
+			: this(mapOf(Model.SINGLE_IO to input), mapOf(Model.SINGLE_IO to output), debug)
 
-	constructor(inputLayer: Map<String, InputLayer>, output: LayerBuilder<*>, debug: Boolean = false)
-			: this(inputLayer, mapOf(Model.SINGLE_IO to output), debug)
+	constructor(inputs: Map<String, InputLayer>, output: LayerBuilder<*>, debug: Boolean = false)
+			: this(inputs, mapOf(Model.SINGLE_IO to output), debug)
 
-	constructor(inputLayer: InputLayer, output: Map<String, LayerBuilder<*>>, debug: Boolean = false)
-			: this(mapOf(Model.SINGLE_IO to inputLayer), output, debug)
+	constructor(input: InputLayer, outputs: Map<String, LayerBuilder<*>>, debug: Boolean = false)
+			: this(mapOf(Model.SINGLE_IO to input), outputs, debug)
 
 	private val graph = LinkedHashMap<LayerBuilder<*>, EmptyGraphNode>()
 	internal val reverseQueue = LinkedHashMap<LayerBuilder<*>, Connection>()

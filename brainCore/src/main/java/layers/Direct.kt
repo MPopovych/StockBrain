@@ -13,20 +13,25 @@ class Direct(
 	private val activation: ActivationFunction? = null,
 	private val kernelInit: ValueSupplier = RandomRangeSupplier.INSTANCE,
 	private val biasInit: ValueSupplier = ZeroSupplier.INSTANCE,
+	private val useBias: Boolean = true,
 	override var name: String = Layer.DEFAULT_NAME,
 	parentLayerBlock: (() -> LayerBuilder<*>),
 ) : LayerBuilder.SingleInput<DirectLayerImpl> {
 	companion object {
 		const val defaultNameType = "Direct"
 	}
+
 	override val nameType: String = defaultNameType
 	override val parentLayer: LayerBuilder<*> = parentLayerBlock()
 	private val shape = parentLayer.getShape()
 
 	override fun create(): DirectLayerImpl {
-		return DirectLayerImpl(activation = activation,
+		return DirectLayerImpl(
+			activation = activation,
 			directShape = shape,
-			name = name)
+			name = name,
+			useBias = useBias
+		)
 			.also {
 				it.init()
 				Suppliers.fillFull(it.kernel.matrix, kernelInit)
@@ -37,11 +42,16 @@ class Direct(
 	override fun getShape(): LayerShape {
 		return shape
 	}
+
+	override fun getSerializedBuilderData(): LayerMetaData {
+		return LayerMetaData.DirectMeta(useBias = useBias)
+	}
 }
 
 class DirectLayerImpl(
 	override val activation: ActivationFunction? = null,
-	val directShape: LayerShape,
+	private val directShape: LayerShape,
+	private val useBias: Boolean,
 	override var name: String,
 ) : Layer.SingleInputLayer() {
 	override val nameType: String = Direct.defaultNameType
@@ -52,7 +62,11 @@ class DirectLayerImpl(
 	override fun init() {
 		kernel = WeightData("weight", Matrix(directShape.width, directShape.height), true)
 		addWeights(kernel)
-		bias = WeightData("bias", Matrix(directShape.width, directShape.height), true)
+		bias = if (useBias) {
+			WeightData("bias", Matrix(directShape.width, directShape.height), true)
+		} else {
+			WeightData("bias", Matrix(directShape.width, directShape.height, Suppliers.Zero), false)
+		}
 		addWeights(bias)
 		outputBuffer = Matrix(directShape.width, directShape.height)
 	}

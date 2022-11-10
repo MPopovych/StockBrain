@@ -1,3 +1,6 @@
+package models
+
+import assertEqualModel
 import matrix.Matrix
 import matrix.MatrixMath
 import suppliers.*
@@ -8,17 +11,33 @@ import kotlin.test.Test
 class MatrixTest {
 
 	@Test
-	fun testSaveAndLoad() {
+	fun testSaveAndLoadString() {
 		val a = Matrix(2, 2, Suppliers.RandomRangeNP)
-		val stringData = a.readStringData()
 		a.print()
+		val stringData = a.readStringData()
 		printGreen("String data of matrix: $stringData")
 
 		val b = Matrix(2, 2)
 		b.writeStringData(stringData)
 		b.print()
 
-		assertEqual(a, b)
+		assert(a !== b)
+		assertEqualModel(a, b)
+	}
+
+	@Test
+	fun testSaveAndLoadFloat() {
+		val a = Matrix(2, 2, Suppliers.RandomRangeNP)
+		a.print()
+		val floatData = a.readFloatData()
+		printGreen("Float data of matrix: ${floatData.toList()}")
+
+		val b = Matrix(2, 2)
+		b.writeFloatData(floatData)
+		b.print()
+
+		assert(a !== b)
+		assertEqualModel(a, b)
 	}
 
 	@Test

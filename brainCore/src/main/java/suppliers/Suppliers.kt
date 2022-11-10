@@ -7,7 +7,8 @@ object Suppliers {
 	val Zero = ZeroSupplier.INSTANCE
 	val Ones = OnesSupplier.INSTANCE
 	val RandomZP = RandomSupplier.INSTANCE
-	val RandomBin = RandomBinary.INSTANCE
+	val RandomBinZP = RandomBinaryZP.INSTANCE
+	val RandomBinNP = RandomBinaryNP.INSTANCE
 	val RandomRangeNP = RandomRangeSupplier.INSTANCE
 
 	fun createMatrix(shape: LayerShape, supplier: ValueSupplier): Matrix {

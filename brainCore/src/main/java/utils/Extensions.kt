@@ -3,8 +3,8 @@ package utils
 import layers.LayerShape
 import matrix.Matrix
 import java.math.RoundingMode
-import kotlin.contracts.InvocationKind
-import kotlin.contracts.contract
+import java.nio.ByteBuffer
+import java.util.*
 
 fun Matrix.getShape(): LayerShape {
 	return LayerShape(this.width, this.height)
@@ -17,17 +17,14 @@ fun Matrix.print() {
 fun Matrix.printRed() {
 	printRed(describe())
 }
+
 fun Matrix.describe(): String {
 	val sb = StringBuilder()
 	for (y in 0 until height) {
 		val line = "[${values.joinToString { it[y].roundDisplay() }}]"
-		if (y == height - 1) {
-			sb.append(line)
-		} else {
-			sb.appendLine(line)
-		}
+		sb.append(line).appendLine()
 	}
-	return sb.toString()
+	return sb.toString().trimIndent()
 }
 
 
@@ -35,33 +32,18 @@ fun Matrix.printTransposed() {
 	val sb = StringBuilder().append("[")
 	for (x in 0 until width) {
 		val line = "[${values[x].joinToString { it.roundDisplay() }}]"
-		if (x == width - 1) {
-			sb.append(line)
-		} else {
-			sb.appendLine(line)
-		}
+		sb.append(line).appendLine()
 	}
 	sb.append("]")
-	printBlue(sb.toString())
+	printBlue(sb.toString().trimIndent())
 }
 
-fun Float.roundToDec(decimals: Int): Double {
-	return this.toBigDecimal().setScale(decimals, RoundingMode.HALF_EVEN).toDouble()
-}
-
-fun Float.roundDisplay(): String {
-	return this.toBigDecimal().setScale(3, RoundingMode.HALF_EVEN).toPlainString().removeTrailingZeroes()
-}
-
-fun Float.asPlainDouble(): String {
-	return this.toBigDecimal().toPlainString().removeTrailingZeroes()
-}
-
-fun String.removeTrailingZeroes(): String {
-	if (contains('.')) {
-		return this.trimEnd('0').trimEnd('.')
+fun FloatArray.encodeGenes(): String {
+	val buff = ByteBuffer.allocate(this.size * 4)
+	for (f in this) {
+		buff.putFloat(f)
 	}
-	return this
+	return Base64.getEncoder().encodeToString(buff.array())
 }
 
 public inline fun <T> T.ifAlso(enabled: Boolean, block: (T) -> Unit): T {

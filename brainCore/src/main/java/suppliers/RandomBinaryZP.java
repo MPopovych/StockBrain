@@ -2,13 +2,13 @@ package suppliers;
 
 import java.util.Random;
 
-public class RandomBinary implements ValueSupplier {
+public class RandomBinaryZP implements ValueSupplier {
 
-    public static final RandomBinary INSTANCE = new RandomBinary(new Random(System.currentTimeMillis()));
+    public static final RandomBinaryZP INSTANCE = new RandomBinaryZP(new Random(System.currentTimeMillis()));
 
     private final Random random;
 
-    public RandomBinary(Random random) {
+    public RandomBinaryZP(Random random) {
         this.random = random;
     }
 

@@ -1,3 +1,5 @@
+package models
+
 import activation.Activations
 import layers.*
 import models.ModelBuilder

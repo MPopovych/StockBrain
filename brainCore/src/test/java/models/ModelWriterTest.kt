@@ -1,8 +1,8 @@
+package models
+
 import activation.Activations
+import assertEqualModel
 import layers.*
-import models.ModelBuilder
-import models.ModelReader
-import models.ModelWriter
 import suppliers.RandomRangeSupplier
 import suppliers.Suppliers
 import utils.print
@@ -10,15 +10,13 @@ import utils.printRed
 import utils.printYellow
 import kotlin.test.Test
 import kotlin.test.assertNotEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertNull
 
 class ModelWriterTest {
 
 	@Test
 	fun previewJson() {
 		val input = InputLayer(3)
-		val d0 = Dense(4, activation = Activations.ReLu, name = "d0") { input }
+		val d0 = Dense(4, activation = Activations.ReLu, name = "d0", useBias = false) { input }
 		val d1 = Dense(4, activation = Activations.LeReLu, name = "d1") { d0 }
 		val d2 = Direct(activation = Activations.ReLu, name = "d2") { d0 }
 		val concat = Concat { listOf(d1, d2) }
@@ -37,7 +35,7 @@ class ModelWriterTest {
 	fun testWriteModelReadModelCheckResult() {
 		val input = InputLayer(3, 2)
 		val d0 = Dense(4, activation = Activations.ReLu, name = "d0") { input }
-		val d1 = Dense(4, name = "d1") { d0 }
+		val d1 = Dense(4, name = "d1", useBias = false) { d0 }
 		val a1 = Activation(Activations.LeReLu) { d1 }
 		val d2 = Direct(activation = Activations.LeReLu, name = "d2") { d0 }
 		val d3 = Direct(name = "d3") { d2 }
@@ -58,7 +56,7 @@ class ModelWriterTest {
 		resultCopy.printRed()
 
 		assertNotEquals(modelCopy, modelOriginal) // make sure those are not the same objects, snh
-		assertEqual(resultCopy, resultOriginal) // check array per element
+		assertEqualModel(resultCopy, resultOriginal) // check array per element
 	}
 
 }
