@@ -31,12 +31,6 @@ class ModelWriterTest {
 		printYellow(json)
 		val sm2 = ModelReader.fromJson(json)
 		assert(sm1 == sm2)
-
-		assertNull(sm2.layers[0].getMetaData())
-		assertNotNull(sm2.layers[1].getMetaData())
-		assertNotNull(sm2.layers[2].getMetaData())
-		assertNotNull(sm2.layers[3].getMetaData())
-		assertNull(sm2.layers[4].getMetaData())
 	}
 
 	@Test
