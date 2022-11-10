@@ -77,7 +77,7 @@ class DenseLayerImpl(
 	override fun call(input: Matrix): Matrix {
 		flushBuffer()
 		MatrixMath.multiply(input, kernel.matrix, outputBuffer)
-		MatrixMath.add(outputBuffer, bias.matrix, outputBuffer)
+		if (useBias) MatrixMath.add(outputBuffer, bias.matrix, outputBuffer)
 		activation?.also {
 			Activations.activate(outputBuffer, outputBuffer, it)
 		}

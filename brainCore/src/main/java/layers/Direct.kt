@@ -74,7 +74,7 @@ class DirectLayerImpl(
 	override fun call(input: Matrix): Matrix {
 		flushBuffer()
 		MatrixMath.hadamard(input, kernel.matrix, outputBuffer)
-		MatrixMath.add(outputBuffer, bias.matrix, outputBuffer)
+		if (useBias) MatrixMath.add(outputBuffer, bias.matrix, outputBuffer)
 		activation?.also {
 			Activations.activate(outputBuffer, outputBuffer, it)
 		}

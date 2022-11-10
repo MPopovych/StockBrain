@@ -24,7 +24,7 @@ class ModelGenes(val layers: Map<String, LayerGenes>) {
 		}
 	}
 
-	val chromosome by lazy { layers.values.joinToString { it.chromosome } }
+	val chromosome by lazy { layers.values.joinToString("") { it.chromosome } }
 
 	// used for cleared up destinations
 	fun applyToModel(model: Model) {
@@ -46,14 +46,15 @@ class ModelGenes(val layers: Map<String, LayerGenes>) {
 		layers.forEach { (i, layer) ->
 			val aL = a.layers[i] ?: throw IllegalStateException("no layer at A: $i")
 			val aB = b.layers[i] ?: throw IllegalStateException("no layer at B: $i")
-			crossOverPolicy.cross(aL, aB, layer)
+			crossOverPolicy.cross(aL, aB, destination = layer)
 		}
 		return this
 	}
 
 	fun applyMutationPolicy(mutationPolicy: MutationPolicy, source: ModelGenes): ModelGenes {
 		layers.forEach { (i, layer) ->
-			mutationPolicy.mutation(layer, source.layers[i] ?: throw IllegalStateException("no layer at: $i"))
+			val sourceLayer = source.layers[i] ?: throw IllegalStateException("no layer at: $i")
+			mutationPolicy.mutation(sourceLayer, destination = layer)
 		}
 		return this
 	}

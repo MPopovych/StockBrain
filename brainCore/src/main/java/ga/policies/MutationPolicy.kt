@@ -8,11 +8,11 @@ import kotlin.math.max
 import kotlin.math.min
 
 interface MutationPolicy {
-	fun mutation(a: LayerGenes, d: LayerGenes) {
-		for (weight in a.map) {
-			val aW = a.map[weight.key] ?: throw IllegalStateException()
-			val dW = d.map[weight.key] ?: throw IllegalStateException()
-			mutateWeight(aW, dW)
+	fun mutation(source: LayerGenes, destination: LayerGenes) {
+		for (weight in source.map) {
+			val sourceW = source.map[weight.key] ?: throw IllegalStateException()
+			val destinationW = destination.map[weight.key] ?: throw IllegalStateException()
+			mutateWeight(source = sourceW, destination = destinationW)
 		}
 	}
 

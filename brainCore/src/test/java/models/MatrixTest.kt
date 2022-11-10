@@ -85,10 +85,10 @@ class MatrixTest {
 
 	@Test
 	fun testHadamard() {
-		val a = Matrix(2, 10, Suppliers.RandomZP)
+		val a = Matrix(3, 1, Suppliers.RandomZP)
 		a.print()
 		println()
-		val b = Matrix(2, 10, ConstSupplier(2f))
+		val b = Matrix(3, 1, ConstSupplier(2f))
 		MatrixMath.hadamard(a, b, b)
 		b.print()
 	}

@@ -1,6 +1,5 @@
 package ga
 
-import activation.Activations
 import ga.policies.AdditiveMutationPolicy
 import layers.Direct
 import layers.InputLayer
@@ -8,15 +7,14 @@ import models.ModelBuilder
 import suppliers.Suppliers
 import utils.*
 import kotlin.math.abs
-import kotlin.math.pow
 import kotlin.test.Test
 
 class GATest {
 
 	@Test
 	fun testInputInversion() {
-		val input = InputLayer(12)
-		val direct = Direct(activation = Activations.BinaryNegPos, useBias = false) { input }
+		val input = InputLayer(5)
+		val direct = Direct(useBias = false) { input }
 		val modelBuilder = ModelBuilder(input = input, output = direct)
 		val model = modelBuilder.build()
 
@@ -29,18 +27,19 @@ class GATest {
 			}
 		}
 
-		printBlue("Input array: ${inputArray.describe()}")
-		printGray("Expected array: ${targetArray.describe()}")
+		printBlue("Input array:\t ${inputArray.describe()}")
+		printGray("Expected array:\t ${targetArray.describe()}")
 
 		val settings = GASettings(
-			topParentCount = 50,
-			totalPopulationCount = 100,
-			initialMutationPolicy = AdditiveMutationPolicy(0.3),
-			mutationPolicy = AdditiveMutationPolicy(0.2),
+			topParentCount = 5,
+			totalPopulationCount = 10,
+			scoreBoardOrder = GAScoreBoardOrder.Descending,
+			initialMutationPolicy = AdditiveMutationPolicy(1.0),
+			mutationPolicy = AdditiveMutationPolicy(0.5),
 		)
 
-		val ga = GA(settings, model, earlyStopCallback = { i, best ->
-			val top = best.scoreBoard.getTop()?.score ?: return@GA false
+		val ga = GA(settings, model, earlyStopCallback = { i, ga ->
+			val top = ga.scoreBoard.getTop()?.score ?: return@GA false
 			if (top == Double.MAX_VALUE) {
 				printRed("Stop on gen $i with $top")
 				return@GA true
@@ -49,18 +48,18 @@ class GATest {
 		})
 
 		logBenchmarkResult("Training session") {
-			ga.runFor(2000, silent = true) {
-				val output = it.model.getOutput(inputArray)
-				var sae = 0.0
+			ga.runFor(10000, silent = true) {
+				val newInput = Suppliers.createMatrix(input.getShape(), Suppliers.RandomBinNP)
+				val output = it.model.getOutput(newInput)
+				var absoluteError = 0.0
 				output.values.forEachIndexed { x, a ->
 					a.forEachIndexed { y, value ->
-						val error = abs(value - targetArray.values[x][y])
-						sae += error
+						val error = abs(value - newInput.values[x][y] * -1)
+						absoluteError += error
 					}
 				}
-				sae = sae.pow(2)
-				if (sae == 0.0) return@runFor Double.MAX_VALUE
-				return@runFor 1.0 / sae
+
+				return@runFor absoluteError
 			}
 		}
 
@@ -68,8 +67,9 @@ class GATest {
 		top.genes.applyToModel(model)
 		val output = model.getOutput(inputArray)
 
-		printRed("Final array: ${output.describe()}")
-		printGreen("Expected array: ${targetArray.describe()}")
+		printRed("Final array:\t ${output.describe()}")
+		printGreen("Expected array:\t ${targetArray.describe()}")
+		ga.scoreBoard.printScoreBoard()
 	}
 
 }

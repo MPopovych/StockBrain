@@ -22,7 +22,7 @@ class GA(
 		genes.applyToModel(model)
 		return@mapTo Pair(model, genes)
 	}
-	val scoreBoard = GAScoreBoard(settings.topParentCount)
+	val scoreBoard = GAScoreBoard(settings.topParentCount, settings.scoreBoardOrder)
 
 	fun runFor(generation: Int, silent: Boolean = false, action: ((GAScoreContext) -> Double)): ModelGenes {
 		var genCount = 0
@@ -33,6 +33,7 @@ class GA(
 			val newGenes = commands.map { command ->
 				handleCommand(command)
 			}
+
 			newGenes.forEachIndexed { index, modelGenes ->
 				val model = modelBuffer[index].first
 				modelGenes.applyToModel(model)
@@ -66,22 +67,12 @@ class GA(
 
 	private fun runGeneration(action: ((GAScoreContext) -> Double)): List<FutureMatch> {
 		val contexts = modelBuffer.map { model -> GAScoreContext(model = model.first, genes = model.second) }
-		val scoreBoardClean = scoreBoard.size == 0
-		contexts.forEach { context ->
+		val scores = contexts.map { context ->
 			val score = action(context)
-			if (scoreBoardClean) {
-				val holder = GAScoreHolder(id = context.genes.chromosome, score = score, genes = context.genes)
-				scoreBoard.push(holder)
-			} else {
-				val bottomScore = scoreBoard.getBottomScore() ?: throw IllegalStateException("SNH")
-				if (score > bottomScore) {
-					val holder = GAScoreHolder(id = context.genes.chromosome, score = score, genes = context.genes)
-					scoreBoard.push(holder)
-				}
-			}
+			return@map GAScoreHolder(id = context.genes.chromosome, score = score, genes = context.genes)
 		}
 
-		scoreBoard.trimBottom()
+		scoreBoard.pushBatch(scores)
 
 		return settings.matchMakingPolicy.select(settings, scoreBoard)
 	}

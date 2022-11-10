@@ -20,7 +20,7 @@ class DefaultMatchMakingPolicy: MatchMakingPolicy {
 		val top = scoreBoard.getTop() ?: throw IllegalStateException()
 		buffer.add(FutureMatch.MutateMatch(top))
 
-		val holders = scoreBoard.scoreMap.values.toList()
+		val holders = scoreBoard.getAscendingScoreList()
 		while (buffer.size < settings.totalPopulationCount - 1) {
 			val a = holders.random()
 			val b = holders.random()
