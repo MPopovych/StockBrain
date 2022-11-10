@@ -8,6 +8,8 @@ data class GAScoreHolder(
 	val genes: ModelGenes
 ) {
 
-	val chromosomeHash by lazy { genes.chromosome }
+	val chromosomeHash: String
+		get() = genes.chromosome
+
 	fun copyGene() = genes.copy()
 }

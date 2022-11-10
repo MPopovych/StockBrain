@@ -1,10 +1,13 @@
 package ga
 
 import utils.printGreen
+import utils.printRed
+
 enum class GAScoreBoardOrder {
 	Ascending,
 	Descending
 }
+
 class GAScoreBoard(private val topCount: Int, val order: GAScoreBoardOrder) {
 
 	private val hashSet = HashSet<String>()
@@ -19,12 +22,16 @@ class GAScoreBoard(private val topCount: Int, val order: GAScoreBoardOrder) {
 		return scoreList.lastOrNull()
 	}
 
-	fun getBottomScore(): Double? {
-		return scoreList.firstOrNull()?.score
+	fun getBottom(): GAScoreHolder? {
+		return scoreList.firstOrNull()
 	}
 
 	fun pushBatch(batch: List<GAScoreHolder>) {
-		scoreList.addAll(batch)
+		scoreList.addAll(batch
+			.filter {
+				it.id !in hashSet
+			}
+		)
 		when (order) {
 			GAScoreBoardOrder.Ascending -> scoreList.sortBy { it.score } // ascending
 			GAScoreBoardOrder.Descending -> scoreList.sortByDescending { it.score } // ascending

@@ -35,12 +35,12 @@ class GATest {
 			totalPopulationCount = 10,
 			scoreBoardOrder = GAScoreBoardOrder.Descending,
 			initialMutationPolicy = AdditiveMutationPolicy(1.0),
-			mutationPolicy = AdditiveMutationPolicy(0.5),
+			mutationPolicy = AdditiveMutationPolicy(0.1),
 		)
 
 		val ga = GA(settings, model, earlyStopCallback = { i, ga ->
 			val top = ga.scoreBoard.getTop()?.score ?: return@GA false
-			if (top == Double.MAX_VALUE) {
+			if (top == 0.0) {
 				printRed("Stop on gen $i with $top")
 				return@GA true
 			}
@@ -48,7 +48,7 @@ class GATest {
 		})
 
 		logBenchmarkResult("Training session") {
-			ga.runFor(10000, silent = true) {
+			ga.runFor(20000, silent = true) {
 				val newInput = Suppliers.createMatrix(input.getShape(), Suppliers.RandomBinNP)
 				val output = it.model.getOutput(newInput)
 				var absoluteError = 0.0

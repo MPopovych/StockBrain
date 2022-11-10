@@ -106,8 +106,8 @@ public class MatrixMath {
 
 		checkSameDimensions(from, to);
 
-		for (int i = 0; i < thisX; i++) {
-			if (thisY >= 0) System.arraycopy(from.values[i], 0, to.values[i], 0, thisY);
+		for (int x = 0; x < thisX; x++) {
+			System.arraycopy(from.values[x], 0, to.values[x], 0, thisY);
 		}
 	}
 

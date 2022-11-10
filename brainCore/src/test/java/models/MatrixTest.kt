@@ -12,12 +12,12 @@ class MatrixTest {
 
 	@Test
 	fun testSaveAndLoadString() {
-		val a = Matrix(2, 2, Suppliers.RandomRangeNP)
+		val a = Matrix(2, 3, Suppliers.RandomRangeNP)
 		a.print()
 		val stringData = a.readStringData()
 		printGreen("String data of matrix: $stringData")
 
-		val b = Matrix(2, 2)
+		val b = Matrix(2, 3)
 		b.writeStringData(stringData)
 		b.print()
 
@@ -27,12 +27,12 @@ class MatrixTest {
 
 	@Test
 	fun testSaveAndLoadFloat() {
-		val a = Matrix(2, 2, Suppliers.RandomRangeNP)
+		val a = Matrix(2, 3, Suppliers.RandomRangeNP)
 		a.print()
 		val floatData = a.readFloatData()
 		printGreen("Float data of matrix: ${floatData.toList()}")
 
-		val b = Matrix(2, 2)
+		val b = Matrix(2, 3)
 		b.writeFloatData(floatData)
 		b.print()
 

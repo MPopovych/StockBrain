@@ -24,7 +24,8 @@ class ModelGenes(val layers: Map<String, LayerGenes>) {
 		}
 	}
 
-	val chromosome by lazy { layers.values.joinToString("") { it.chromosome } }
+	val chromosome: String
+		get() = layers.values.joinToString(" ") { it.chromosome }
 
 	// used for cleared up destinations
 	fun applyToModel(model: Model) {
@@ -62,7 +63,8 @@ class ModelGenes(val layers: Map<String, LayerGenes>) {
 }
 
 class LayerGenes(val layerId: String, val map: Map<String, WeightGenes>) {
-	val chromosome = map.values.joinToString { weightGenes -> weightGenes.genes.encodeGenes() }
+	val chromosome
+		get() = map.values.joinToString(" ") { weightGenes -> weightGenes.genes.encodeGenes() }
 
 	fun copy(): LayerGenes {
 		return LayerGenes(layerId, map.mapValues { it.value.copy() })
