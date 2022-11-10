@@ -1,5 +1,6 @@
 package models
 
+import activation.Activations
 import com.google.gson.GsonBuilder
 
 object ModelWriter {
@@ -30,6 +31,7 @@ object ModelWriter {
 				nameType = layer.nameType,
 				width = layer.getShape().width,
 				height = layer.getShape().height,
+				activation = layer.activation?.let { Activations.serialize(it) },
 				weights = layer.weights.values.map { w ->
 					WeightSerialized(name = w.name, w.matrix.readStringData())
 				}.let { wl -> wl.ifEmpty { null } },

@@ -36,12 +36,12 @@ class ModelTest {
 
 	@Test
 	fun testMultiInputModel() {
-		val input1 = InputLayer(3)
+		val input1 = InputLayer(3, steps = 3)
 		var d1: LB = Dense(4) { input1 }
 		d1 = Dense(4) { d1 }
 		d1 = Direct { d1 }
 
-		val input2 = InputLayer(3)
+		val input2 = InputLayer(3, steps = 3)
 		var d2: LB = Dense(4) { input2 }
 		d2 = Dense(4) { d2 }
 		d2 = Direct { d2 }
@@ -53,16 +53,16 @@ class ModelTest {
 		printYellow(builder.summary())
 		val model = builder.build(debug = false)
 
-		val inputData1 = Suppliers.createMatrix(LayerShape(3, 1), Suppliers.RandomRangeNP)
-		val inputData2 = Suppliers.createMatrix(LayerShape(3, 1), Suppliers.RandomRangeNP)
+		val inputData1 = Suppliers.createMatrix(LayerShape(3, 3), Suppliers.RandomRangeNP)
+		val inputData2 = Suppliers.createMatrix(LayerShape(3, 3), Suppliers.RandomRangeNP)
 
 		val r1 = model.getOutput(mapOf("a" to inputData1, "b" to inputData2)).copy()
 		val r2 = model.getOutput(mapOf("a" to inputData1, "b" to inputData2)).copy()
 		assertEqual(r1, r2)
 		r1.printRed()
 
-		val inputData3 = Suppliers.createMatrix(LayerShape(3, 1), Suppliers.RandomRangeNP)
-		val inputData4 = Suppliers.createMatrix(LayerShape(3, 1), Suppliers.RandomRangeNP)
+		val inputData3 = Suppliers.createMatrix(LayerShape(3, 3), Suppliers.RandomRangeNP)
+		val inputData4 = Suppliers.createMatrix(LayerShape(3, 3), Suppliers.RandomRangeNP)
 		val r3 = model.getOutput(mapOf("a" to inputData3, "b" to inputData4)).copy()
 		assertNotEqual(r1, r3)
 		r3.print()
@@ -129,6 +129,20 @@ class ModelTest {
 		b.print()
 		b = activateImpl.call(b)
 		b.print()
+	}
+
+	@Test
+	fun testModelWithSteps() {
+		val input = InputLayer(3, steps = 3)
+		val d1 = ConvDelta() { input }
+
+		val builder = ModelBuilder(input, d1, debug = false)
+		val model = builder.build(debug = true)
+
+		val inputData = Suppliers.createMatrix(LayerShape(3, 3), RandomRangeSupplier.INSTANCE)
+		inputData.printRed()
+		val r1 = model.getOutput(inputData).copy()
+		r1.print()
 	}
 
 }

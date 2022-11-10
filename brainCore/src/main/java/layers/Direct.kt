@@ -37,18 +37,10 @@ class Direct(
 	override fun getShape(): LayerShape {
 		return shape
 	}
-
-	override fun getSerializedBuilderData(): LayerMetaData? {
-		return activation?.let {
-			LayerMetaData.DirectMeta(
-				activation = Activations.serialize(it)
-			)
-		}
-	}
 }
 
 class DirectLayerImpl(
-	val activation: ActivationFunction? = null,
+	override val activation: ActivationFunction? = null,
 	val directShape: LayerShape,
 	override var name: String,
 ) : Layer.SingleInputLayer() {

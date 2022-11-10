@@ -22,6 +22,17 @@ class MatrixTest {
 	}
 
 	@Test
+	fun testMultiplyСonst() {
+		val a = Matrix(3, 2) { x, y -> y + 1f }
+		a.print()
+		val b = Matrix(3, 3, Suppliers.Ones)
+		b.print()
+		val d = Matrix(3, 2, Suppliers.Zero)
+		MatrixMath.multiply(a, b, d)
+		d.print()
+	}
+
+	@Test
 	fun testMultiply() {
 		val a = Matrix(2, 10, Suppliers.RandomZP)
 		a.print()

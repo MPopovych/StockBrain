@@ -1,7 +1,6 @@
 package layers
 
 import activation.ActivationFunction
-import activation.Activations
 import activation.applyFromMatrixTo
 import matrix.Matrix
 
@@ -28,13 +27,10 @@ class Activation(
 		return activationShape
 	}
 
-	override fun getSerializedBuilderData(): LayerMetaData {
-		return LayerMetaData.ActivationMeta(activation = Activations.serialize(function))
-	}
 }
 
 class ActivationLayerImpl(
-	private val function: ActivationFunction,
+	override val activation: ActivationFunction,
 	private val activationShape: LayerShape,
 	override var name: String,
 ) : Layer.SingleInputLayer() {
@@ -48,7 +44,7 @@ class ActivationLayerImpl(
 
 	override fun call(input: Matrix): Matrix {
 		flushBuffer()
-		function.applyFromMatrixTo(input, outputBuffer)
+		activation.applyFromMatrixTo(input, outputBuffer)
 		return outputBuffer
 	}
 

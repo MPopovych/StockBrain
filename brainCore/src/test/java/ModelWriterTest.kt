@@ -41,14 +41,15 @@ class ModelWriterTest {
 
 	@Test
 	fun testWriteModelReadModelCheckResult() {
-		val input = InputLayer(3)
+		val input = InputLayer(3, 2)
 		val d0 = Dense(4, activation = Activations.ReLu, name = "d0") { input }
 		val d1 = Dense(4, name = "d1") { d0 }
 		val a1 = Activation(Activations.LeReLu) { d1 }
 		val d2 = Direct(activation = Activations.LeReLu, name = "d2") { d0 }
 		val d3 = Direct(name = "d3") { d2 }
 		val concat = Concat { listOf(a1, d3) }
-		val builder = ModelBuilder(input, concat)
+		val convDelta = ConvDelta { concat}
+		val builder = ModelBuilder(input, convDelta)
 		val modelOriginal = builder.build()
 
 		val inputData = Suppliers.createMatrix(input.getShape(), RandomRangeSupplier.INSTANCE)

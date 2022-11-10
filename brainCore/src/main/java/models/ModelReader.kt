@@ -12,7 +12,7 @@ object ModelReader {
 	internal val innerGson by lazy { GsonBuilder().create() }
 	private val gson by lazy {
 		GsonBuilder()
-			.registerTypeAdapter(LayerSerialized::class.java, LayerDeserializer())
+//			.registerTypeAdapter(LayerSerialized::class.java, LayerDeserializer())
 			.create()
 	}
 
@@ -56,8 +56,7 @@ object ModelReader {
 				InputLayer(features = ls.width, steps = ls.height, name = ls.name)
 			}
 			Activation.defaultNameType -> {
-				val meta = (ls.getMetaData() as LayerMetaData.ActivationMeta)
-				val activation = Activations.deserialize(meta.activation)
+				val activation = Activations.deserialize(ls.activation)
 					?: throw IllegalStateException("No activation")
 				val parent = ls.parents?.getOrNull(0)
 					?: throw IllegalStateException("No parent in activation")
@@ -66,8 +65,7 @@ object ModelReader {
 				}
 			}
 			Dense.defaultNameType -> {
-				val meta = (ls.getMetaData() as? LayerMetaData.DenseMeta)
-				val activation = Activations.deserialize(meta?.activation)
+				val activation = Activations.deserialize(ls.activation)
 				val parent = ls.parents?.getOrNull(0)
 					?: throw IllegalStateException("No parent in dense")
 				Dense(units = ls.width, activation = activation, name = ls.name) {
@@ -75,11 +73,18 @@ object ModelReader {
 				}
 			}
 			Direct.defaultNameType -> {
-				val meta = (ls.getMetaData() as? LayerMetaData.DirectMeta)
-				val activation = Activations.deserialize(meta?.activation)
+				val activation = Activations.deserialize(ls.activation)
 				val parent = ls.parents?.getOrNull(0)
 					?: throw IllegalStateException("No parent in direct")
 				Direct(activation = activation, name = ls.name) {
+					buffer[parent] ?: throw IllegalStateException("No parent found in buffer")
+				}
+			}
+			ConvDelta.defaultNameType -> {
+				val activation = Activations.deserialize(ls.activation)
+				val parent = ls.parents?.getOrNull(0)
+					?: throw IllegalStateException("No parent in direct")
+				ConvDelta(activation = activation, name = ls.name) {
 					buffer[parent] ?: throw IllegalStateException("No parent found in buffer")
 				}
 			}
@@ -109,23 +114,7 @@ private class LayerDeserializer : JsonDeserializer<LayerSerialized> {
 		val temp = ModelReader.innerGson.fromJson<LayerSerialized>(json)
 
 		return when (temp.nameType) {
-			Activation.defaultNameType -> {
-				val element = json.asJsonObject["builderData"] ?: return temp
-				val data = ModelReader.innerGson.fromJson<LayerMetaData.ActivationMeta>(element)
-				temp.copy(builderData = data)
-			}
-			Dense.defaultNameType -> {
-				val element = json.asJsonObject["builderData"] ?: return temp
-				val data = ModelReader.innerGson.fromJson<LayerMetaData.DenseMeta>(element)
-				temp.copy(builderData = data)
-			}
-			Direct.defaultNameType -> {
-				val element = json.asJsonObject["builderData"] ?: return temp
-				val data = ModelReader.innerGson.fromJson<LayerMetaData.DirectMeta>(element)
-				temp.copy(builderData = data)
-			}
 			else -> temp
 		}
 	}
-
 }

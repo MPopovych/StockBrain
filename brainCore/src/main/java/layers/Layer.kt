@@ -1,5 +1,6 @@
 package layers
 
+import activation.ActivationFunction
 import matrix.Matrix
 import matrix.MatrixMath
 import utils.getShape
@@ -18,6 +19,7 @@ sealed class Layer {
 	abstract fun init()
 	open fun getShape(): LayerShape = outputBuffer.getShape()
 
+	open val activation: ActivationFunction? = null
 	val weights = LinkedHashMap<String, WeightData>()
 	fun addWeights(weightData: WeightData) {
 		weights[weightData.name] = weightData

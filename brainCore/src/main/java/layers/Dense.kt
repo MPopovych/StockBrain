@@ -21,9 +21,9 @@ class Dense(
 		const val defaultNameType = "Dense"
 	}
 	override val nameType: String = defaultNameType
-	private val shape = LayerShape(units, 1)
-
 	override val parentLayer: LayerBuilder<*> = parentLayerBlock()
+	private val shape = LayerShape(units, parentLayer.getShape().height)
+
 	override fun create(): DenseLayerImpl {
 		val weightShape = LayerShape(units, parentLayer.getShape().width)
 
@@ -38,18 +38,10 @@ class Dense(
 	override fun getShape(): LayerShape {
 		return shape
 	}
-
-	override fun getSerializedBuilderData(): LayerMetaData? {
-		return activation?.let {
-			LayerMetaData.DenseMeta(
-				activation = Activations.serialize(it)
-			)
-		}
-	}
 }
 
 class DenseLayerImpl(
-	val activation: ActivationFunction? = null,
+	override val activation: ActivationFunction? = null,
 	val weightShape: LayerShape,
 	val biasShape: LayerShape,
 	override var name: String,
@@ -74,7 +66,7 @@ class DenseLayerImpl(
 		activation?.also {
 			Activations.activate(outputBuffer, outputBuffer, it)
 		}
-		return outputBuffer//.also { it.print() }
+		return outputBuffer
 	}
 
 }
