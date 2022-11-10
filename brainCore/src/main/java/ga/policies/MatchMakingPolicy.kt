@@ -21,11 +21,12 @@ class DefaultMatchMakingPolicy: MatchMakingPolicy {
 		buffer.add(FutureMatch.MutateMatch(top))
 
 		val holders = scoreBoard.scoreMap.values.toList()
-		for (i in 0 until settings.totalPopulationCount - 1) {
+		while (buffer.size < settings.totalPopulationCount - 1) {
 			val a = holders.random()
 			val b = holders.random()
-			// TODO implement and filter relatives
 
+			if (a == b) continue
+			// TODO implement and filter relatives
 			buffer.add(FutureMatch.CrossMatch(a, b, mutate = Random.nextBoolean()))
 		}
 		return buffer

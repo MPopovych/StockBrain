@@ -2,7 +2,7 @@ package ga
 
 import ga.weights.ModelGenes
 
-class GAScoreHolder(
+data class GAScoreHolder(
 	val id: String,
 	val score: Double,
 	val genes: ModelGenes

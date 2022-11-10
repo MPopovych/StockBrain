@@ -11,7 +11,7 @@ class GA(
 	private val settings: GASettings,
 	initialModel: Model,
 	private val onGeneration: (GA) -> Unit = {},
-	private val onStopCallback: (Int, GA) -> Boolean = { _, _ -> false },
+	private val earlyStopCallback: (Int, GA) -> Boolean = { _, _ -> false },
 ) {
 
 	private val originalBuilder = initialModel.revertToBuilder()
@@ -24,8 +24,11 @@ class GA(
 	}
 	val scoreBoard = GAScoreBoard(settings.topParentCount)
 
-	fun runFor(generation: Int, action: ((GAScoreContext) -> Double)): ModelGenes {
+	fun runFor(generation: Int, silent: Boolean = false, action: ((GAScoreContext) -> Double)): ModelGenes {
+		var genCount = 0
 		for (i in 1 .. generation) {
+			genCount = i
+
 			val commands = runGeneration(action)
 			val newGenes = commands.map { command ->
 				handleCommand(command)
@@ -37,13 +40,14 @@ class GA(
 			}
 
 			val topScore = scoreBoard.getTop()?.score ?: throw IllegalStateException("No top score")
-			printGreen("Generation: ${i}, topScore: $topScore")
+			if (!silent) printGreen("Generation: ${i}, topScore: $topScore")
 			onGeneration(this)
-			if (onStopCallback(i, this)) {
+			if (earlyStopCallback(i, this)) {
 				break
 			}
 		}
 
+		printGreen("Ran $genCount generations in total")
 		return scoreBoard.getTop()?.genes ?: throw IllegalStateException("No top score")
 	}
 
@@ -76,6 +80,7 @@ class GA(
 				}
 			}
 		}
+
 		scoreBoard.trimBottom()
 
 		return settings.matchMakingPolicy.select(settings, scoreBoard)

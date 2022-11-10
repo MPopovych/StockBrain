@@ -1,15 +1,13 @@
 package ga
 
+import activation.Activations
 import ga.policies.AdditiveMutationPolicy
 import layers.Direct
 import layers.InputLayer
 import models.ModelBuilder
 import suppliers.Suppliers
-import utils.describe
-import utils.print
-import utils.printGray
-import utils.printRed
-import kotlin.math.max
+import utils.*
+import kotlin.math.abs
 import kotlin.math.pow
 import kotlin.test.Test
 
@@ -18,7 +16,7 @@ class GATest {
 	@Test
 	fun testInputInversion() {
 		val input = InputLayer(12)
-		val direct = Direct(useBias = false) { input }
+		val direct = Direct(activation = Activations.BinaryNegPos, useBias = false) { input }
 		val modelBuilder = ModelBuilder(input = input, output = direct)
 		val model = modelBuilder.build()
 
@@ -31,43 +29,47 @@ class GATest {
 			}
 		}
 
-		inputArray.print()
-		targetArray.print()
+		printBlue("Input array: ${inputArray.describe()}")
+		printGray("Expected array: ${targetArray.describe()}")
 
 		val settings = GASettings(
-			topParentCount = 4,
+			topParentCount = 50,
 			totalPopulationCount = 100,
 			initialMutationPolicy = AdditiveMutationPolicy(0.3),
-			mutationPolicy = AdditiveMutationPolicy(0.01),
+			mutationPolicy = AdditiveMutationPolicy(0.2),
 		)
 
-		val ga = GA(settings, model, onGeneration = { localGa ->
-//			val top = localGa.scoreBoard.getTop() ?: throw IllegalStateException()
-//			top.genes.applyToModel(model)
-//			val output = model.getOutput(inputArray)
-//			printGray("prelim: ${output.describe()}")
+		val ga = GA(settings, model, earlyStopCallback = { i, best ->
+			val top = best.scoreBoard.getTop()?.score ?: return@GA false
+			if (top == Double.MAX_VALUE) {
+				printRed("Stop on gen $i with $top")
+				return@GA true
+			}
+			return@GA false
 		})
 
-		ga.runFor(50000) {
-			val output = it.model.getOutput(inputArray)
-			var mse = 0.0
-
-			output.values.forEachIndexed { x, a ->
-				a.forEachIndexed { y, value ->
-					val error = (value - targetArray.values[x][y]).pow(2) / output.height * output.width
-					mse += error
+		logBenchmarkResult("Training session") {
+			ga.runFor(2000, silent = true) {
+				val output = it.model.getOutput(inputArray)
+				var sae = 0.0
+				output.values.forEachIndexed { x, a ->
+					a.forEachIndexed { y, value ->
+						val error = abs(value - targetArray.values[x][y])
+						sae += error
+					}
 				}
+				sae = sae.pow(2)
+				if (sae == 0.0) return@runFor Double.MAX_VALUE
+				return@runFor 1.0 / sae
 			}
-//				printRed("MSE score: $mse")
-			return@runFor 1.0 / max(mse, 0.0000001)
 		}
 
 		val top = ga.scoreBoard.getTop() ?: throw IllegalStateException()
 		top.genes.applyToModel(model)
 		val output = model.getOutput(inputArray)
-		output.printRed()
-		targetArray.print()
 
+		printRed("Final array: ${output.describe()}")
+		printGreen("Expected array: ${targetArray.describe()}")
 	}
 
 }
