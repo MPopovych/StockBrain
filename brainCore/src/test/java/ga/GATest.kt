@@ -1,6 +1,7 @@
 package ga
 
 import ga.policies.AdditiveMutationPolicy
+import ga.policies.CyclicMutationPolicy
 import layers.Direct
 import layers.InputLayer
 import models.ModelBuilder
@@ -13,7 +14,7 @@ class GATest {
 
 	@Test
 	fun testInputInversion() {
-		val input = InputLayer(5)
+		val input = InputLayer(15)
 		val direct = Direct(useBias = false) { input }
 		val modelBuilder = ModelBuilder(input = input, output = direct)
 		val model = modelBuilder.build()
@@ -35,7 +36,7 @@ class GATest {
 			totalPopulationCount = 10,
 			scoreBoardOrder = GAScoreBoardOrder.Descending,
 			initialMutationPolicy = AdditiveMutationPolicy(1.0),
-			mutationPolicy = AdditiveMutationPolicy(0.1),
+			mutationPolicy = CyclicMutationPolicy(0.01),
 		)
 
 		val ga = GA(settings, model, earlyStopCallback = { i, ga ->
@@ -48,7 +49,7 @@ class GATest {
 		})
 
 		logBenchmarkResult("Training session") {
-			ga.runFor(20000, silent = true) {
+			ga.runFor(100000, silent = true) {
 				val newInput = Suppliers.createMatrix(input.getShape(), Suppliers.RandomBinNP)
 				val output = it.model.getOutput(newInput)
 				var absoluteError = 0.0

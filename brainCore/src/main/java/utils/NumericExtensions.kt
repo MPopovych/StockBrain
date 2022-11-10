@@ -1,6 +1,7 @@
 package utils
 
 import java.math.RoundingMode
+import kotlin.math.max
 
 fun Double.roundUpInt(): Int {
 	return this.toBigDecimal().setScale(0, RoundingMode.UP).toInt()
@@ -26,9 +27,13 @@ fun Float.roundDown(decimals: Int): Float {
 	return this.toBigDecimal().setScale(decimals, RoundingMode.DOWN).toFloat()
 }
 
+fun Float.roundToDec(decimals: Int): Float {
+	return this.toBigDecimal().setScale(decimals, RoundingMode.HALF_EVEN).toFloat()
+}
 
-fun Float.roundToDec(decimals: Int): Double {
-	return this.toBigDecimal().setScale(decimals, RoundingMode.HALF_EVEN).toDouble()
+fun Float.upscale(delta: Int = 1): Float {
+	val bd = this.toBigDecimal()
+	return bd.setScale(max(bd.scale() - delta, 0), RoundingMode.HALF_EVEN).toFloat()
 }
 
 fun Float.roundDisplay(): String {
