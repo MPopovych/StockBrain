@@ -57,6 +57,10 @@ class GA(
 			is FutureMatch.CrossMatch -> {
 				val destination = command.parentA.copyGene()
 				destination.applyCrossOverPolicy(settings.crossOverPolicy, command.parentA.genes, command.parentB.genes)
+				if (command.mutate) {
+					destination.applyMutationPolicy(settings.mutationPolicy, source = destination)
+				}
+				destination
 			}
 			is FutureMatch.MutateMatch -> {
 				val destination = command.source.copyGene()

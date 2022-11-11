@@ -17,7 +17,7 @@ class GATest {
 		val input = InputLayer(15)
 		val direct = Direct(useBias = false) { input }
 		val modelBuilder = ModelBuilder(input = input, output = direct)
-		val model = modelBuilder.build()
+		modelBuilder.build()
 	}
 
 	@Test
@@ -41,7 +41,7 @@ class GATest {
 
 		val settings = GASettings(
 			topParentCount = 5,
-			totalPopulationCount = 5,
+			totalPopulationCount = 10,
 			scoreBoardOrder = GAScoreBoardOrder.Descending,
 			initialMutationPolicy = AdditiveMutationPolicy(1.0),
 			mutationPolicy = CyclicMutationPolicy(0.3),

@@ -7,7 +7,7 @@ enum class GAScoreBoardOrder {
 	Descending
 }
 
-class GAScoreBoard(private val topCount: Int, val order: GAScoreBoardOrder) {
+class GAScoreBoard(private val topCount: Int, private val order: GAScoreBoardOrder) {
 
 	private val hashSet = HashSet<String>()
 	private val scoreList = ArrayList<GAScoreHolder>()

@@ -42,8 +42,8 @@ class MatrixTest {
 	}
 
 	@Test
-	fun testMultiplyСonst() {
-		val a = Matrix(3, 2) { x, y -> y + 1f }
+	fun testMultiplyConst() {
+		val a = Matrix(3, 2) { _, y -> y + 1f }
 		a.print()
 		val b = Matrix(3, 3, Suppliers.Ones)
 		b.print()

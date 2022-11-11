@@ -23,8 +23,8 @@ class Concat(
 		}
 	}
 
-	val parentHeights = parentHeight.first()
-	val concatShape = LayerShape(parentLayers.sumOf { it.getShape().width }, parentHeights)
+	private val parentHeights = parentHeight.first()
+	private val concatShape = LayerShape(parentLayers.sumOf { it.getShape().width }, parentHeights)
 
 	override fun create(): ConcatImpl {
 		return ConcatImpl(concatShape, name).also {

@@ -10,9 +10,6 @@ const val ANSI_PURPLE = "\u001B[35m"
 const val ANSI_CYAN = "\u001B[36m"
 const val ANSI_WHITE = "\u001B[37m"
 
-const val USD_EMOJI = "💰"
-const val SHIT_EMOJI = "💩"
-
 fun getRed(msg: Any): String {
 	return color(ANSI_RED, msg)
 }
@@ -93,31 +90,6 @@ fun printBenchmark(msg: Any) {
 	println(getBenchmark(msg))
 }
 
-fun getDebug(msg: Any): String {
-	return getCyan(msg)
-}
-
-fun printDebug(msg: Any) {
-	println(getDebug(msg))
-}
-
-inline fun <T> T.debugThis(prefix: String = "Debugger"): T {
-	printDebug(prefix + ": " + (this ?: "Null"))
-	return this
-}
-
-inline fun <T> T.errorThis(prefix: String = "Error"): T {
-	printRed(prefix + ": " + (this ?: "Null"))
-	return this
-}
-
-fun stackTraceHere() {
-	try {
-		throw Exception()
-	} catch (e: Exception) {
-		e.printStackTrace()
-	}
-}
 
 inline fun <T> logBenchmarkResult(name: String, block: () -> T): T {
 	val start = System.currentTimeMillis()

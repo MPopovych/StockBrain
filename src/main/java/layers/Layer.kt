@@ -74,10 +74,4 @@ sealed interface LayerBuilder<T : Layer> {
 	}
 }
 
-data class LayerShape(val width: Int, val height: Int) {
-	companion object {
-		val None = LayerShape(0, 0)
-	}
-
-	fun size() = width * height
-}
+data class LayerShape(val width: Int, val height: Int)

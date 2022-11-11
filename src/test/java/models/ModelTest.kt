@@ -16,10 +16,10 @@ class ModelTest {
 	fun testForReadMeMulti() {
 		val inputLayer1 = InputLayer(3, 2, name = "input1")
 		val inputLayer2 = InputLayer(6, 1, name = "input2")
-		val d0_t = Dense(4, activation = Activations.ReLu, useBias = false) { inputLayer1 }
-		val conv_d = ConvDelta { d0_t }
+		val d0Times = Dense(4, activation = Activations.ReLu, useBias = false) { inputLayer1 }
+		val convDelta = ConvDelta { d0Times }
 		val d1 = Direct(activation = Activations.ReLu) { inputLayer2 }
-		val outputLayer = Concat { listOf(conv_d, d1) }
+		val outputLayer = Concat { listOf(convDelta, d1) }
 		val model = ModelBuilder(mapOf("1" to inputLayer1, "2" to inputLayer2), outputLayer).build()
 
 		val array1 = floatArrayOf(0.4f, 0f, 1f, 4f, 0f, 0f).reshapeToMatrix(3, 2)
@@ -165,7 +165,7 @@ class ModelTest {
 	@Test
 	fun testModelWithSteps() {
 		val input = InputLayer(3, steps = 3)
-		val d1 = ConvDelta() { input }
+		val d1 = ConvDelta { input }
 
 		val builder = ModelBuilder(input, d1, debug = false)
 		val model = builder.build(debug = true)
