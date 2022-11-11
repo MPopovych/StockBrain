@@ -163,3 +163,47 @@ d0 : LayerShape(width=4, height=1) : children: 1
 d2 : LayerShape(width=3, height=1) : children: 1
 output : LayerShape(width=7, height=1) : children: 0
 ``` 
+
+## GA
+
+### Instance building
+``` kotlin
+val settings = GASettings(
+    topParentCount = 5,
+    totalPopulationCount = 10,
+    scoreBoardOrder = GAScoreBoardOrder.Descending,
+    initialMutationPolicy = AdditiveMutationPolicy(1.0),
+    mutationPolicy = CyclicMutationPolicy(0.3),
+)
+
+val ga = GA(settings, model, earlyStopCallback = { i, ga ->
+    val top = ga.scoreBoard.getTop()?.score ?: return@GA false
+    if (top == 0.0) {
+        printRed("Stop on gen $i with $top")
+        return@GA true
+    }
+    return@GA false
+})
+```
+
+**topParentCount** - limitation to scoreboard, top scores will be used for crossovers and mutation
+
+**totalPopulationCount** - how many of new challengers will be produced
+
+**scoreBoardOrder** - possible values: *GAScoreBoardOrder.Descending* and *GAScoreBoardOrder.Ascending*
+
+**GAScoreBoardOrder.Ascending** - try to achieve the highest score
+
+**GAScoreBoardOrder.Descending** - try to achieve the lowest score
+
+``` kotlin
+ga.runFor(generations =100000, silent = true) { context ->
+    val outputArray = inputData.map { input -> context.model.getOutput(input) }
+    return@runFor getScoreCustomFunction(outputArray)
+}
+
+ga.scoreBoard.printScoreBoard()
+val top = ga.scoreBoard.getTop() ?: throw IllegalStateException()
+top.genes.applyToModel(model)
+val outputMatrix = model.getOutput(inputMatrix)
+```

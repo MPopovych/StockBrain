@@ -24,9 +24,9 @@ class GA(
 	}
 	val scoreBoard = GAScoreBoard(settings.topParentCount, settings.scoreBoardOrder)
 
-	fun runFor(generation: Int, silent: Boolean = false, action: ((GAScoreContext) -> Double)): ModelGenes {
+	fun runFor(generations: Int, silent: Boolean = false, action: ((GAScoreContext) -> Double)): ModelGenes {
 		var genCount = 0
-		for (i in 1 .. generation) {
+		for (i in 1 .. generations) {
 			genCount = i
 
 			val commands = runGeneration(action)
