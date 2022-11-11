@@ -4,16 +4,14 @@ import brain.activation.ActivationFunction
 import brain.activation.Activations
 import brain.matrix.Matrix
 import brain.matrix.MatrixMath
-import brain.suppliers.RandomRangeSupplier
 import brain.suppliers.Suppliers
 import brain.suppliers.ValueSupplier
-import brain.suppliers.ZeroSupplier
 
 class Dense(
 	private val units: Int,
 	private val activation: ActivationFunction? = null,
-	private val kernelInit: ValueSupplier = RandomRangeSupplier.INSTANCE,
-	private val biasInit: ValueSupplier = ZeroSupplier.INSTANCE,
+	private val kernelInit: ValueSupplier = Suppliers.RandomRangeNP,
+	private val biasInit: ValueSupplier = Suppliers.Zero,
 	private val useBias: Boolean = true,
 	override var name: String = Layer.DEFAULT_NAME,
 	parentLayerBlock: (() -> LayerBuilder<*>),
@@ -34,7 +32,8 @@ class Dense(
 			weightShape = weightShape,
 			biasShape = shape,
 			useBias = useBias,
-			name = name)
+			name = name
+		)
 			.also {
 				it.init()
 				Suppliers.fillFull(it.kernel.matrix, kernelInit)
@@ -64,14 +63,12 @@ class DenseLayerImpl(
 	lateinit var bias: WeightData
 
 	override fun init() {
-		kernel = WeightData("weight",
-			Matrix(weightShape.width, weightShape.height), true)
+		kernel = WeightData("weight", Matrix(weightShape.width, weightShape.height), true)
 		addWeights(kernel)
 		bias = if (useBias) {
 			WeightData("bias", Matrix(biasShape.width, biasShape.height), true)
 		} else {
-			WeightData("bias",
-				Matrix(biasShape.width, biasShape.height, Suppliers.Zero), false)
+			WeightData("bias", Matrix(biasShape.width, biasShape.height), false)
 		}
 		addWeights(bias)
 		outputBuffer = Matrix(biasShape.width, biasShape.height)

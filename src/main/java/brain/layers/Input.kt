@@ -36,6 +36,7 @@ class InputLayerImpl(
 	}
 
 	override fun call(input: Matrix): Matrix {
+		flushBuffer()
 		MatrixMath.transfer(input, outputBuffer)
 		return outputBuffer
 	}

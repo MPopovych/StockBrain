@@ -4,15 +4,13 @@ import brain.activation.ActivationFunction
 import brain.activation.Activations
 import brain.matrix.Matrix
 import brain.matrix.MatrixMath
-import brain.suppliers.RandomRangeSupplier
 import brain.suppliers.Suppliers
 import brain.suppliers.ValueSupplier
-import brain.suppliers.ZeroSupplier
 
 class Direct(
 	private val activation: ActivationFunction? = null,
-	private val kernelInit: ValueSupplier = RandomRangeSupplier.INSTANCE,
-	private val biasInit: ValueSupplier = ZeroSupplier.INSTANCE,
+	private val kernelInit: ValueSupplier = Suppliers.RandomRangeNP,
+	private val biasInit: ValueSupplier = Suppliers.Zero,
 	private val useBias: Boolean = true,
 	override var name: String = Layer.DEFAULT_NAME,
 	parentLayerBlock: (() -> LayerBuilder<*>),
@@ -60,14 +58,12 @@ class DirectLayerImpl(
 	lateinit var bias: WeightData
 
 	override fun init() {
-		kernel = WeightData("weight",
-			Matrix(directShape.width, directShape.height), true)
+		kernel = WeightData("weight", Matrix(directShape.width, directShape.height), true)
 		addWeights(kernel)
 		bias = if (useBias) {
 			WeightData("bias", Matrix(directShape.width, directShape.height), true)
 		} else {
-			WeightData("bias",
-				Matrix(directShape.width, directShape.height, Suppliers.Zero), false)
+			WeightData("bias", Matrix(directShape.width, directShape.height), false)
 		}
 		addWeights(bias)
 		outputBuffer = Matrix(directShape.width, directShape.height)

@@ -34,7 +34,7 @@ class BenchmarkTest {
 
 		brBenchmark("iteration") {
 			for (i in 0..300000) {
-				val inputData = Suppliers.createMatrix(LayerShape(featureSize, 1), RandomRangeSupplier.INSTANCE)
+				val inputData = Suppliers.createMatrix(LayerShape(featureSize, 1), Suppliers.RandomRangeNP)
 				model.getOutput(inputData)
 			}
 		}

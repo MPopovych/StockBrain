@@ -16,7 +16,7 @@ class CrossOverPolicyTest {
 
 		SinglePointCrossOver().crossWeight(a, b, d)
 
-		printBlueBr(d.genes.toList())
+		printBlueBr("testSinglePoint ${d.genes.toList()}")
 	}
 
 	@Test
@@ -28,7 +28,7 @@ class CrossOverPolicyTest {
 
 		UniformCrossOver().crossWeight(a, b, d)
 
-		printBlueBr(d.genes.toList())
+		printBlueBr("testUniform ${d.genes.toList()}")
 	}
 
 }

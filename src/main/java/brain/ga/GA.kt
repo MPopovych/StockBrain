@@ -4,7 +4,6 @@ import brain.ga.policies.FutureMatch
 import brain.ga.weights.ModelGenes
 import brain.models.Model
 import brain.models.revertToBuilder
-import brain.utils.printGreenBr
 import brain.utils.printYellowBr
 
 
@@ -17,7 +16,12 @@ class GA(
 
 	private val originalBuilder = initialModel.revertToBuilder()
 	private val originalGenes = ModelGenes(initialModel)
-	private val modelBuffer = (0..settings.totalPopulationCount).mapTo(ArrayList()) {
+	private val modelBuffer = (0..settings.totalPopulationCount).mapTo(ArrayList()) { index ->
+		if (index == 0) { // keep origin
+			val model = originalBuilder.build()
+			originalGenes.applyToModel(model)
+			return@mapTo Pair(model, originalGenes.copy())
+		}
 		val model = originalBuilder.build()
 		val genes = originalGenes.copy().applyMutationPolicy(settings.initialMutationPolicy, originalGenes)
 		genes.applyToModel(model)
@@ -44,10 +48,12 @@ class GA(
 			}
 
 			val topScore = scoreBoard.getTop()?.score ?: throw IllegalStateException("No top score")
-			if (!silent) printYellowBr("Generation: ${i}, " +
-					"topScore: $topScore, " +
-					"time: ${elapsed}s, " +
-					"time challenge: ${elapsed / modelBuffer.size}s")
+			if (!silent) printYellowBr(
+				"Generation: ${i}, " +
+						"topScore: $topScore, " +
+						"time: ${elapsed}s, " +
+						"time challenge: ${elapsed / modelBuffer.size}s"
+			)
 			onGeneration(i, this)
 			if (earlyStopCallback(i, this)) {
 				break
@@ -72,6 +78,7 @@ class GA(
 				val destination = command.source.copyGene()
 				destination.applyMutationPolicy(settings.mutationPolicy, source = command.source.genes)
 			}
+			else -> throw IllegalStateException("Not implemented")
 		}
 	}
 

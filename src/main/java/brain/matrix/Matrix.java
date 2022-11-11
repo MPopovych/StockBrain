@@ -1,7 +1,7 @@
 package brain.matrix;
 
-import brain.suppliers.OnesSupplier;
 import brain.suppliers.ValueSupplier;
+import brain.suppliers.ZeroSupplier;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.ByteBuffer;
@@ -16,7 +16,7 @@ public class Matrix {
 
 	public Matrix(int width, // columns
 	              int height) { // rows
-		this(width, height, OnesSupplier.INSTANCE);
+		this(width, height, ZeroSupplier.INSTANCE);
 	}
 
 	public Matrix(int width, int height, ValueSupplier supplier) {

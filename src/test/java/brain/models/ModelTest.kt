@@ -152,7 +152,7 @@ class ModelTest {
 		val activateImpl = activate.create()
 		printGreenBr("activate", activateImpl.getShape())
 
-		val inputData = Suppliers.createMatrix(inputImpl.getShape(), RandomRangeSupplier.INSTANCE)
+		val inputData = Suppliers.createMatrix(inputImpl.getShape(), Suppliers.RandomRangeNP)
 		var b = inputImpl.call(inputData)
 		b.print()
 		b = d1Impl.call(b)
@@ -170,7 +170,7 @@ class ModelTest {
 		val builder = ModelBuilder(input, d1, debug = false)
 		val model = builder.build(debug = true)
 
-		val inputData = Suppliers.createMatrix(LayerShape(3, 3), RandomRangeSupplier.INSTANCE)
+		val inputData = Suppliers.createMatrix(LayerShape(3, 3), Suppliers.RandomRangeNP)
 		inputData.printRedBr()
 		val r1 = model.getOutput(inputData).copy()
 		r1.print()

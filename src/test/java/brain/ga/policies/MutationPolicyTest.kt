@@ -15,7 +15,7 @@ class MutationPolicyTest {
 
 		AdditiveMutationPolicy().mutateWeight(a, d)
 
-		printBlueBr(d.genes.toList())
+		printBlueBr("testAdditiveMutationPolicy ${d.genes.toList()}")
 	}
 
 
