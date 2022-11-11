@@ -1,8 +1,6 @@
 package activation
 
-import com.google.gson.GsonBuilder
 import matrix.Matrix
-import utils.fromJson
 
 object Activations {
 	val ReLu = ReLuFunction()
@@ -11,8 +9,7 @@ object Activations {
 	val BinaryNegPos = BinaryNegPosFunction()
 	val Binary = BinaryStepFunction()
 	val Zero = ZeroFunction() // test
-
-	private val gson by lazy { GsonBuilder().create() }
+	val Tanh = TanhFunction()
 
 	fun activate(matrix: Matrix, buffer: Matrix, function: ActivationFunction) {
 		for (x in 0 until matrix.width) {
@@ -32,6 +29,7 @@ object Activations {
 			BinaryNegPos.nameType() -> BinaryNegPos
 			Binary.nameType() -> Binary
 			Zero.nameType() -> Zero
+			Tanh.nameType() -> Tanh
 			else -> throw IllegalArgumentException("unsupported type: $name")
 		}
 	}

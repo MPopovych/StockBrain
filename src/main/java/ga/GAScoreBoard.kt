@@ -1,7 +1,6 @@
 package ga
 
 import utils.printGreen
-import utils.printRed
 
 enum class GAScoreBoardOrder {
 	Ascending,

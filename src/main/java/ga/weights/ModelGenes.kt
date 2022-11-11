@@ -14,7 +14,8 @@ class ModelGenes(val layers: Map<String, LayerGenes>) {
 					val map = it.weights.values
 						.mapNotNull { w ->
 							if (!w.trainable) return@mapNotNull null
-							return@mapNotNull WeightGenes(w.name, w.matrix.readFloatData())
+							return@mapNotNull WeightGenes(w.name,
+								w.matrix.readFloatData())
 						}
 						.associateBy { w -> w.weightName }
 					return@map LayerGenes(it.name, map)

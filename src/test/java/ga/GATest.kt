@@ -13,6 +13,14 @@ import kotlin.test.Test
 class GATest {
 
 	@Test
+	fun testForReadMe() {
+		val input = InputLayer(15)
+		val direct = Direct(useBias = false) { input }
+		val modelBuilder = ModelBuilder(input = input, output = direct)
+		val model = modelBuilder.build()
+	}
+
+	@Test
 	fun testInputInversion() {
 		val input = InputLayer(15)
 		val direct = Direct(useBias = false) { input }
@@ -33,10 +41,10 @@ class GATest {
 
 		val settings = GASettings(
 			topParentCount = 5,
-			totalPopulationCount = 10,
+			totalPopulationCount = 5,
 			scoreBoardOrder = GAScoreBoardOrder.Descending,
 			initialMutationPolicy = AdditiveMutationPolicy(1.0),
-			mutationPolicy = CyclicMutationPolicy(0.01),
+			mutationPolicy = CyclicMutationPolicy(0.3),
 		)
 
 		val ga = GA(settings, model, earlyStopCallback = { i, ga ->

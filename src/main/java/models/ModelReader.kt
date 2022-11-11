@@ -29,7 +29,6 @@ object ModelReader {
 		serialized.layers.forEach {
 			buildLayer(it, buffer)
 		}
-		printGreen(buffer.keys)
 		val inputMap = serialized.inputs.mapValues {
 			buffer[it.value] as? InputLayer ?: throw IllegalStateException("Input ${it.value} can't be parsed")
 		}

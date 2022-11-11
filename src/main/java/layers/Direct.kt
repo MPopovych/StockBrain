@@ -9,31 +9,29 @@ import suppliers.Suppliers
 import suppliers.ValueSupplier
 import suppliers.ZeroSupplier
 
-class Dense(
-	private val units: Int,
+class Direct(
 	private val activation: ActivationFunction? = null,
 	private val kernelInit: ValueSupplier = RandomRangeSupplier.INSTANCE,
 	private val biasInit: ValueSupplier = ZeroSupplier.INSTANCE,
 	private val useBias: Boolean = true,
 	override var name: String = Layer.DEFAULT_NAME,
 	parentLayerBlock: (() -> LayerBuilder<*>),
-) : LayerBuilder.SingleInput<DenseLayerImpl> {
+) : LayerBuilder.SingleInput<DirectLayerImpl> {
 	companion object {
-		const val defaultNameType = "Dense"
+		const val defaultNameType = "Direct"
 	}
+
 	override val nameType: String = defaultNameType
 	override val parentLayer: LayerBuilder<*> = parentLayerBlock()
-	private val shape = LayerShape(units, parentLayer.getShape().height)
+	private val shape = parentLayer.getShape()
 
-	override fun create(): DenseLayerImpl {
-		val weightShape = LayerShape(units, parentLayer.getShape().width)
-
-		return DenseLayerImpl(
+	override fun create(): DirectLayerImpl {
+		return DirectLayerImpl(
 			activation = activation,
-			weightShape = weightShape,
-			biasShape = shape,
-			useBias = useBias,
-			name = name)
+			directShape = shape,
+			name = name,
+			useBias = useBias
+		)
 			.also {
 				it.init()
 				Suppliers.fillFull(it.kernel.matrix, kernelInit)
@@ -46,37 +44,37 @@ class Dense(
 	}
 
 	override fun getSerializedBuilderData(): LayerMetaData {
-		return LayerMetaData.DenseMeta(useBias = useBias)
+		return LayerMetaData.DirectMeta(useBias = useBias)
 	}
 }
 
-class DenseLayerImpl(
+class DirectLayerImpl(
 	override val activation: ActivationFunction? = null,
-	private val weightShape: LayerShape,
-	private val biasShape: LayerShape,
-	private val useBias: Boolean = true,
+	private val directShape: LayerShape,
+	private val useBias: Boolean,
 	override var name: String,
 ) : Layer.SingleInputLayer() {
-	override val nameType: String = Dense.defaultNameType
+	override val nameType: String = Direct.defaultNameType
 	override lateinit var outputBuffer: Matrix
 	lateinit var kernel: WeightData
 	lateinit var bias: WeightData
 
 	override fun init() {
-		kernel = WeightData("weight", Matrix(weightShape.width, weightShape.height), true)
+		kernel = WeightData("weight", Matrix(directShape.width, directShape.height), true)
 		addWeights(kernel)
 		bias = if (useBias) {
-			WeightData("bias", Matrix(biasShape.width, biasShape.height), true)
+			WeightData("bias", Matrix(directShape.width, directShape.height), true)
 		} else {
-			WeightData("bias", Matrix(biasShape.width, biasShape.height, Suppliers.Zero), false)
+			WeightData("bias",
+				Matrix(directShape.width, directShape.height, Suppliers.Zero), false)
 		}
 		addWeights(bias)
-		outputBuffer = Matrix(biasShape.width, biasShape.height)
+		outputBuffer = Matrix(directShape.width, directShape.height)
 	}
 
 	override fun call(input: Matrix): Matrix {
 		flushBuffer()
-		MatrixMath.multiply(input, kernel.matrix, outputBuffer)
+		MatrixMath.hadamard(input, kernel.matrix, outputBuffer)
 		if (useBias) MatrixMath.add(outputBuffer, bias.matrix, outputBuffer)
 		activation?.also {
 			Activations.activate(outputBuffer, outputBuffer, it)

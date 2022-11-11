@@ -14,15 +14,28 @@ import kotlin.test.assertNotEquals
 class ModelWriterTest {
 
 	@Test
-	fun previewJson() {
+	fun testForReadMe() {
+		val input = InputLayer(3)
+		val d0 = Dense(4, activation = Activations.ReLu, name = "d0", useBias = false) { input }
+		val d1 = Direct(activation = Activations.ReLu, name = "d2") { input }
+		val model = ModelBuilder(input, Concat(name = "output") { listOf(d0, d1) }).build()
+
+		val sm = ModelWriter.serialize(model)
+		val json = ModelWriter.toJson(sm)
+		printYellow(json)
+
+		val model2 = ModelReader.modelInstance(json)
+		printYellow(model2.revertToBuilder().summary())
+	}
+
+	@Test
+	fun testSaveAndLoadEqual() {
 		val input = InputLayer(3)
 		val d0 = Dense(4, activation = Activations.ReLu, name = "d0", useBias = false) { input }
 		val d1 = Dense(4, activation = Activations.LeReLu, name = "d1") { d0 }
 		val d2 = Direct(activation = Activations.ReLu, name = "d2") { d0 }
 		val concat = Concat { listOf(d1, d2) }
-		val builder = ModelBuilder(input, concat)
-		val model = builder.build()
-
+		val model = ModelBuilder(input, concat).build()
 
 		val sm1 = ModelWriter.serialize(model)
 		val json = ModelWriter.toJson(sm1)
@@ -40,7 +53,7 @@ class ModelWriterTest {
 		val d2 = Direct(activation = Activations.LeReLu, name = "d2") { d0 }
 		val d3 = Direct(name = "d3") { d2 }
 		val concat = Concat { listOf(a1, d3) }
-		val convDelta = ConvDelta { concat}
+		val convDelta = ConvDelta { concat }
 		val builder = ModelBuilder(input, convDelta)
 		val modelOriginal = builder.build()
 

@@ -2,8 +2,6 @@ package models
 
 import activation.Activations
 import layers.*
-import models.ModelBuilder
-import models.summary
 import org.junit.jupiter.api.Test
 import suppliers.RandomRangeSupplier
 import suppliers.Suppliers

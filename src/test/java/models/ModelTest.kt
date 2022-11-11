@@ -11,6 +11,35 @@ import kotlin.test.Test
 
 class ModelTest {
 
+
+	@Test
+	fun testForReadMeMulti() {
+		val inputLayer1 = InputLayer(3, 2, name = "input1")
+		val inputLayer2 = InputLayer(6, 1, name = "input2")
+		val d0_t = Dense(4, activation = Activations.ReLu, useBias = false) { inputLayer1 }
+		val conv_d = ConvDelta { d0_t }
+		val d1 = Direct(activation = Activations.ReLu) { inputLayer2 }
+		val outputLayer = Concat { listOf(conv_d, d1) }
+		val model = ModelBuilder(mapOf("1" to inputLayer1, "2" to inputLayer2), outputLayer).build()
+
+		val array1 = floatArrayOf(0.4f, 0f, 1f, 4f, 0f, 0f).reshapeToMatrix(3, 2)
+		val array2 = floatArrayOf(1.4f, 2f, 0.5f, 0f, 1f, -2f).reshapeToMatrix(6, 1)
+		val outputMatrix = model.getOutput(mapOf("1" to array1, "2" to array2))
+		outputMatrix.printRed()
+	}
+
+	@Test
+	fun testForReadMeSingle() {
+		val inputLayer = InputLayer(3, 2)
+		val d0 = Dense(4) { inputLayer }
+		val convDelta = ConvDelta { d0 }
+		val model = ModelBuilder(inputLayer, convDelta).build()
+
+		val array1 = floatArrayOf(0.4f, 0f, 1f, 4f, 0f, 0f).reshapeToMatrix(3, 2)
+		val outputMatrix = model.getOutput(array1)
+		outputMatrix.printRed()
+	}
+
 	@Test
 	fun testModel() {
 		val input = InputLayer(3)

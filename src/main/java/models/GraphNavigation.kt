@@ -5,7 +5,6 @@ import layers.Layer
 import layers.LayerBuilder
 import utils.ifAlso
 import utils.printCyan
-import utils.printGreen
 import utils.printYellow
 
 internal fun buildBufferNodes(nodes: Collection<LayerBuilder<*>>, debug: Boolean): HashMap<LayerBuilder<*>, GraphBuffer> {

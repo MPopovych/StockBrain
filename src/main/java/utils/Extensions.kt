@@ -2,7 +2,6 @@ package utils
 
 import layers.LayerShape
 import matrix.Matrix
-import java.math.RoundingMode
 import java.nio.ByteBuffer
 import java.util.*
 
@@ -44,6 +43,12 @@ fun FloatArray.encodeGenes(): String {
 		buff.putFloat(f)
 	}
 	return Base64.getEncoder().encodeToString(buff.array())
+}
+
+fun FloatArray.reshapeToMatrix(w: Int, h: Int): Matrix {
+	val m = Matrix(w, h)
+	m.writeFloatData(this)
+	return m
 }
 
 public inline fun <T> T.ifAlso(enabled: Boolean, block: (T) -> Unit): T {
