@@ -100,11 +100,7 @@ Which would produce a structure as below
       "weights": [
         {
           "name": "weight",
-          "value": "PuY/GL8X6oy/FgfSvbSw0D9KZTK9ellAP2DhvD85kq6+bV7oPxAB7L90cRI/II7U"
-        },
-        {
-          "name": "bias",
-          "value": "AAAAAAAAAAAAAAAAAAAAAA\u003d\u003d"
+          "value": "P02cTL6i7UC/KnmGvoK8yL1z5MA/TLA8vy+uLL8q1NQ+imqIvyfIfL7qnMi/PFxc"
         }
       ],
       "parents": [
@@ -123,7 +119,7 @@ Which would produce a structure as below
       "weights": [
         {
           "name": "weight",
-          "value": "P0sNnD94P0Y/QgQq"
+          "value": "Px6BYD9gGzS/PNSs"
         },
         {
           "name": "bias",
