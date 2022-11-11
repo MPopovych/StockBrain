@@ -7,7 +7,10 @@ import utils.ifAlso
 import utils.printCyan
 import utils.printYellow
 
-internal fun buildBufferNodes(nodes: Collection<LayerBuilder<*>>, debug: Boolean): HashMap<LayerBuilder<*>, GraphBuffer> {
+internal fun buildBufferNodes(
+	nodes: Collection<LayerBuilder<*>>,
+	debug: Boolean,
+): HashMap<LayerBuilder<*>, GraphBuffer> {
 	val queue = LinkedHashMap<LayerBuilder<*>, GraphBuffer>()
 
 	for (node in nodes) {

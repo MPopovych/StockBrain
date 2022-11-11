@@ -1,10 +1,12 @@
 package models
 
 import activation.Activations
-import com.google.gson.*
+import com.google.gson.GsonBuilder
+import com.google.gson.JsonDeserializationContext
+import com.google.gson.JsonDeserializer
+import com.google.gson.JsonElement
 import layers.*
 import utils.fromJson
-import utils.printGreen
 import java.lang.reflect.Type
 
 object ModelReader {
@@ -39,7 +41,7 @@ object ModelReader {
 
 		serialized.layers.forEach { ls ->
 			val layer = model.layersMap[ls.name] ?: throw IllegalStateException("No layer found with name ${ls.name}")
-			ls.weights?.forEach {  w ->
+			ls.weights?.forEach { w ->
 				val matrix = layer.weights[w.name]?.matrix
 					?: throw IllegalStateException("No weight found with name ${w.name} in ${ls.name}")
 				matrix.writeStringData(w.value)

@@ -20,7 +20,7 @@ interface MutationPolicy {
 	fun mutateWeight(source: WeightGenes, destination: WeightGenes)
 }
 
-open class AdditiveMutationPolicy(private val fraction: Double = 0.01): MutationPolicy {
+open class AdditiveMutationPolicy(private val fraction: Double = 0.01) : MutationPolicy {
 	private val randomRangeSupplier = Suppliers.RandomRangeNP
 	private fun supplyNext() = randomRangeSupplier.supply(0, 0)
 
@@ -36,7 +36,7 @@ open class AdditiveMutationPolicy(private val fraction: Double = 0.01): Mutation
 	}
 }
 
-open class UpscaleMutationPolicy(private val fraction: Double = 0.01): MutationPolicy {
+open class UpscaleMutationPolicy(private val fraction: Double = 0.01) : MutationPolicy {
 	override fun mutateWeight(source: WeightGenes, destination: WeightGenes) {
 		if (source != destination) {
 			source.copyTo(destination)
@@ -51,7 +51,7 @@ open class UpscaleMutationPolicy(private val fraction: Double = 0.01): MutationP
 }
 
 
-open class InversionMutationPolicy(private val fraction: Double = 0.01): MutationPolicy {
+open class InversionMutationPolicy(private val fraction: Double = 0.01) : MutationPolicy {
 	override fun mutateWeight(source: WeightGenes, destination: WeightGenes) {
 		if (source != destination) {
 			source.copyTo(destination)
@@ -65,16 +65,21 @@ open class InversionMutationPolicy(private val fraction: Double = 0.01): Mutatio
 	}
 }
 
-class CyclicMutationPolicy(fraction: Double = 0.01,
-                           val additiveRatio: Int = 8,
-                           val upscaleRatio: Int = 1,
-                           val inversionRatio: Int = 1
-): MutationPolicy {
+class CyclicMutationPolicy(
+	fraction: Double = 0.01,
+	private val additiveRatio: Int = 8,
+	private val upscaleRatio: Int = 1,
+	inversionRatio: Int = 1,
+) : MutationPolicy {
 
 	private val sum = additiveRatio + upscaleRatio + inversionRatio
 	private val additive = AdditiveMutationPolicy(fraction)
 	private val upscale = UpscaleMutationPolicy(fraction)
 	private val inversion = InversionMutationPolicy(fraction)
+
+	init {
+		if (sum <= 0) throw IllegalStateException("Sum of rations should bot be zero or less")
+	}
 
 	override fun mutateWeight(source: WeightGenes, destination: WeightGenes) {
 		val r = (0 until sum).random()

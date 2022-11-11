@@ -2,6 +2,6 @@ package activation;
 
 public interface ActivationFunction {
 
-    float apply(float value);
+	float apply(float value);
 
 }

@@ -17,7 +17,7 @@ interface CrossOverPolicy {
 	fun crossWeight(a: WeightGenes, b: WeightGenes, destination: WeightGenes)
 }
 
-class UniformCrossOver: CrossOverPolicy {
+class UniformCrossOver : CrossOverPolicy {
 	override fun crossWeight(a: WeightGenes, b: WeightGenes, destination: WeightGenes) {
 		for (i in destination.genes.indices) {
 			if (Random.nextBoolean()) {
@@ -29,7 +29,7 @@ class UniformCrossOver: CrossOverPolicy {
 	}
 }
 
-class SinglePointCrossOver: CrossOverPolicy {
+class SinglePointCrossOver : CrossOverPolicy {
 	override fun crossWeight(a: WeightGenes, b: WeightGenes, destination: WeightGenes) {
 		val destinationPoint = destination.genes.indices.random()
 		a.genes.copyInto(destination.genes, 0, 0, destinationPoint)

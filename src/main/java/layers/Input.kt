@@ -11,6 +11,7 @@ class InputLayer(
 	companion object {
 		const val defaultNameType = "Input"
 	}
+
 	override val nameType: String = defaultNameType
 	private val shape = LayerShape(features, steps)
 

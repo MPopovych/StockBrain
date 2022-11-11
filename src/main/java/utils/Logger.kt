@@ -14,98 +14,115 @@ const val USD_EMOJI = "💰"
 const val SHIT_EMOJI = "💩"
 
 fun getRed(msg: Any): String {
-    return color(ANSI_RED, msg)
+	return color(ANSI_RED, msg)
 }
+
 fun getGreen(msg: Any): String {
-    return color(ANSI_GREEN, msg)
+	return color(ANSI_GREEN, msg)
 }
+
 fun getYellow(msg: Any): String {
-    return color(ANSI_YELLOW, msg)
+	return color(ANSI_YELLOW, msg)
 }
+
 fun getBlue(msg: Any): String {
-    return color(ANSI_BLUE, msg)
+	return color(ANSI_BLUE, msg)
 }
+
 fun getPurple(msg: Any): String {
-    return color(ANSI_PURPLE, msg)
+	return color(ANSI_PURPLE, msg)
 }
+
 fun getCyan(msg: Any): String {
-    return color(ANSI_CYAN, msg)
+	return color(ANSI_CYAN, msg)
 }
+
 fun getGray(msg: Any): String {
-    return color(ANSI_WHITE, msg)
+	return color(ANSI_WHITE, msg)
 }
 
 fun color(color: String, msg: Any): String {
-    return "$color$msg$ANSI_RESET".replace("\n", "$ANSI_RESET\n$color")
+	return "$color$msg$ANSI_RESET".replace("\n", "$ANSI_RESET\n$color")
 }
 
 fun printRed(msg: Any) { // will be used for errors, warnings
-    println(getRed(msg))
+	println(getRed(msg))
 }
-fun printRed(head:String, msg: Any) { // for positive info
-    println(getRed("${head}: $msg"))
+
+fun printRed(head: String, msg: Any) { // for positive info
+	println(getRed("${head}: $msg"))
 }
+
 fun printGreen(msg: Any) { // for positive info
-    println(getGreen(msg))
+	println(getGreen(msg))
 }
-fun printGreen(head:String, msg: Any) { // for positive info
-    println(getGreen("${head}: $msg"))
+
+fun printGreen(head: String, msg: Any) { // for positive info
+	println(getGreen("${head}: $msg"))
 }
+
 fun printYellow(msg: Any) { // will be used for bot reporting or warnings
-    println(getYellow(msg))
+	println(getYellow(msg))
 }
+
 fun printBlue(msg: Any) { // will be used for api requests
-    println(getBlue(msg))
+	println(getBlue(msg))
 }
-fun printBlue(head:String, msg: Any) { // for positive info
-    println(getBlue("${head}: $msg"))
+
+fun printBlue(head: String, msg: Any) { // for positive info
+	println(getBlue("${head}: $msg"))
 }
+
 fun printPurple(msg: Any) { // will be used for benchmarks
-    println(getPurple(msg))
+	println(getPurple(msg))
 }
+
 fun printCyan(msg: Any) { // will be used for debug
-    println(getCyan(msg))
+	println(getCyan(msg))
 }
+
 fun printGray(msg: Any) {
-    println(getGray(msg))
+	println(getGray(msg))
 }
 
 fun getBenchmark(msg: Any): String {
-    return getPurple(msg)
+	return getPurple(msg)
 }
+
 fun printBenchmark(msg: Any) {
-    println(getBenchmark(msg))
+	println(getBenchmark(msg))
 }
 
 fun getDebug(msg: Any): String {
-    return getCyan(msg)
+	return getCyan(msg)
 }
+
 fun printDebug(msg: Any) {
-    println(getDebug(msg))
+	println(getDebug(msg))
 }
 
 inline fun <T> T.debugThis(prefix: String = "Debugger"): T {
-    printDebug(prefix + ": " + (this ?: "Null"))
-    return this
+	printDebug(prefix + ": " + (this ?: "Null"))
+	return this
 }
 
 inline fun <T> T.errorThis(prefix: String = "Error"): T {
-    printRed(prefix + ": " + (this ?: "Null"))
-    return this
+	printRed(prefix + ": " + (this ?: "Null"))
+	return this
 }
 
 fun stackTraceHere() {
-    try {
-        throw Exception()
-    } catch (e: Exception) {
-        e.printStackTrace()
-    }
+	try {
+		throw Exception()
+	} catch (e: Exception) {
+		e.printStackTrace()
+	}
 }
 
 inline fun <T> logBenchmarkResult(name: String, block: () -> T): T {
-    val start = System.currentTimeMillis()
-    val result = block()
-    val time = System.currentTimeMillis() - start
-    printBenchmark("[$name] took ${time}ms")
-    return result
+	val start = System.currentTimeMillis()
+	val result = block()
+	val time = System.currentTimeMillis() - start
+	printBenchmark("[$name] took ${time}ms")
+	return result
 }

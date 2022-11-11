@@ -13,10 +13,12 @@ class ConvDelta(
 	companion object {
 		const val defaultNameType = "ConvDelta"
 	}
+
 	override val nameType: String = defaultNameType
 	override val parentLayer: LayerBuilder<*> = parentLayerBlock()
 
 	private val shape = parentLayer.getShape().let { s -> s.copy(height = s.height - 1) }
+
 	init {
 		if (shape.height < 1) throw IllegalStateException("height cant be zero or less")
 	}

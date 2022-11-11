@@ -26,7 +26,7 @@ class GA(
 
 	fun runFor(generations: Int, silent: Boolean = false, action: ((GAScoreContext) -> Double)): ModelGenes {
 		var genCount = 0
-		for (i in 1 .. generations) {
+		for (i in 1..generations) {
 			genCount = i
 
 			val commands = runGeneration(action)

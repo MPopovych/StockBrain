@@ -4,7 +4,6 @@ import matrix.Matrix
 import utils.getShape
 
 
-
 class Concat(
 	override var name: String = Layer.DEFAULT_NAME,
 	parentLayerBlock: (() -> List<LayerBuilder<*>>),
@@ -12,15 +11,18 @@ class Concat(
 	companion object {
 		const val defaultNameType = "Concat"
 	}
+
 	override val nameType: String = defaultNameType
 	override val parentLayers: List<LayerBuilder<*>> = parentLayerBlock()
 
 	private val parentHeight = parentLayers.map { it.getShape().height }.distinct()
+
 	init {
 		if (parentHeight.size != 1) {
 			throw IllegalStateException("Illegal heights of parents: ${parentHeight}}")
 		}
 	}
+
 	val parentHeights = parentHeight.first()
 	val concatShape = LayerShape(parentLayers.sumOf { it.getShape().width }, parentHeights)
 

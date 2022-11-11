@@ -35,6 +35,7 @@ sealed class Layer {
 	abstract class SingleInputLayer : Layer() {
 		abstract fun call(input: Matrix): Matrix
 	}
+
 	abstract class MultiInputLayer : Layer() {
 		abstract fun call(inputs: List<Matrix>): Matrix
 	}
@@ -51,6 +52,7 @@ class WeightData(
 }
 
 typealias LB = LayerBuilder<*>
+
 sealed interface LayerBuilder<T : Layer> {
 	var name: String
 	val nameType: String
@@ -67,12 +69,15 @@ sealed interface LayerBuilder<T : Layer> {
 		val parentLayers: List<LayerBuilder<*>>
 	}
 
-	fun getSerializedBuilderData(): LayerMetaData? { return null }
+	fun getSerializedBuilderData(): LayerMetaData? {
+		return null
+	}
 }
 
 data class LayerShape(val width: Int, val height: Int) {
 	companion object {
 		val None = LayerShape(0, 0)
 	}
+
 	fun size() = width * height
 }

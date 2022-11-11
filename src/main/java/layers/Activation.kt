@@ -12,6 +12,7 @@ class Activation(
 	companion object {
 		const val defaultNameType = "Activation"
 	}
+
 	override val nameType: String = defaultNameType
 
 	override val parentLayer: LayerBuilder<*> = parentLayerBlock()

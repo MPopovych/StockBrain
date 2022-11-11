@@ -1,8 +1,8 @@
 package activation;
 
 public class BinaryNegPosFunction implements ActivationFunction {
-    @Override
-    public float apply(float value) {
-        return value >= 0 ? 1f : -1f;
-    }
+	@Override
+	public float apply(float value) {
+		return value >= 0 ? 1f : -1f;
+	}
 }

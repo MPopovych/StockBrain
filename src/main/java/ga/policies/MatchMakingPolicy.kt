@@ -10,11 +10,11 @@ interface MatchMakingPolicy {
 }
 
 sealed class FutureMatch {
-	class CrossMatch(val parentA: GAScoreHolder, val parentB: GAScoreHolder, val mutate: Boolean): FutureMatch()
-	class MutateMatch(val source: GAScoreHolder): FutureMatch()
+	class CrossMatch(val parentA: GAScoreHolder, val parentB: GAScoreHolder, val mutate: Boolean) : FutureMatch()
+	class MutateMatch(val source: GAScoreHolder) : FutureMatch()
 }
 
-class DefaultMatchMakingPolicy: MatchMakingPolicy {
+class DefaultMatchMakingPolicy : MatchMakingPolicy {
 	override fun select(settings: GASettings, scoreBoard: GAScoreBoard): List<FutureMatch> {
 		val buffer = ArrayList<FutureMatch>()
 		val top = scoreBoard.getTop() ?: throw IllegalStateException()

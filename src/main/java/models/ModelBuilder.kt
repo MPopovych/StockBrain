@@ -1,7 +1,12 @@
 package models
 
-import layers.*
-import utils.*
+import layers.InputLayer
+import layers.LB
+import layers.Layer
+import layers.LayerBuilder
+import utils.ifAlso
+import utils.printCyan
+import utils.printYellow
 
 class ModelBuilder(
 	internal val inputs: Map<String, InputLayer>,

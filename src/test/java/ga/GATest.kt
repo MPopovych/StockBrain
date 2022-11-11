@@ -57,7 +57,7 @@ class GATest {
 		})
 
 		logBenchmarkResult("Training session") {
-			ga.runFor(generations =100000, silent = true) {
+			ga.runFor(generations = 100000, silent = true) {
 				val newInput = Suppliers.createMatrix(input.getShape(), Suppliers.RandomBinNP)
 				val output = it.model.getOutput(newInput)
 				var absoluteError = 0.0

@@ -21,6 +21,7 @@ class Dense(
 	companion object {
 		const val defaultNameType = "Dense"
 	}
+
 	override val nameType: String = defaultNameType
 	override val parentLayer: LayerBuilder<*> = parentLayerBlock()
 	private val shape = LayerShape(units, parentLayer.getShape().height)
