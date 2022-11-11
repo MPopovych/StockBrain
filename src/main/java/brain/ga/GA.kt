@@ -5,12 +5,13 @@ import brain.ga.weights.ModelGenes
 import brain.models.Model
 import brain.models.revertToBuilder
 import brain.utils.printGreenBr
+import brain.utils.printYellowBr
 
 
 class GA(
 	private val settings: GASettings,
-	initialModel: Model,
-	private val onGeneration: (GA) -> Unit = {},
+	val initialModel: Model,
+	private val onGeneration: (Int, GA) -> Unit = { _, _ -> },
 	private val earlyStopCallback: (Int, GA) -> Boolean = { _, _ -> false },
 ) {
 
@@ -29,7 +30,9 @@ class GA(
 		for (i in 1..generations) {
 			genCount = i
 
+			val time = System.currentTimeMillis()
 			val commands = runGeneration(action)
+			val elapsed = (System.currentTimeMillis() - time) / 1000
 			val newGenes = commands.map { command ->
 				handleCommand(command)
 			}
@@ -41,14 +44,17 @@ class GA(
 			}
 
 			val topScore = scoreBoard.getTop()?.score ?: throw IllegalStateException("No top score")
-			if (!silent) printGreenBr("Generation: ${i}, topScore: $topScore")
-			onGeneration(this)
+			if (!silent) printYellowBr("Generation: ${i}, " +
+					"topScore: $topScore, " +
+					"time: ${elapsed}s, " +
+					"time challenge: ${elapsed / modelBuffer.size}s")
+			onGeneration(i, this)
 			if (earlyStopCallback(i, this)) {
 				break
 			}
 		}
 
-		printGreenBr("Ran $genCount generations in total")
+		printYellowBr("Ran $genCount generations in total")
 		return scoreBoard.getTop()?.genes ?: throw IllegalStateException("No top score")
 	}
 

@@ -23,7 +23,7 @@ data class LayerSerialized(
 		if (builderData is LayerMetaData) {
 			return builderData
 		}
-		throw IllegalStateException("meta data is not of LayerMetaData")
+		throw IllegalStateException("meta data is not of LayerMetaData, its : ${builderData.javaClass.name}")
 	}
 }
 

@@ -5,14 +5,19 @@ import com.google.gson.GsonBuilder
 
 object ModelWriter {
 
-	private val gson by lazy { GsonBuilder().setPrettyPrinting().create() }
+	private val gson by lazy { GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create() }
+	private val prettyGson by lazy { GsonBuilder().setPrettyPrinting().create() }
 
-	fun toJson(model: ModelSerialized): String {
-		return gson.toJson(model)
+	fun toJson(model: ModelSerialized, pretty: Boolean = false): String {
+		return if (pretty) {
+			prettyGson.toJson(model)
+		} else {
+			gson.toJson(model)
+		}
 	}
 
-	fun toJson(model: Model): String {
-		return toJson(serialize(model))
+	fun toJson(model: Model, pretty: Boolean = false): String {
+		return toJson(serialize(model), pretty)
 	}
 
 	fun serialize(model: Model): ModelSerialized {

@@ -125,8 +125,8 @@ private class LayerDeserializer : JsonDeserializer<LayerSerialized> {
 				temp.copy(builderData = data)
 			}
 			Direct.defaultNameType -> {
-				val data = ModelReader.innerGson
-					.fromJson<LayerMetaData.DirectMeta>(json.asJsonObject["builderData"])
+				val element = json.asJsonObject["builderData"]
+				val data = ModelReader.innerGson.fromJson<LayerMetaData.DirectMeta>(element)
 				temp.copy(builderData = data)
 			}
 			else -> temp

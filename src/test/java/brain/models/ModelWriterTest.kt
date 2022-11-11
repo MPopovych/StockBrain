@@ -21,7 +21,7 @@ class ModelWriterTest {
 		val model = ModelBuilder(input, Concat(name = "output") { listOf(d0, d1) }).build()
 
 		val sm = ModelWriter.serialize(model)
-		val json = ModelWriter.toJson(sm)
+		val json = ModelWriter.toJson(sm, pretty = true)
 		printYellowBr(json)
 
 		val model2 = ModelReader.modelInstance(json)
@@ -38,7 +38,7 @@ class ModelWriterTest {
 		val model = ModelBuilder(input, concat).build()
 
 		val sm1 = ModelWriter.serialize(model)
-		val json = ModelWriter.toJson(sm1)
+		val json = ModelWriter.toJson(sm1, pretty = true)
 		printYellowBr(json)
 		val sm2 = ModelReader.fromJson(json)
 		assert(sm1 == sm2)
@@ -62,7 +62,7 @@ class ModelWriterTest {
 		resultOriginal.print()
 
 		val sm1 = ModelWriter.serialize(modelOriginal)
-		val json = ModelWriter.toJson(sm1)
+		val json = ModelWriter.toJson(sm1, pretty = true)
 
 		val modelCopy = ModelReader.modelInstance(json)
 		val resultCopy = modelCopy.getOutput(inputData)
