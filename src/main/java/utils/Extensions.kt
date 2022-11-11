@@ -10,11 +10,11 @@ fun Matrix.getShape(): LayerShape {
 }
 
 fun Matrix.print() {
-	printBlue(describe())
+	printBlueBr(describe())
 }
 
-fun Matrix.printRed() {
-	printRed(describe())
+fun Matrix.printRedBr() {
+	printRedBr(describe())
 }
 
 fun Matrix.describe(): String {
@@ -34,7 +34,7 @@ fun Matrix.printTransposed() {
 		sb.append(line).appendLine()
 	}
 	sb.append("]")
-	printBlue(sb.toString().trimIndent())
+	printBlueBr(sb.toString().trimIndent())
 }
 
 fun FloatArray.encodeGenes(): String {

@@ -5,8 +5,8 @@ import layers.LB
 import layers.Layer
 import layers.LayerBuilder
 import utils.ifAlso
-import utils.printCyan
-import utils.printYellow
+import utils.printCyanBr
+import utils.printYellowBr
 
 class ModelBuilder(
 	internal val inputs: Map<String, InputLayer>,
@@ -42,7 +42,7 @@ class ModelBuilder(
 		}
 
 		if (debug) {
-			printCyan("Size: ${graph.size}")
+			printCyanBr("Size: ${graph.size}")
 		}
 	}
 
@@ -62,7 +62,7 @@ class ModelBuilder(
 		val existing = graph[currentLayer]
 		if (existing != null) {
 			return existing.ifAlso(debug) {
-				printCyan("already created $it")
+				printCyanBr("already created $it")
 			}
 		}
 		val connection = reverseQueue.getOrPut(currentLayer) { Connection(currentLayer) }
@@ -80,7 +80,7 @@ class ModelBuilder(
 						graph[currentLayer] = it
 						sortedConnections.add(connection)
 					}
-					.ifAlso(debug) { printYellow(it) }
+					.ifAlso(debug) { printYellowBr(it) }
 			}
 			is LayerBuilder.SingleInput -> {
 				// at the stage of implementation this is a single parent
@@ -90,13 +90,13 @@ class ModelBuilder(
 				return EmptyGraphNode.SingleParent(currentLayer).also {
 					graph[currentLayer] = it
 					sortedConnections.add(connection)
-				}.ifAlso(debug) { printYellow(it) }
+				}.ifAlso(debug) { printYellowBr(it) }
 			}
 			is InputLayer -> {
 				return EmptyGraphNode.DeadEnd(currentLayer).also {
 					graph[currentLayer] = it
 					sortedConnections.add(connection)
-				}.ifAlso(debug) { printYellow(it) }
+				}.ifAlso(debug) { printYellowBr(it) }
 			}
 			else -> {
 				throw IllegalStateException("Bad graph structure")

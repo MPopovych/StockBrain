@@ -6,7 +6,7 @@ import matrix.MatrixMath
 import suppliers.ConstSupplier
 import suppliers.Suppliers
 import utils.print
-import utils.printGreen
+import utils.printGreenBr
 import kotlin.test.Test
 
 class MatrixTest {
@@ -16,7 +16,7 @@ class MatrixTest {
 		val a = Matrix(2, 3, Suppliers.RandomRangeNP)
 		a.print()
 		val stringData = a.readStringData()
-		printGreen("String data of matrix: $stringData")
+		printGreenBr("String data of matrix: $stringData")
 
 		val b = Matrix(2, 3)
 		b.writeStringData(stringData)
@@ -31,7 +31,7 @@ class MatrixTest {
 		val a = Matrix(2, 3, Suppliers.RandomRangeNP)
 		a.print()
 		val floatData = a.readFloatData()
-		printGreen("Float data of matrix: ${floatData.toList()}")
+		printGreenBr("Float data of matrix: ${floatData.toList()}")
 
 		val b = Matrix(2, 3)
 		b.writeFloatData(floatData)

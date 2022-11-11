@@ -4,8 +4,8 @@ import layers.InputLayer
 import layers.Layer
 import layers.LayerBuilder
 import utils.ifAlso
-import utils.printCyan
-import utils.printYellow
+import utils.printCyanBr
+import utils.printYellowBr
 
 internal fun buildBufferNodes(
 	nodes: Collection<LayerBuilder<*>>,
@@ -27,7 +27,7 @@ internal fun iterateBufferNodes(
 	val existing = queue[currentLayer]
 	if (existing != null) {
 		return existing.ifAlso(debug) {
-			printCyan("already created $it")
+			printCyanBr("already created $it")
 		}
 	}
 
@@ -41,7 +41,7 @@ internal fun iterateBufferNodes(
 			val currentNode = GraphBuffer.MultiParent(currentLayerImpl, parents)
 			return currentNode
 				.also { queue[currentLayer] = it }
-				.ifAlso(debug) { printYellow(it) }
+				.ifAlso(debug) { printYellowBr(it) }
 		}
 		is LayerBuilder.SingleInput -> {
 			// at the stage of implementation this is a single parent
@@ -50,13 +50,13 @@ internal fun iterateBufferNodes(
 			val currentLayerImpl = currentLayer.create() as Layer.SingleInputLayer
 			return GraphBuffer.SingleParent(currentLayerImpl, parentNode)
 				.also { queue[currentLayer] = it }
-				.ifAlso(debug) { printYellow(it) }
+				.ifAlso(debug) { printYellowBr(it) }
 		}
 		is InputLayer -> {
 			val layer = currentLayer.create()
 			return GraphBuffer.DeadEnd(layer)
 				.also { queue[currentLayer] = it }
-				.ifAlso(debug) { printYellow(it) }
+				.ifAlso(debug) { printYellowBr(it) }
 		}
 		else -> {
 			throw IllegalStateException("Bad graph structure")

@@ -2,7 +2,7 @@ package ga.policies
 
 import assertNotEqualModel
 import ga.weights.WeightGenes
-import utils.printBlue
+import utils.printBlueBr
 import kotlin.test.Test
 
 class MutationPolicyTest {
@@ -15,7 +15,7 @@ class MutationPolicyTest {
 
 		AdditiveMutationPolicy().mutateWeight(a, d)
 
-		printBlue(d.genes.toList())
+		printBlueBr(d.genes.toList())
 	}
 
 

@@ -4,7 +4,7 @@ import ga.policies.FutureMatch
 import ga.weights.ModelGenes
 import models.Model
 import models.revertToBuilder
-import utils.printGreen
+import utils.printGreenBr
 
 
 class GA(
@@ -41,14 +41,14 @@ class GA(
 			}
 
 			val topScore = scoreBoard.getTop()?.score ?: throw IllegalStateException("No top score")
-			if (!silent) printGreen("Generation: ${i}, topScore: $topScore")
+			if (!silent) printGreenBr("Generation: ${i}, topScore: $topScore")
 			onGeneration(this)
 			if (earlyStopCallback(i, this)) {
 				break
 			}
 		}
 
-		printGreen("Ran $genCount generations in total")
+		printGreenBr("Ran $genCount generations in total")
 		return scoreBoard.getTop()?.genes ?: throw IllegalStateException("No top score")
 	}
 

@@ -36,8 +36,8 @@ class GATest {
 			}
 		}
 
-		printBlue("Input array:\t ${inputArray.describe()}")
-		printGray("Expected array:\t ${targetArray.describe()}")
+		printBlueBr("Input array:\t ${inputArray.describe()}")
+		printGrayBr("Expected array:\t ${targetArray.describe()}")
 
 		val settings = GASettings(
 			topParentCount = 5,
@@ -50,13 +50,13 @@ class GATest {
 		val ga = GA(settings, model, earlyStopCallback = { i, ga ->
 			val top = ga.scoreBoard.getTop()?.score ?: return@GA false
 			if (top == 0.0) {
-				printRed("Stop on gen $i with $top")
+				printRedBr("Stop on gen $i with $top")
 				return@GA true
 			}
 			return@GA false
 		})
 
-		logBenchmarkResult("Training session") {
+		brBenchmark("Training session") {
 			ga.runFor(generations = 100000, silent = true) {
 				val newInput = Suppliers.createMatrix(input.getShape(), Suppliers.RandomBinNP)
 				val output = it.model.getOutput(newInput)
@@ -76,8 +76,8 @@ class GATest {
 		top.genes.applyToModel(model)
 		val output = model.getOutput(inputArray)
 
-		printRed("Final array:\t ${output.describe()}")
-		printGreen("Expected array:\t ${targetArray.describe()}")
+		printRedBr("Final array:\t ${output.describe()}")
+		printGreenBr("Expected array:\t ${targetArray.describe()}")
 		ga.scoreBoard.printScoreBoard()
 	}
 

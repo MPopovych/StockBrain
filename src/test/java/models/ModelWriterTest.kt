@@ -6,8 +6,8 @@ import layers.*
 import suppliers.RandomRangeSupplier
 import suppliers.Suppliers
 import utils.print
-import utils.printRed
-import utils.printYellow
+import utils.printRedBr
+import utils.printYellowBr
 import kotlin.test.Test
 import kotlin.test.assertNotEquals
 
@@ -22,10 +22,10 @@ class ModelWriterTest {
 
 		val sm = ModelWriter.serialize(model)
 		val json = ModelWriter.toJson(sm)
-		printYellow(json)
+		printYellowBr(json)
 
 		val model2 = ModelReader.modelInstance(json)
-		printYellow(model2.revertToBuilder().summary())
+		printYellowBr(model2.revertToBuilder().summary())
 	}
 
 	@Test
@@ -39,7 +39,7 @@ class ModelWriterTest {
 
 		val sm1 = ModelWriter.serialize(model)
 		val json = ModelWriter.toJson(sm1)
-		printYellow(json)
+		printYellowBr(json)
 		val sm2 = ModelReader.fromJson(json)
 		assert(sm1 == sm2)
 	}
@@ -66,7 +66,7 @@ class ModelWriterTest {
 
 		val modelCopy = ModelReader.modelInstance(json)
 		val resultCopy = modelCopy.getOutput(inputData)
-		resultCopy.printRed()
+		resultCopy.printRedBr()
 
 		assertNotEquals(modelCopy, modelOriginal) // make sure those are not the same objects, snh
 		assertEqualModel(resultCopy, resultOriginal) // check array per element

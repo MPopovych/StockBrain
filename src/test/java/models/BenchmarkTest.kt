@@ -5,8 +5,8 @@ import layers.*
 import org.junit.jupiter.api.Test
 import suppliers.RandomRangeSupplier
 import suppliers.Suppliers
-import utils.logBenchmarkResult
-import utils.printBlue
+import utils.brBenchmark
+import utils.printBlueBr
 
 class BenchmarkTest {
 
@@ -30,9 +30,9 @@ class BenchmarkTest {
 
 		val builder = ModelBuilder(input, reluC0, debug = false)
 		val model = builder.build(debug = true)
-		printBlue(builder.summary())
+		printBlueBr(builder.summary())
 
-		logBenchmarkResult("iteration") {
+		brBenchmark("iteration") {
 			for (i in 0..300000) {
 				val inputData = Suppliers.createMatrix(LayerShape(featureSize, 1), RandomRangeSupplier.INSTANCE)
 				model.getOutput(inputData)

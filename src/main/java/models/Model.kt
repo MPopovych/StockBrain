@@ -4,7 +4,7 @@ import layers.InputLayer
 import layers.Layer
 import layers.LayerBuilder
 import matrix.Matrix
-import utils.printYellow
+import utils.printYellowBr
 
 
 class Model(
@@ -58,7 +58,7 @@ class Model(
 
 	private fun iterateOutput(bufferNode: GraphBuffer, queue: HashMap<Layer, Matrix>): GraphBuffer {
 		if (queue.containsKey(bufferNode.layer)) {
-			if (debug) printYellow("already found ${bufferNode.layer}")
+			if (debug) printYellowBr("already found ${bufferNode.layer}")
 			return bufferNode
 		}
 

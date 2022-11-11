@@ -25,7 +25,7 @@ class ModelTest {
 		val array1 = floatArrayOf(0.4f, 0f, 1f, 4f, 0f, 0f).reshapeToMatrix(3, 2)
 		val array2 = floatArrayOf(1.4f, 2f, 0.5f, 0f, 1f, -2f).reshapeToMatrix(6, 1)
 		val outputMatrix = model.getOutput(mapOf("1" to array1, "2" to array2))
-		outputMatrix.printRed()
+		outputMatrix.printRedBr()
 	}
 
 	@Test
@@ -37,7 +37,7 @@ class ModelTest {
 
 		val array1 = floatArrayOf(0.4f, 0f, 1f, 4f, 0f, 0f).reshapeToMatrix(3, 2)
 		val outputMatrix = model.getOutput(array1)
-		outputMatrix.printRed()
+		outputMatrix.printRedBr()
 	}
 
 	@Test
@@ -58,8 +58,8 @@ class ModelTest {
 		val inputData2 = Suppliers.createMatrix(LayerShape(3, 1), RandomRangeSupplier.INSTANCE)
 		val r3 = model.getOutput(inputData2).copy()
 
-		inputData.printRed()
-		inputData2.printRed()
+		inputData.printRedBr()
+		inputData2.printRedBr()
 		r1.print()
 		r3.print()
 		assertNotEqualModel(r1, r3)
@@ -81,7 +81,7 @@ class ModelTest {
 		val output = Dense(4, name = "output") { concat }
 
 		val builder = ModelBuilder(mapOf("a" to input1, "b" to input2), output, debug = false)
-		printYellow(builder.summary())
+		printYellowBr(builder.summary())
 		val model = builder.build(debug = false)
 
 		val inputData1 = Suppliers.createMatrix(LayerShape(3, 3), Suppliers.RandomRangeNP)
@@ -90,7 +90,7 @@ class ModelTest {
 		val r1 = model.getOutput(mapOf("a" to inputData1, "b" to inputData2)).copy()
 		val r2 = model.getOutput(mapOf("a" to inputData1, "b" to inputData2)).copy()
 		assertEqualModel(r1, r2)
-		r1.printRed()
+		r1.printRedBr()
 
 		val inputData3 = Suppliers.createMatrix(LayerShape(3, 3), Suppliers.RandomRangeNP)
 		val inputData4 = Suppliers.createMatrix(LayerShape(3, 3), Suppliers.RandomRangeNP)
@@ -113,7 +113,7 @@ class ModelTest {
 		val builder = ModelBuilder(input, concat, debug = true)
 		builder.build(debug = false)
 
-		printYellow(builder.summary())
+		printYellowBr(builder.summary())
 	}
 
 	@Test
@@ -132,7 +132,7 @@ class ModelTest {
 		val concat = Concat { listOf(ad3, bd1, bd2) }
 
 		val builder = ModelBuilder(input, concat, debug = false)
-		printYellow(builder.summary())
+		printYellowBr(builder.summary())
 	}
 
 	@Test
@@ -143,20 +143,20 @@ class ModelTest {
 
 
 		val inputImpl = input.create()
-		printGreen("input", inputImpl.getShape())
+		printGreenBr("input", inputImpl.getShape())
 		val d1Impl = d1.create()
-		printGreen("dense 1", inputImpl.getShape())
+		printGreenBr("dense 1", inputImpl.getShape())
 		d1Impl.getTrainable().forEach {
-			printBlue("dense w: ${it.describe()}")
+			printBlueBr("dense w: ${it.describe()}")
 		}
 		val activateImpl = activate.create()
-		printGreen("activate", activateImpl.getShape())
+		printGreenBr("activate", activateImpl.getShape())
 
 		val inputData = Suppliers.createMatrix(inputImpl.getShape(), RandomRangeSupplier.INSTANCE)
 		var b = inputImpl.call(inputData)
 		b.print()
 		b = d1Impl.call(b)
-		printRed(d1Impl.name)
+		printRedBr(d1Impl.name)
 		b.print()
 		b = activateImpl.call(b)
 		b.print()
@@ -171,7 +171,7 @@ class ModelTest {
 		val model = builder.build(debug = true)
 
 		val inputData = Suppliers.createMatrix(LayerShape(3, 3), RandomRangeSupplier.INSTANCE)
-		inputData.printRed()
+		inputData.printRedBr()
 		val r1 = model.getOutput(inputData).copy()
 		r1.print()
 	}

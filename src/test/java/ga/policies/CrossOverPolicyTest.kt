@@ -2,7 +2,7 @@ package ga.policies
 
 import assertNotEqualModel
 import ga.weights.WeightGenes
-import utils.printBlue
+import utils.printBlueBr
 import kotlin.test.Test
 
 class CrossOverPolicyTest {
@@ -16,7 +16,7 @@ class CrossOverPolicyTest {
 
 		SinglePointCrossOver().crossWeight(a, b, d)
 
-		printBlue(d.genes.toList())
+		printBlueBr(d.genes.toList())
 	}
 
 	@Test
@@ -28,7 +28,7 @@ class CrossOverPolicyTest {
 
 		UniformCrossOver().crossWeight(a, b, d)
 
-		printBlue(d.genes.toList())
+		printBlueBr(d.genes.toList())
 	}
 
 }

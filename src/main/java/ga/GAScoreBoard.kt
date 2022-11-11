@@ -1,6 +1,6 @@
 package ga
 
-import utils.printGreen
+import utils.printGreenBr
 
 enum class GAScoreBoardOrder {
 	Ascending,
@@ -47,7 +47,7 @@ class GAScoreBoard(private val topCount: Int, private val order: GAScoreBoardOrd
 		scoreList.forEach { t ->
 			sb.append("score: ${t.score} -- ${t.id}").appendLine()
 		}
-		printGreen(sb.toString().trimIndent())
+		printGreenBr(sb.toString().trimIndent())
 	}
 
 }
