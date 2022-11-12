@@ -33,6 +33,7 @@ object Activations {
 			Zero.nameType() -> Zero
 			Tanh.nameType() -> Tanh
 			Sigmoid.nameType() -> Sigmoid
+			ReLuMinMax.nameType() -> ReLuMinMax
 			else -> throw IllegalArgumentException("unsupported type: $name")
 		}
 	}
