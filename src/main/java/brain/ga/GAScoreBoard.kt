@@ -1,6 +1,9 @@
 package brain.ga
 
 import brain.utils.printGreenBr
+import brain.utils.roundUp
+import kotlin.math.pow
+import kotlin.math.sqrt
 
 enum class GAScoreBoardOrder {
 	Ascending,
@@ -19,6 +22,21 @@ class GAScoreBoard(private val topCount: Int, private val order: GAScoreBoardOrd
 
 	fun getTop(): GAScoreHolder? {
 		return scoreList.lastOrNull()
+	}
+
+	fun getStandardDeviation(): Double {
+		return scoreList.map { it.score }.let {
+			val mean = it.average()
+			val stdSum = it.sumOf { score -> (score - mean).pow(2) }
+			return@let sqrt(stdSum / size)
+		}
+	}
+
+	fun getStdAndPercent(): Pair<Double, Double> {
+		val best = scoreList.last().score
+		val std = getStandardDeviation()
+		val stdPercent = std / best
+		return Pair(std, stdPercent * 100)
 	}
 
 	fun getBottom(): GAScoreHolder? {
@@ -44,8 +62,10 @@ class GAScoreBoard(private val topCount: Int, private val order: GAScoreBoardOrd
 
 	fun printScoreBoard() {
 		val sb = StringBuilder()
+		val stdAndPercent = getStdAndPercent()
+		sb.append("Score deviation: ${stdAndPercent.first} : ${stdAndPercent.second.roundUp(2)}%").appendLine()
 		scoreList.forEach { t ->
-			sb.append("score: ${t.score} -- ${t.id}").appendLine()
+			sb.append("score: ${t.score} -- ${t.id.hashCode()}").appendLine()
 		}
 		printGreenBr(sb.toString().trimIndent())
 	}
