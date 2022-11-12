@@ -51,6 +51,32 @@ open class AdditiveMutationPolicy(private val fraction: Double = 0.01) : Mutatio
 	}
 }
 
+open class ReplaceMutationPolicy(private val fraction: Double = 0.01) : MutationPolicy {
+	private val randomRangeSupplier = Suppliers.RandomRangeNP
+	private fun supplyNext() = randomRangeSupplier.supply(0, 0)
+
+	override fun mutateWeight(
+		source: WeightGenes,
+		destination: WeightGenes,
+	) {
+		if (source != destination) {
+			source.copyTo(destination)
+		}
+		val indices = source.genes.indices
+		val countToMutateDouble = min((source.size.toDouble() * fraction), source.size.toDouble())
+		if (countToMutateDouble >= 1.0) {
+			val countToMutate = countToMutateDouble.roundUpInt()
+			for (i in 0 until countToMutate) {
+				destination.genes[indices.random()] = supplyNext()
+			}
+		} else {
+			if (Random.nextDouble(0.0, 1.0) <= countToMutateDouble) {
+				destination.genes[indices.random()] = supplyNext()
+			}
+		}
+	}
+}
+
 open class UpscaleMutationPolicy(private val fraction: Double = 0.01) : MutationPolicy {
 	override fun mutateWeight(
 		source: WeightGenes,
@@ -65,12 +91,12 @@ open class UpscaleMutationPolicy(private val fraction: Double = 0.01) : Mutation
 			val countToMutate = countToMutateDouble.roundUpInt()
 			for (i in 0 until countToMutate) {
 				val randomIndex = indices.random()
-				destination.genes[randomIndex] = destination.genes[randomIndex].upscale(4)
+				destination.genes[randomIndex] = destination.genes[randomIndex].upscale(3)
 			}
 		} else {
 			if (Random.nextDouble(0.0, 1.0) <= countToMutateDouble) {
 				val randomIndex = indices.random()
-				destination.genes[randomIndex] = destination.genes[randomIndex].upscale(4)
+				destination.genes[randomIndex] = destination.genes[randomIndex].upscale(3)
 			}
 		}
 	}
@@ -106,13 +132,15 @@ class CyclicMutationPolicy(
 	fraction: Double = 0.01,
 	private val additiveRatio: Int = 8,
 	private val upscaleRatio: Int = 1,
-	inversionRatio: Int = 1,
+	private val inversionRatio: Int = 1,
+	private val replaceRatio: Int = 3,
 ) : MutationPolicy {
 
-	private val sum = additiveRatio + upscaleRatio + inversionRatio
-	private val additive = AdditiveMutationPolicy(fraction)
-	private val upscale = UpscaleMutationPolicy(fraction)
-	private val inversion = InversionMutationPolicy(fraction)
+	private val sum = additiveRatio + upscaleRatio + inversionRatio + replaceRatio
+	private val additive = AdditiveMutationPolicy(fraction * (additiveRatio.toDouble() / sum))
+	private val upscale = UpscaleMutationPolicy(fraction * (upscaleRatio.toDouble() / sum))
+	private val inversion = InversionMutationPolicy(fraction * (inversionRatio.toDouble() / sum))
+	private val replace = ReplaceMutationPolicy(fraction *  (replaceRatio.toDouble() / sum))
 
 	init {
 		if (sum <= 0) throw IllegalStateException("Sum of rations should bot be zero or less")
@@ -127,8 +155,10 @@ class CyclicMutationPolicy(
 			additive.mutateWeight(source, destination)
 		} else if (r < additiveRatio + upscaleRatio) {
 			upscale.mutateWeight(source, destination)
-		} else {
+		} else if (r < additiveRatio + upscaleRatio + inversionRatio){
 			inversion.mutateWeight(source, destination)
+		} else {
+			replace.mutateWeight(source, destination)
 		}
 	}
 }
