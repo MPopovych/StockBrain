@@ -12,7 +12,7 @@ enum class GAScoreBoardOrder {
 
 class GAScoreBoard(private val topCount: Int, private val order: GAScoreBoardOrder) {
 
-	private val hashSet = HashSet<String>()
+	private val idSet = HashSet<String>()
 	private val scoreList = ArrayList<GAScoreHolder>()
 
 	val size: Int
@@ -45,8 +45,9 @@ class GAScoreBoard(private val topCount: Int, private val order: GAScoreBoardOrd
 
 	fun pushBatch(batch: List<GAScoreHolder>) {
 		scoreList.addAll(batch
+			.distinctBy { it.id }
 			.filter {
-				it.id !in hashSet
+				it.id !in idSet
 			}
 		)
 		when (order) {
@@ -56,8 +57,8 @@ class GAScoreBoard(private val topCount: Int, private val order: GAScoreBoardOrd
 		while (scoreList.size > topCount) {
 			scoreList.removeFirst()
 		}
-		hashSet.clear()
-		scoreList.forEach { hashSet.add(it.chromosomeHash) }
+		idSet.clear()
+		scoreList.forEach { idSet.add(it.chromosomeHash) }
 	}
 
 	fun printScoreBoard() {
