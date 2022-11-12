@@ -102,6 +102,13 @@ object ModelReader {
 					parents
 				}
 			}
+			Flatten.defaultNameType -> {
+				val parent = ls.parents?.getOrNull(0)
+					?: throw IllegalStateException("No parent in Flatten")
+				Flatten(name = ls.name) {
+					buffer[parent] ?: throw IllegalStateException("No parent found in buffer")
+				}
+			}
 			else -> throw NotImplementedError("${ls.nameType} parse not supported")
 		}
 		buffer[ls.name] = lb

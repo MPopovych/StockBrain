@@ -85,6 +85,25 @@ public class MatrixMath {
 		}
 	}
 
+	public static void convolutionFlatten(Matrix a, Matrix destination) {
+		//Column major implementation, ijk algorithm
+		int thisX = a.width; //right, number of columns
+		int thisY = a.height; // down, number of rows
+		int targetX = destination.width;
+		int targetY = destination.height;
+
+		if (targetX == thisX || targetY != 1 && targetX == thisX * thisY) {
+			throw new IllegalArgumentException("shape conflict %s:%s vs %s:%s".formatted(thisX, thisY, targetX, targetY));
+		}
+
+		int pending = 0;
+		for (int j = 0; j < thisY; j++) {
+			for (int i = 0; i < thisX; i++) {
+				destination.values[pending++][0] = a.values[i][j];
+			}
+		}
+	}
+
 	public static void hadamard(Matrix a, Matrix b, Matrix destination) {
 		//Column major implementation, ijk algorithm
 		int thisX = a.width; //right, number of columns
