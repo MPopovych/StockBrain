@@ -4,6 +4,7 @@ import brain.ga.policies.FutureMatch
 import brain.ga.weights.ModelGenes
 import brain.models.Model
 import brain.models.revertToBuilder
+import brain.utils.printCyanBr
 import brain.utils.printYellowBr
 
 
@@ -35,7 +36,7 @@ class GA(
 			genCount = i
 
 			val time = System.currentTimeMillis()
-			val commands = runGeneration(action)
+			val commands = runGeneration(genCount, action)
 			val elapsed = (System.currentTimeMillis() - time) / 1000
 			val newGenes = commands.map { command ->
 				handleCommand(command)
@@ -82,11 +83,22 @@ class GA(
 		}
 	}
 
-	private fun runGeneration(action: ((GAScoreContext) -> Double)): List<FutureMatch> {
-		val contexts = modelBuffer.map { model -> GAScoreContext(model = model.first, genes = model.second) }
+	private fun runGeneration(generation: Int, action: ((GAScoreContext) -> Double)): List<FutureMatch> {
+		val contexts = modelBuffer.map { model ->
+			GAScoreContext(
+				generation = generation,
+				model = model.first,
+				genes = model.second
+			)
+		}
 		val scores = contexts.map { context ->
 			val score = action(context)
 			return@map GAScoreHolder(id = context.genes.chromosome, score = score, genes = context.genes)
+		}
+
+		val records = contexts.map { it.records }.flatten()
+		if (records.isNotEmpty()) {
+			printCyanBr("Avg challenge record: ${records.average()}")
 		}
 
 		scoreBoard.pushBatch(scores)

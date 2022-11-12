@@ -7,6 +7,7 @@ data class GAScoreHolder(
 	val score: Double,
 	val genes: ModelGenes,
 ) {
+	val idHashcode = id.hashCode()
 
 	val chromosomeHash: String
 		get() = genes.chromosome

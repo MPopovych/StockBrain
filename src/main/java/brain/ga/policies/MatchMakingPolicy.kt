@@ -26,7 +26,6 @@ class DefaultMatchMakingPolicy : MatchMakingPolicy {
 			val b = holders.random()
 
 			if (a == b) continue
-			// TODO implement and filter relatives
 			buffer.add(FutureMatch.CrossMatch(a, b, mutate = Random.nextBoolean()))
 		}
 		return buffer
