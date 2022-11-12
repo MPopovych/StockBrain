@@ -3,10 +3,12 @@ package brain.ga.policies
 import brain.ga.weights.LayerGenes
 import brain.ga.weights.WeightGenes
 import brain.suppliers.Suppliers
+import brain.utils.printGreenBr
 import brain.utils.roundUpInt
 import brain.utils.upscale
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.random.Random
 
 interface MutationPolicy {
 	fun mutation(source: LayerGenes, destination: LayerGenes) {
@@ -35,9 +37,16 @@ open class AdditiveMutationPolicy(private val fraction: Double = 0.01) : Mutatio
 			source.copyTo(destination)
 		}
 		val indices = source.genes.indices
-		val size = max(min((source.size * fraction).roundUpInt(), source.size), 1)
-		for (i in 0 until size) {
-			destination.genes[indices.random()] += supplyNext()
+		val countToMutateDouble = min((source.size.toDouble() * fraction), source.size.toDouble())
+		if (countToMutateDouble >= 1.0) {
+			val countToMutate = countToMutateDouble.roundUpInt()
+			for (i in 0 until countToMutate) {
+				destination.genes[indices.random()] += supplyNext()
+			}
+		} else {
+			if (Random.nextDouble(0.0, 1.0) <= countToMutateDouble) {
+				destination.genes[indices.random()] += supplyNext()
+			}
 		}
 	}
 }
@@ -51,10 +60,18 @@ open class UpscaleMutationPolicy(private val fraction: Double = 0.01) : Mutation
 			source.copyTo(destination)
 		}
 		val indices = source.genes.indices
-		val size = max(min((source.size * fraction).roundUpInt(), source.size), 1)
-		for (i in 0 until size) {
-			val randomIndex = indices.random()
-			destination.genes[randomIndex] = destination.genes[randomIndex].upscale(4)
+		val countToMutateDouble = min((source.size.toDouble() * fraction), source.size.toDouble())
+		if (countToMutateDouble >= 1.0) {
+			val countToMutate = countToMutateDouble.roundUpInt()
+			for (i in 0 until countToMutate) {
+				val randomIndex = indices.random()
+				destination.genes[randomIndex] = destination.genes[randomIndex].upscale(4)
+			}
+		} else {
+			if (Random.nextDouble(0.0, 1.0) <= countToMutateDouble) {
+				val randomIndex = indices.random()
+				destination.genes[randomIndex] = destination.genes[randomIndex].upscale(4)
+			}
 		}
 	}
 }
@@ -69,10 +86,18 @@ open class InversionMutationPolicy(private val fraction: Double = 0.01) : Mutati
 			source.copyTo(destination)
 		}
 		val indices = source.genes.indices
-		val size = max(min((source.size * fraction).roundUpInt(), source.size), 1)
-		for (i in 0 until size) {
-			val randomIndex = indices.random()
-			destination.genes[randomIndex] = -destination.genes[randomIndex]
+		val countToMutateDouble = min((source.size.toDouble() * fraction), source.size.toDouble())
+		if (countToMutateDouble >= 1.0) {
+			val countToMutate = countToMutateDouble.roundUpInt()
+			for (i in 0 until countToMutate) {
+				val randomIndex = indices.random()
+				destination.genes[randomIndex] = -destination.genes[randomIndex]
+			}
+		} else {
+			if (Random.nextDouble(0.0, 1.0) <= countToMutateDouble) {
+				val randomIndex = indices.random()
+				destination.genes[randomIndex] = -destination.genes[randomIndex]
+			}
 		}
 	}
 }
