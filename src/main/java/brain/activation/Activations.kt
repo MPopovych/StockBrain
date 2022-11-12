@@ -5,6 +5,7 @@ import brain.matrix.Matrix
 object Activations {
 	val ReLu = ReLuFunction()
 	val LeReLu = LeakyReLuFunction()
+	val ReLuMinMax = ReLuMinMaxFunction()
 	val NegZeroPos = NegZeroPosFunction()
 	val BinaryNegPos = BinaryNegPosFunction()
 	val Binary = BinaryStepFunction()
