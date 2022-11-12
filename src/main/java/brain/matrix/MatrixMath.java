@@ -92,7 +92,7 @@ public class MatrixMath {
 		int targetX = destination.width;
 		int targetY = destination.height;
 
-		if (targetX == thisX || targetY != 1 && targetX == thisX * thisY) {
+		if (targetY != 1 || targetX != thisX * thisY) {
 			throw new IllegalArgumentException("shape conflict %s:%s vs %s:%s".formatted(thisX, thisY, targetX, targetY));
 		}
 

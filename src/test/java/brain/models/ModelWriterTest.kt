@@ -37,7 +37,8 @@ class ModelWriterTest {
 		val a2 = Activation(function = Activations.ReLu) { d3 }
 		val concat = Concat { listOf(d1, a2) }
 		val convDelta = ConvDelta { concat }
-		val model = ModelBuilder(input, convDelta).build()
+		val flatten = Flatten { convDelta }
+		val model = ModelBuilder(input, flatten).build()
 
 		val sm1 = ModelWriter.serialize(model)
 		val json = ModelWriter.toJson(sm1, pretty = true)
@@ -56,7 +57,8 @@ class ModelWriterTest {
 		val d3 = Direct(name = "d3", useBias = false) { d2 }
 		val concat = Concat { listOf(a1, d3) }
 		val convDelta = ConvDelta { concat }
-		val output = Dense(3, activation = Activations.Tanh) { convDelta}
+		val flatten = Flatten { convDelta }
+		val output = Dense(3, activation = Activations.Tanh) { flatten }
 		val builder = ModelBuilder(input, output)
 		val modelOriginal = builder.build()
 

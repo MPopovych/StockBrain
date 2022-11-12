@@ -91,7 +91,7 @@ open class UpscaleMutationPolicy(private val fraction: Double = 0.01) : Mutation
 			val countToMutate = countToMutateDouble.roundUpInt()
 			for (i in 0 until countToMutate) {
 				val randomIndex = indices.random()
-				destination.genes[randomIndex] = destination.genes[randomIndex].upscale(3)
+				destination.genes[randomIndex] = destination.genes[randomIndex].upscale(4)
 			}
 		} else {
 			if (Random.nextDouble(0.0, 1.0) <= countToMutateDouble) {
@@ -129,11 +129,11 @@ open class InversionMutationPolicy(private val fraction: Double = 0.01) : Mutati
 }
 
 class CyclicMutationPolicy(
-	fraction: Double = 0.01,
-	private val additiveRatio: Int = 8,
+	fraction: Double = 0.01, // from 1.0 to 0.0
+	private val additiveRatio: Int = 6,
 	private val upscaleRatio: Int = 1,
 	private val inversionRatio: Int = 1,
-	private val replaceRatio: Int = 3,
+	private val replaceRatio: Int = 4,
 ) : MutationPolicy {
 
 	private val sum = additiveRatio + upscaleRatio + inversionRatio + replaceRatio

@@ -61,11 +61,12 @@ class GAScoreBoard(private val topCount: Int, private val order: GAScoreBoardOrd
 		scoreList.forEach { idSet.add(it.chromosomeHash) }
 	}
 
-	fun printScoreBoard() {
+	fun printScoreBoard(limit: Int? = null) {
 		val sb = StringBuilder()
 		val stdAndPercent = getStdAndPercent()
 		sb.append("Score deviation: ${stdAndPercent.first} : ${stdAndPercent.second.roundUp(2)}%").appendLine()
-		scoreList.forEach { t ->
+
+		scoreList.takeLast(limit ?: scoreList.size).forEach { t ->
 			sb.append("score: ${t.score} -- ${t.id.hashCode()}").appendLine()
 		}
 		printGreenBr(sb.toString().trimIndent())

@@ -1,13 +1,13 @@
-package brain.models
+package brain.matrix
 
 import brain.assertEqualModel
-import brain.matrix.Matrix
-import brain.matrix.MatrixMath
 import brain.suppliers.ConstSupplier
 import brain.suppliers.Suppliers
 import brain.utils.print
 import brain.utils.printGreenBr
+import brain.utils.printRedBr
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class MatrixTest {
 
@@ -45,11 +45,20 @@ class MatrixTest {
 	fun testMultiplyConst() {
 		val a = Matrix(3, 2) { _, y -> y + 1f }
 		a.print()
-		val b = Matrix(3, 3, Suppliers.Ones)
-		b.print()
+		val b = Matrix(3, 3) { x, y -> y.toFloat() * x }
+		b.printRedBr()
 		val d = Matrix(3, 2, Suppliers.Zero)
 		MatrixMath.multiply(a, b, d)
 		d.print()
+
+		assertEquals(d.values[0][0], 0f)
+		assertEquals(d.values[1][0], 3f)
+		assertEquals(d.values[2][0], 6f)
+
+		assertEquals(d.values[0][1], 0f)
+		assertEquals(d.values[1][1], 6f)
+		assertEquals(d.values[2][1], 12f)
+
 	}
 
 	@Test
