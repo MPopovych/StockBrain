@@ -35,7 +35,7 @@ class GAScoreBoard(private val topCount: Int, private val order: GAScoreBoardOrd
 	fun getStdAndPercent(): Pair<Double, Double> {
 		val best = scoreList.last().score
 		val std = getStandardDeviation()
-		val stdPercent = std / best
+		val stdPercent = if (best == 0.0) 0.0 else std / best
 		return Pair(std, stdPercent * 100)
 	}
 
@@ -45,6 +45,11 @@ class GAScoreBoard(private val topCount: Int, private val order: GAScoreBoardOrd
 
 	fun pushBatch(batch: List<GAScoreHolder>) {
 		scoreList.addAll(batch
+			.onEach {
+				if (it.score.isNaN() || it.score.isInfinite()) {
+					throw IllegalStateException("NaN or Infinite in score")
+				}
+			}
 			.distinctBy { it.id }
 			.filter {
 				it.id !in idSet
