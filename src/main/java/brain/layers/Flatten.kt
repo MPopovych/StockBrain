@@ -17,7 +17,7 @@ class Flatten(
 	private val shape = parentLayer.getShape().let { s -> s.copy(width = s.width * s.height, height = 1) }
 
 	init {
-		if (shape.width < 2) throw IllegalStateException("width cant be one or less")
+		if (shape.width < 1) throw IllegalStateException("width cant be less than zero")
 	}
 
 	override fun create(): FlattenImpl {

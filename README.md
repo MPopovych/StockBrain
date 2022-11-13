@@ -1,6 +1,21 @@
 # StockBrain
 Lightweight Java-Kotlin based library for neural networks
 
+### Supported layers
+*InputLayer* - defines entry for a set of data, multiple inputs can be used in the same model
+
+*Direct* - layer in a *Hadamard* multiplication style, can have an activation function, bias
+
+*Dense* - the most basic layer, can have an activation function, bias
+
+*Activation* - wrapper around the activation function
+
+*Flatten* - turns an {X,Y} layer into a {X*Y, 1} array
+
+*Concat* - turns a list of layers into one (at the moment limited only to layers with height 1)
+
+*ConvDelta* - turn a layer of {X,Y} into {X,Y-1}, applies subtraction between two rows
+
 This a set of components developed for genetic algorithms coupled with a deep neural network.
 As a reference for declaration style tensorflow-keras was used
 
