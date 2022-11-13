@@ -8,7 +8,7 @@ data class GASettings(
 	val scoreBoardOrder: GAScoreBoardOrder,
 	val scoreBoardClearOnGeneration: Boolean,
 	val mutationPolicy: MutationPolicy = AdditiveMutationPolicy(0.02),
-	val initialMutationPolicy: MutationPolicy = AdditiveMutationPolicy(0.04),
-	val matchMakingPolicy: MatchMakingPolicy = DefaultMatchMakingPolicy(repeatTop = scoreBoardClearOnGeneration),
-	val crossOverPolicy: CrossOverPolicy = UniformCrossOver(),
+	val initialMutationPolicy: MutationPolicy = ReplaceMutationPolicy(1.0),
+	val matchMakingPolicy: MatchMakingPolicy = DefaultMatchMakingPolicy(repeatTop = if (scoreBoardClearOnGeneration) 3 else 0),
+	val crossOverPolicy: CrossOverPolicy = TwoPointCrossOver(),
 )

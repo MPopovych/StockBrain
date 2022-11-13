@@ -15,11 +15,15 @@ sealed class FutureMatch {
 	class MutateMatch(val source: GAScoreHolder) : FutureMatch()
 }
 
-class DefaultMatchMakingPolicy(val repeatTop: Boolean) : MatchMakingPolicy {
+class DefaultMatchMakingPolicy(val repeatTop: Int) : MatchMakingPolicy {
 	override fun select(settings: GASettings, scoreBoard: GAScoreBoard): List<FutureMatch> {
 		val buffer = ArrayList<FutureMatch>()
 		val top = scoreBoard.getTop() ?: throw IllegalStateException()
-		if (repeatTop) buffer.add(FutureMatch.Repeat(top))
+		if (repeatTop > 0) {
+			scoreBoard.getAscendingScoreList().takeLast(repeatTop).forEach { best ->
+				buffer.add(FutureMatch.Repeat(best))
+			}
+		}
 		buffer.add(FutureMatch.MutateMatch(top))
 
 		val holders = scoreBoard.getAscendingScoreList()
