@@ -218,3 +218,26 @@ val top = ga.scoreBoard.getTop() ?: throw IllegalStateException()
 top.genes.applyToModel(model)
 val outputMatrix = model.getOutput(inputMatrix)
 ```
+
+# Examples
+
+``` kotlin
+fun create_v1_mc4(features: Int): Model {
+    val input = InputLayer(features = features, steps = 1)
+    val hadamardInput = Direct(useBias = false) { input }
+    
+    var branchAsk: LB = Dense(12, activation = Activations.Tanh) { hadamardInput }
+    branchAsk = Dense(4, activation = Activations.Tanh) { branchAsk }
+    branchAsk = Dense(4, activation = Activations.Tanh) { branchAsk }
+    
+    var branchBid: LB = Dense(12, activation = Activations.Tanh) { hadamardInput }
+    branchBid = Dense(8, activation = Activations.Tanh) { branchBid }
+    branchBid = Dense(4, activation = Activations.Tanh) { branchBid }
+    
+    val concat = Concat { listOf(branchAsk, branchBid) }
+    val hadamardOutput = Direct { concat }
+    val output = Dense(2, activation = Activations.Sigmoid) { hadamardOutput }
+    
+    return ModelBuilder(input, output).build()
+}
+```

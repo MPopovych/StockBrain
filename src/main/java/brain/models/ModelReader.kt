@@ -109,6 +109,15 @@ object ModelReader {
 					buffer[parent] ?: throw IllegalStateException("No parent found in buffer")
 				}
 			}
+			TimeMask.defaultNameType -> {
+				val meta = (ls.getMetaData() as? LayerMetaData.TimeMaskMeta)
+					?: throw IllegalStateException("No meta for dense")
+				val parent = ls.parents?.getOrNull(0)
+					?: throw IllegalStateException("No parent in Flatten")
+				TimeMask(fromStart = meta.fromStart, fromEnd = meta.fromEnd, name = ls.name) {
+					buffer[parent] ?: throw IllegalStateException("No parent found in buffer")
+				}
+			}
 			else -> throw NotImplementedError("${ls.nameType} parse not supported")
 		}
 		buffer[ls.name] = lb
@@ -134,6 +143,11 @@ private class LayerDeserializer : JsonDeserializer<LayerSerialized> {
 			Direct.defaultNameType -> {
 				val element = json.asJsonObject["builderData"]
 				val data = ModelReader.innerGson.fromJson<LayerMetaData.DirectMeta>(element)
+				temp.copy(builderData = data)
+			}
+			TimeMask.defaultNameType -> {
+				val element = json.asJsonObject["builderData"]
+				val data = ModelReader.innerGson.fromJson<LayerMetaData.TimeMaskMeta>(element)
 				temp.copy(builderData = data)
 			}
 			else -> temp

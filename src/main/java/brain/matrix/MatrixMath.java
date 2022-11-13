@@ -130,6 +130,24 @@ public class MatrixMath {
 		}
 	}
 
+	public static void transferHeightRange(Matrix from, Matrix to, int maskStart, int maskEnd) {
+		//Column major implementation, ijk algorithm
+		int thisX = from.width; //right, number of columns
+		int thisY = from.height; // down, number of rows
+		int targetX = to.width;
+		int targetY = to.height;
+		int destHeight = thisY - maskEnd - maskStart;
+
+		if (thisX != targetX || destHeight != targetY) {
+			throw new IllegalArgumentException("shape conflict %s:%s vs %s:%s".formatted(thisX, thisY, targetX, targetY));
+		}
+
+
+		for (int x = 0; x < thisX; x++) {
+			System.arraycopy(from.values[x], maskStart, to.values[x], 0, destHeight);
+		}
+	}
+
 	public static void flush(Matrix d) {
 		//Column major implementation, ijk algorithm
 		int thisX = d.width; //right, number of columns

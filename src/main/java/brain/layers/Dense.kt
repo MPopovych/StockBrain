@@ -45,7 +45,7 @@ class Dense(
 		return shape
 	}
 
-	override fun getSerializedBuilderData(): LayerMetaData {
+	override fun getSerializedBuilderData(): LayerMetaData.DenseMeta {
 		return LayerMetaData.DenseMeta(useBias = useBias)
 	}
 }

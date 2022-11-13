@@ -28,7 +28,7 @@ class GA(
 		genes.applyToModel(model)
 		return@mapTo Pair(model, genes)
 	}
-	val scoreBoard = GAScoreBoard(settings.topParentCount, settings.scoreBoardOrder)
+	val scoreBoard = GAScoreBoard(settings)
 
 	fun runFor(generations: Int, silent: Boolean = false, action: ((GAScoreContext) -> Double)): ModelGenes {
 		var genCount = 0
@@ -79,7 +79,10 @@ class GA(
 				val destination = command.source.copyGene()
 				destination.applyMutationPolicy(settings.mutationPolicy, source = command.source.genes)
 			}
-			else -> throw IllegalStateException("Not implemented")
+			is FutureMatch.Repeat -> {
+				val destination = command.source.copyGene()
+				destination
+			}
 		}
 	}
 

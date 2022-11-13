@@ -41,7 +41,7 @@ class Direct(
 		return shape
 	}
 
-	override fun getSerializedBuilderData(): LayerMetaData {
+	override fun getSerializedBuilderData(): LayerMetaData.DirectMeta {
 		return LayerMetaData.DirectMeta(useBias = useBias)
 	}
 }

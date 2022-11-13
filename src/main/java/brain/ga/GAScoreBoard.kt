@@ -10,7 +10,7 @@ enum class GAScoreBoardOrder {
 	Descending
 }
 
-class GAScoreBoard(private val topCount: Int, private val order: GAScoreBoardOrder) {
+class GAScoreBoard(private val settings: GASettings) {
 
 	private val idSet = HashSet<String>()
 	private val scoreList = ArrayList<GAScoreHolder>()
@@ -44,6 +44,10 @@ class GAScoreBoard(private val topCount: Int, private val order: GAScoreBoardOrd
 	}
 
 	fun pushBatch(batch: List<GAScoreHolder>) {
+		if (settings.scoreBoardClearOnGeneration) {
+			idSet.clear()
+			scoreList.clear()
+		}
 		scoreList.addAll(batch
 			.onEach {
 				if (it.score.isNaN() || it.score.isInfinite()) {
@@ -55,11 +59,11 @@ class GAScoreBoard(private val topCount: Int, private val order: GAScoreBoardOrd
 				it.id !in idSet
 			}
 		)
-		when (order) {
+		when (settings.scoreBoardOrder) {
 			GAScoreBoardOrder.Ascending -> scoreList.sortBy { it.score } // ascending
 			GAScoreBoardOrder.Descending -> scoreList.sortByDescending { it.score } // ascending
 		}
-		while (scoreList.size > topCount) {
+		while (scoreList.size > settings.topParentCount) {
 			scoreList.removeFirst()
 		}
 		idSet.clear()
