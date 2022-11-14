@@ -63,7 +63,7 @@ class DenseLayerImpl(
 	lateinit var bias: WeightData
 
 	override fun init() {
-		kernel = WeightData("weight", Matrix(weightShape.width, weightShape.height), true)
+		kernel = WeightData("weight", Matrix(weightShape.width, weightShape.height, Suppliers.Ones), true)
 		addWeights(kernel)
 		bias = if (useBias) {
 			WeightData("bias", Matrix(biasShape.width, biasShape.height), true)

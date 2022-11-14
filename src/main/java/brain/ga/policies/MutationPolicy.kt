@@ -133,7 +133,7 @@ class CyclicMutationPolicy(
 	private val additiveRatio: Int = 6,
 	private val upscaleRatio: Int = 1,
 	private val inversionRatio: Int = 1,
-	private val replaceRatio: Int = 4,
+	private val replaceRatio: Int = 2,
 ) : MutationPolicy {
 
 	private val sum = additiveRatio + upscaleRatio + inversionRatio + replaceRatio
@@ -150,15 +150,20 @@ class CyclicMutationPolicy(
 		source: WeightGenes,
 		destination: WeightGenes,
 	) {
-		val r = (0 until sum).random()
-		if (r < additiveRatio) {
-			additive.mutateWeight(source, destination)
-		} else if (r < additiveRatio + upscaleRatio) {
-			upscale.mutateWeight(source, destination)
-		} else if (r < additiveRatio + upscaleRatio + inversionRatio){
-			inversion.mutateWeight(source, destination)
-		} else {
-			replace.mutateWeight(source, destination)
-		}
+//		val r = (0 until sum).random()
+//		if (r < additiveRatio) {
+//			additive.mutateWeight(source, destination)
+//		} else if (r < additiveRatio + upscaleRatio) {
+//			upscale.mutateWeight(source, destination)
+//		} else if (r < additiveRatio + upscaleRatio + inversionRatio){
+//			inversion.mutateWeight(source, destination)
+//		} else {
+//			replace.mutateWeight(source, destination)
+//		}
+
+		additive.mutateWeight(source, destination)
+		upscale.mutateWeight(source, destination)
+		inversion.mutateWeight(source, destination)
+		replace.mutateWeight(source, destination)
 	}
 }
