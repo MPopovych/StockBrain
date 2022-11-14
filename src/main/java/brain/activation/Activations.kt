@@ -12,7 +12,8 @@ object Activations {
 	val Zero = ZeroFunction() // test
 	val Tanh = TanhFunction()
 	val Sigmoid = SigmoidFunction()
-	val ReverseRange = ReverseRangeFunction()
+	val MirrorReLu = MirrorReLuFunction()
+	val MirrorReversedReLu = MirrorReLuReversedFunction()
 
 	fun activate(matrix: Matrix, buffer: Matrix, function: ActivationFunction) {
 		for (x in 0 until matrix.width) {
@@ -35,7 +36,8 @@ object Activations {
 			Tanh.nameType() -> Tanh
 			Sigmoid.nameType() -> Sigmoid
 			ReLuMinMax.nameType() -> ReLuMinMax
-			ReverseRange.nameType() -> ReverseRange
+			MirrorReLu.nameType() -> MirrorReLu
+			MirrorReversedReLu.nameType() -> MirrorReversedReLu
 			else -> throw IllegalArgumentException("unsupported type: $name")
 		}
 	}
