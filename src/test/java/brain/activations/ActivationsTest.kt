@@ -1,6 +1,7 @@
 package brain.activations
 
 import brain.activation.Activations
+import brain.utils.printBlueBr
 import brain.utils.printRedBr
 import kotlin.test.Test
 
@@ -11,7 +12,13 @@ class ActivationsTest {
 
 	@Test
 	fun testSigmoid() {
-		testArray.forEach { printRedBr(Activations.Sigmoid.apply(it)) }
+		testArray.map { Activations.Sigmoid.apply(it) }.also { printBlueBr("Sigmoid: ${it}") }
 	}
+
+	@Test
+	fun testTanh() {
+		testArray.map { Activations.Tanh.apply(it) }.also { printBlueBr("Tanh: ${it}") }
+	}
+
 
 }

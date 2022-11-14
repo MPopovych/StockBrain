@@ -58,7 +58,7 @@ class DirectLayerImpl(
 	lateinit var bias: WeightData
 
 	override fun init() {
-		kernel = WeightData("weight", Matrix(directShape.width, directShape.height, Suppliers.Ones), true)
+		kernel = WeightData("weight", Matrix(directShape.width, directShape.height), true)
 		addWeights(kernel)
 		bias = if (useBias) {
 			WeightData("bias", Matrix(directShape.width, directShape.height), true)
