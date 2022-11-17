@@ -20,7 +20,9 @@ class InputLayer(
 	}
 
 	override fun create(): InputLayerImpl {
-		return InputLayerImpl(shape, name).also { it.init() }
+		return InputLayerImpl(shape, name).also {
+			it.init()
+		}
 	}
 }
 

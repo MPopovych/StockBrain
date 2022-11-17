@@ -16,6 +16,9 @@ fun Matrix.print() {
 fun Matrix.printRedBr() {
 	printRedBr(describe())
 }
+fun Matrix.printGreenBr() {
+	printGreenBr(describe())
+}
 
 fun Matrix.describe(): String {
 	val sb = StringBuilder()

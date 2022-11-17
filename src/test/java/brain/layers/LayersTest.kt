@@ -76,4 +76,20 @@ class LayersTest {
 		assert(r1.getShape().height == 1)
 	}
 
+	@Test
+	fun testFeatureDense() {
+		val input = InputLayer(3, steps = 8)
+		val fd1 = FeatureDense(2) { input }
+
+		val builder = ModelBuilder(input, fd1, debug = false)
+		val model = builder.build(debug = true)
+
+		val inputData = Suppliers.createMatrix(LayerShape(3, 8), Suppliers.RandomRangeNP)
+		inputData.printRedBr()
+		val r1 = model.getOutput(inputData).copy()
+		r1.print()
+		assert(r1.getShape().width == 3)
+		assert(r1.getShape().height == 2)
+	}
+
 }

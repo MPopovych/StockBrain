@@ -71,7 +71,7 @@ object ModelReader {
 				val activation = Activations.deserialize(ls.activation)
 				val parent = ls.parents?.getOrNull(0)
 					?: throw IllegalStateException("No parent in dense")
-				Dense(units = ls.width, activation = activation, name = ls.name, useBias = meta.useBias) {
+				Dense(units = ls.width, activation = activation, useBias = meta.useBias, name = ls.name) {
 					buffer[parent] ?: throw IllegalStateException("No parent found in buffer")
 				}
 			}
@@ -81,7 +81,7 @@ object ModelReader {
 				val activation = Activations.deserialize(ls.activation)
 				val parent = ls.parents?.getOrNull(0)
 					?: throw IllegalStateException("No parent in direct")
-				Direct(activation = activation, name = ls.name, useBias = meta.useBias) {
+				Direct(activation = activation, useBias = meta.useBias, name = ls.name) {
 					buffer[parent] ?: throw IllegalStateException("No parent found in buffer")
 				}
 			}
@@ -111,10 +111,20 @@ object ModelReader {
 			}
 			TimeMask.defaultNameType -> {
 				val meta = (ls.getMetaData() as? LayerMetaData.TimeMaskMeta)
-					?: throw IllegalStateException("No meta for dense")
+					?: throw IllegalStateException("No meta for time mask")
 				val parent = ls.parents?.getOrNull(0)
-					?: throw IllegalStateException("No parent in Flatten")
+					?: throw IllegalStateException("No parent in time dense")
 				TimeMask(fromStart = meta.fromStart, fromEnd = meta.fromEnd, name = ls.name) {
+					buffer[parent] ?: throw IllegalStateException("No parent found in buffer")
+				}
+			}
+			FeatureDense.defaultNameType -> {
+				val meta = (ls.getMetaData() as? LayerMetaData.FeatureDenseMeta)
+					?: throw IllegalStateException("No meta for feature dense")
+				val activation = Activations.deserialize(ls.activation)
+				val parent = ls.parents?.getOrNull(0)
+					?: throw IllegalStateException("No parent in feature dense")
+				FeatureDense(units = ls.height, activation = activation, useBias = meta.useBias, name = ls.name) {
 					buffer[parent] ?: throw IllegalStateException("No parent found in buffer")
 				}
 			}

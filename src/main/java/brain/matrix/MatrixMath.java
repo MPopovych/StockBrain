@@ -40,8 +40,7 @@ public class MatrixMath {
 	}
 
 	public static void add(Matrix a, Matrix b, Matrix destination) {
-		//Column major implementation, ijk algorithm
-		int thisX = a.width; //right, number of columns
+		int thisX = a.width; // right, number of columns
 		int thisY = a.height; // down, number of rows
 
 		checkSameDimensions(a, b, destination);
@@ -54,8 +53,7 @@ public class MatrixMath {
 	}
 
 	public static void subtract(Matrix a, Matrix b, Matrix destination) {
-		//Column major implementation, ijk algorithm
-		int thisX = a.width; //right, number of columns
+		int thisX = a.width; // right, number of columns
 		int thisY = a.height; // down, number of rows
 
 		checkSameDimensions(a, b, destination);
@@ -68,8 +66,7 @@ public class MatrixMath {
 	}
 
 	public static void convolutionSubtract(Matrix a, Matrix destination) {
-		//Column major implementation, ijk algorithm
-		int thisX = a.width; //right, number of columns
+		int thisX = a.width; // right, number of columns
 		int thisY = a.height; // down, number of rows
 		int targetX = destination.width;
 		int targetY = destination.height;
@@ -86,8 +83,7 @@ public class MatrixMath {
 	}
 
 	public static void convolutionFlatten(Matrix a, Matrix destination) {
-		//Column major implementation, ijk algorithm
-		int thisX = a.width; //right, number of columns
+		int thisX = a.width; // right, number of columns
 		int thisY = a.height; // down, number of rows
 		int targetX = destination.width;
 		int targetY = destination.height;
@@ -105,8 +101,7 @@ public class MatrixMath {
 	}
 
 	public static void hadamard(Matrix a, Matrix b, Matrix destination) {
-		//Column major implementation, ijk algorithm
-		int thisX = a.width; //right, number of columns
+		int thisX = a.width; // right, number of columns
 		int thisY = a.height; // down, number of rows
 
 		checkSameDimensions(a, b, destination);
@@ -119,8 +114,7 @@ public class MatrixMath {
 	}
 
 	public static void transfer(Matrix from, Matrix to) {
-		//Column major implementation, ijk algorithm
-		int thisX = from.width; //right, number of columns
+		int thisX = from.width; // right, number of columns
 		int thisY = from.height; // down, number of rows
 
 		checkSameDimensions(from, to);
@@ -130,9 +124,34 @@ public class MatrixMath {
 		}
 	}
 
+	public static void transferArrayToMatrixRoot(float[] from, Matrix to) {
+		int targetX = to.width;
+		int targetY = to.height;
+
+		if (from.length != targetX || targetY != 1) {
+			throw new IllegalArgumentException("shape conflict %s:%s vs %s:%s".formatted(1, from.length, targetX, targetY));
+		}
+
+		for (int x = 0; x < targetX; x++) {
+			to.values[x][0] = from[x];
+		}
+	}
+
+	public static void transferMatrixRootToArray(Matrix from, float[] to) {
+		int thisX = from.width; // right, number of columns
+		int thisY = from.height; // down, number of rows
+
+		if (thisX != to.length || thisY != 1) {
+			throw new IllegalArgumentException("shape conflict %s:%s vs %s:%s".formatted(1, to.length, thisX, thisY));
+		}
+
+		for (int x = 0; x < thisX; x++) {
+			to[x] = from.values[x][0];
+		}
+	}
+
 	public static void transferHeightRange(Matrix from, Matrix to, int maskStart, int maskEnd) {
-		//Column major implementation, ijk algorithm
-		int thisX = from.width; //right, number of columns
+		int thisX = from.width; // right, number of columns
 		int thisY = from.height; // down, number of rows
 		int targetX = to.width;
 		int targetY = to.height;
@@ -141,7 +160,6 @@ public class MatrixMath {
 		if (thisX != targetX || destHeight != targetY) {
 			throw new IllegalArgumentException("shape conflict %s:%s vs %s:%s".formatted(thisX, thisY, targetX, targetY));
 		}
-
 
 		for (int x = 0; x < thisX; x++) {
 			System.arraycopy(from.values[x], maskStart, to.values[x], 0, destHeight);
