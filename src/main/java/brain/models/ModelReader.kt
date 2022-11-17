@@ -155,6 +155,11 @@ private class LayerDeserializer : JsonDeserializer<LayerSerialized> {
 				val data = ModelReader.innerGson.fromJson<LayerMetaData.DirectMeta>(element)
 				temp.copy(builderData = data)
 			}
+			FeatureDense.defaultNameType -> {
+				val element = json.asJsonObject["builderData"]
+				val data = ModelReader.innerGson.fromJson<LayerMetaData.FeatureDenseMeta>(element)
+				temp.copy(builderData = data)
+			}
 			TimeMask.defaultNameType -> {
 				val element = json.asJsonObject["builderData"]
 				val data = ModelReader.innerGson.fromJson<LayerMetaData.TimeMaskMeta>(element)
