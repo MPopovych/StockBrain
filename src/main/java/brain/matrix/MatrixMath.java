@@ -1,5 +1,7 @@
 package brain.matrix;
 
+import java.util.Set;
+
 public class MatrixMath {
 
 	public static void checkSameDimensions(Matrix... matrices) {
@@ -121,6 +123,23 @@ public class MatrixMath {
 
 		for (int x = 0; x < thisX; x++) {
 			System.arraycopy(from.values[x], 0, to.values[x], 0, thisY);
+		}
+	}
+
+	public static void transferWithFilter(Matrix from, Matrix to, Set<Integer> filter) {
+		int thisX = from.width; // right, number of columns
+		int thisY = from.height; // down, number of rows
+
+		if (thisY != to.height || to.width != filter.size()) {
+			throw new IllegalArgumentException("shape conflict %s:%s vs %s:%s".formatted(thisX, thisY, to.width, to.height));
+		}
+
+		int pendingY = 0;
+		for (int x = 0; x < thisX; x++) {
+			if (filter.contains(x)) {
+				System.arraycopy(from.values[x], 0, to.values[pendingY], 0, thisY);
+				pendingY++;
+			}
 		}
 	}
 
