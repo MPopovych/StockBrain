@@ -22,8 +22,9 @@ class ScaleMetaTest {
 	}.let { ModelFrame.from(it) }
 
 	private val filterMap = mapOf(
-		"INCR" to ScaleMetaType.NormalizeZP,
-		"MODU" to ScaleMetaType.Standardize,
+		"INCR" to ScaleMetaType.Standardize,
+		"MODU1" to ScaleMetaType.NormalizeZP,
+		"MODU2" to ScaleMetaType.NormalizeNP,
 		"UNCH" to ScaleMetaType.None
 	)
 	private val scaleFilter = ColumnScaleFilter.build(filterMap, testSamples)
@@ -38,28 +39,26 @@ class ScaleMetaTest {
 		assertEquals(1f, inc.min)
 		assertEquals(50.5f, inc.mean) // n? = (n^2 + n) / 2, n = 100
 
-		val mod = scaleFilter["MODU"] ?: throw IllegalStateException()
-		assertEquals(1f, mod.max)
-		assertEquals(0f, mod.min)
-		assertEquals(0.5f, mod.mean)
+		val mod1 = scaleFilter["MODU1"] ?: throw IllegalStateException()
+		assertEquals(1f, mod1.max)
+		assertEquals(0f, mod1.min)
+		assertEquals(0.5f, mod1.mean)
+
+		val mod2 = scaleFilter["MODU2"] ?: throw IllegalStateException()
+		assertEquals(1f, mod2.max)
+		assertEquals(0f, mod2.min)
+		assertEquals(0.5f, mod2.mean)
 
 		val unc = scaleFilter["UNCH"] ?: throw IllegalStateException()
 		assertEquals(7f, unc.max)
 		assertEquals(7f, unc.min)
 		assertEquals(7f, unc.mean)
+	}
 
-		val incArray = testSamples.getNumberColumn("INCR") ?: throw IllegalStateException()
-		val modArray = testSamples.getNumberColumn("MODU") ?: throw IllegalStateException()
+	@Test
+	fun testNoneNorm() {
+		val unc = scaleFilter["UNCH"] ?: throw IllegalStateException()
 		val uncArray = testSamples.getNumberColumn("UNCH") ?: throw IllegalStateException()
-
-		inc.applyToArray(incArray).forEachIndexed { index, fl ->
-			assert(fl >= -2 && fl <= 2)
-		}
-
-		mod.applyToArray(modArray).forEachIndexed { index, fl ->
-			assert(fl >= -1 && fl <= 1)
-		}
-
 		unc.applyToArray(uncArray).forEach { fl ->
 			assertEquals(7f, fl)
 		}
@@ -67,22 +66,41 @@ class ScaleMetaTest {
 
 	@Test
 	fun testZPNorm() {
-
+		val mod1 = scaleFilter["MODU1"] ?: throw IllegalStateException()
+		val mo1dArray = testSamples.getNumberColumn("MODU1") ?: throw IllegalStateException()
+		mod1.applyToArray(mo1dArray).forEachIndexed { index, fl ->
+			assert(fl >= -1 && fl <= 1)
+		}
 	}
 
 	@Test
 	fun testNPNorm() {
-
+		val mod2 = scaleFilter["MODU2"] ?: throw IllegalStateException()
+		val mo2dArray = testSamples.getNumberColumn("MODU2") ?: throw IllegalStateException()
+		mod2.applyToArray(mo2dArray).forEachIndexed { index, fl ->
+			assert(fl >= -1 && fl <= 1)
+		}
 	}
 
 	@Test
 	fun testNPStandardize() {
+		val incArray = testSamples.getNumberColumn("INCR") ?: throw IllegalStateException()
+		val inc = scaleFilter["INCR"] ?: throw IllegalStateException()
 
+		var prev = -Float.MAX_VALUE
+		inc.applyToArray(incArray).also {
+			printGreenBr(it.toList())
+		}.forEach { fl ->
+			assert(fl >= -2 && fl <= 2)
+			assert(fl > prev)
+			prev = fl
+		}
 	}
 
 	private object ScaleMetaTestGetter : NamedPropGetter<ScaleMetaTestAsset>() {
 		val i = nameProp("INCR") { a -> a.increment }
-		val m = nameProp("MODU") { a -> a.mod }
+		val m1 = nameProp("MODU1") { a -> a.mod }
+		val m2 = nameProp("MODU2") { a -> a.mod }
 		val u = nameProp("UNCH") { a -> a.unchanging }
 	}
 
