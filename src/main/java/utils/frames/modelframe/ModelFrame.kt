@@ -1,15 +1,17 @@
 package utils.frames.modelframe
 
+import brain.utils.printYellowBr
 import utils.frames.ColumnScaleFilter
 
-class ModelFrame<T : DataFrameModel> : ArrayList<T>() {
+
+class ModelFrame<T : FrameAsset> : ArrayList<T>(), WindowProvider<T> {
 	companion object {
-		fun <A : DataFrameModel> from(source: Iterable<A>): ModelFrame<A> {
+		fun <A : FrameAsset> from(source: Iterable<A>): ModelFrame<A> {
 			return ModelFrame<A>().also { it.addAll(source) }
 		}
 	}
 
-	private fun ensureDataSize() = firstOrNull()?.describeDataCount
+	private fun ensureDataSize() = firstOrNull()?.describeDataCount ?: throw IllegalStateException("Ensure failed")
 
 	fun throwIfHasNan() {
 		val first = this.firstOrNull() ?: return
@@ -44,45 +46,66 @@ class ModelFrame<T : DataFrameModel> : ArrayList<T>() {
 	// does not allow "padded" windows, only full ones
 	// window size -> length of final array
 	// gap size N -> skips N-1 elements of original data
-	fun window(windowSize: Int, gapSize: Int = 1): List<WindowScope<T>> {
+	fun windowList(windowSize: Int, gapSize: Int = 1): List<WindowScope<T>> {
 		if (windowSize < 2 && gapSize > 1) throw Exception("Window size can't be less then 2 when gapsize is greater than 1")
 		val fullWindowSize = (windowSize - 1) * gapSize + 1
 		if (size < fullWindowSize) {
 			throw IllegalStateException("ModelFrame is smaller then the window")
 		}
-		val dataCount = first().describeDataCount
+		val dataCount = ensureDataSize()
 
-		return (0..size - fullWindowSize).mapIndexed { index, i ->
+		return (0 .. size - windowSize).mapIndexed { index, i ->
 			WindowScope(
 				parent = this,
 				windowSize = windowSize,
 				dataCount = dataCount,
-				startIndex = index,
-				endIndex = index + fullWindowSize - 1,
+				startIndex = index, // inclusive
+				endIndex = index + fullWindowSize - 1,  // inclusive
 				gapSize = gapSize
 			)
 		}
 	}
 
-	class WindowScope<G : DataFrameModel>(
+	override fun getBackWindow(index: Int, windowSize: Int, gapSize: Int): WindowScope<T>? {
+		if (windowSize < 2 && gapSize > 1) throw Exception("Window size can't be less then 2 when gapsize is greater than 1")
+		val fullWindowSize = (windowSize - 1) * gapSize + 1
+
+		if (size < fullWindowSize) {
+			throw IllegalStateException("ModelFrame is smaller then the window")
+		}
+		val startIndex = index - fullWindowSize + 1
+		if (startIndex < 0) return null // there is no window
+
+		val dataCount = first().describeDataCount
+
+		return WindowScope(
+			parent = this,
+			windowSize = windowSize,
+			dataCount = dataCount,
+			startIndex = startIndex,  // inclusive
+			endIndex = index,  // inclusive
+			gapSize = gapSize
+		)
+	}
+
+	class WindowScope<G : FrameAsset>(
 		private val parent: ModelFrame<G>,
 		private val windowSize: Int, // vertical
 		private val dataCount: Int, // horizontal
-		private val startIndex: Int,
+		private val startIndex: Int, // inclusive
 		private val endIndex: Int, // inclusive
 		private val gapSize: Int
-	) {
+	) : FrameWindow<G> {
 
 		init {
 			if (startIndex > endIndex) throw IllegalStateException("Start is greater than end")
 		}
 
-		val size = endIndex - startIndex
-
 		fun iterate(block: (relative: Int, data: G) -> Unit) {
-			return parent.subList(startIndex, endIndex).forEachIndexed { index, g ->
+			var i = 0
+			return parent.subList(startIndex, endIndex + 1).forEachIndexed { index, g ->
 				if (index % gapSize != 0) return@forEachIndexed
-				block(index, g)
+				block(i++, g)
 			}
 		}
 
@@ -93,35 +116,30 @@ class ModelFrame<T : DataFrameModel> : ArrayList<T>() {
 			return buffer
 		}
 
-		fun to2fArray(): Array<FloatArray> {
-			val rows = Array(windowSize) { FloatArray(dataCount) }
-			iterate { i, modelFrameEntry ->
-				rows[i] = modelFrameEntry.to2FArray()
+		override fun to2fArray(): Array<FloatArray> {
+			return Array(windowSize) { FloatArray(dataCount) }.also {
+				fill2fArray(it)
 			}
-			return rows
 		}
 
-		fun to2fArray(destination: Array<FloatArray>): Array<FloatArray> {
+		override fun to2fArray(filter: ColumnScaleFilter): Array<FloatArray> {
+			return Array(windowSize) { FloatArray(dataCount) }.also {
+				fill2fArray(it, filter)
+			}
+		}
+
+		override fun fill2fArray(destination: Array<FloatArray>): Array<FloatArray> {
 			iterate { i, modelFrameEntry ->
 				modelFrameEntry.fill2FArray(destination[i])
 			}
 			return destination
 		}
 
-		fun to2fArray(filter: ColumnScaleFilter): Array<FloatArray> {
-			val rows = Array(windowSize) { FloatArray(filter.values.size) }
-			val buffer = FloatArray(dataCount)
+		override fun fill2fArray(destination: Array<FloatArray>, filter: ColumnScaleFilter): Array<FloatArray> {
 			iterate { i, modelFrameEntry ->
-				modelFrameEntry.fill2FArray(filter = filter, destination = rows[i], buffer = buffer)
+				modelFrameEntry.fill2FArray(destination[i], filter)
 			}
-			return rows
-		}
-
-		fun fill2fArray(filter: ColumnScaleFilter, destination: Array<FloatArray>) {
-			val buffer = FloatArray(dataCount)
-			iterate { i, modelFrameEntry ->
-				modelFrameEntry.fill2FArray(filter = filter, destination = destination[i], buffer = buffer)
-			}
+			return destination
 		}
 
 		fun describe(): String {

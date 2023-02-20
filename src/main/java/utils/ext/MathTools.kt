@@ -100,6 +100,19 @@ fun FloatArray.std(): Float {
 	return sqrt((sumSquared - (sum.pow(2) / size)) / size)
 }
 
+fun Iterable<Number>.average(): Float {
+	val mapped = this.map { it.toDouble() }
+	val sum = mapped.sum()
+	return (sum / mapped.size).toFloat()
+}
+
+fun Iterable<Number>.std(): Float {
+	val squared = this.map { it.toDouble().pow(2) }
+	val sumSquared = squared.sum()
+	val sum = this.sumOf { it.toDouble() }
+	return sqrt((sumSquared - (sum.pow(2) / squared.size)) / squared.size).toFloat()
+}
+
 // l = size
 fun <T> movingAverageFull(inputEntries: List<T>, count: Int, block: (T) -> Double): DoubleArray {
 	if (count > inputEntries.size) return DoubleArray(0)
@@ -139,7 +152,7 @@ fun <T> movingSmoothing(inputEntries: List<T>, sideCount: Int, block: (T) -> Dou
 	val mapped = inputEntries.map { block(it) }
 	mapped.forEachIndexed { index, _ ->
 		val window = mapped.subList(max(0, index - sideCount), min(mapped.size - 1, index + sideCount))
-		meanArray[index] = window.average()
+		meanArray[index] = window.average().toDouble()
 	}
 	return meanArray
 }

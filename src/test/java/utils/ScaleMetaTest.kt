@@ -5,7 +5,7 @@ import utils.frames.ColumnScaleFilter
 import utils.frames.ScaleMetaType
 import utils.frames.modelframe.ModelFrame
 import utils.frames.modelframe.NamedPropGetter
-import utils.frames.modelframe.PropFrameModel
+import utils.frames.modelframe.NamedFrameAsset
 import utils.frames.modelframe.nameProp
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -27,7 +27,7 @@ class ScaleMetaTest {
 		"MODU2" to ScaleMetaType.NormalizeNP,
 		"UNCH" to ScaleMetaType.None
 	)
-	private val scaleFilter = ColumnScaleFilter.build(filterMap, testSamples)
+	private val scaleFilter = ColumnScaleFilter.byTypeMap(testSamples, filterMap)
 
 	@Test
 	fun testScaleBuild() {
@@ -109,7 +109,7 @@ class ScaleMetaTest {
 		val increment: Float,
 		val mod: Float,
 		val unchanging: Float
-	) : PropFrameModel<ScaleMetaTestAsset> {
+	) : NamedFrameAsset<ScaleMetaTestAsset> {
 		override fun propGetter(): NamedPropGetter<ScaleMetaTestAsset> {
 			return ScaleMetaTestGetter
 		}

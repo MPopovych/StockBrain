@@ -1,5 +1,6 @@
 package utils.frames
 
+import utils.ext.average
 import utils.ext.std
 import utils.math.NPStandardize
 import utils.math.NegativePositiveNorm
@@ -16,6 +17,15 @@ enum class ScaleMetaType {
 		val mean = array.average().toFloat()
 		val max = array.max()
 		val min = array.min()
+		val std = array.std()
+
+		return ScaleMeta(this, mean, max, min, std)
+	}
+
+	fun buildForArray(array: Iterable<Number>): ScaleMeta {
+		val mean = array.average()
+		val max = array.maxOf { it.toFloat() }
+		val min = array.minOf { it.toFloat() }
 		val std = array.std()
 
 		return ScaleMeta(this, mean, max, min, std)
@@ -41,6 +51,15 @@ data class ScaleMeta(
 		return "mean=${mean}, std=${std}"
 	}
 
+	fun applyToValue(value: Float): Float {
+		return when (this.type) {
+			ScaleMetaType.NormalizeZP -> ZPNorm.performScale(this, value)
+			ScaleMetaType.NormalizeNP -> NPNorm.performScale(this, value)
+			ScaleMetaType.Standardize -> NPStandardize.performScale(this, value)
+			ScaleMetaType.None -> value
+		}
+	}
+
 	fun applyToArray(array: FloatArray): FloatArray {
 		return when (this.type) {
 			ScaleMetaType.NormalizeZP -> ZPNorm.performScale(this, array)
@@ -48,5 +67,8 @@ data class ScaleMeta(
 			ScaleMetaType.Standardize -> NPStandardize.performScale(this, array)
 			ScaleMetaType.None -> array.copyOf()
 		}
+	}
+	fun applyToArray(nArray: Iterable<Number>): FloatArray {
+		return applyToArray(array = nArray.map { it.toFloat() }.toFloatArray())
 	}
 }

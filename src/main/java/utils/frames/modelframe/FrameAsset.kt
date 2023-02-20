@@ -1,9 +1,10 @@
 package utils.frames.modelframe
 
-import utils.frames.ColumnFilter
 import utils.frames.ColumnScaleFilter
 
-interface DataFrameModel {
+interface FrameAsset {
+
+	// region abstract
 	/** description of data count point, equal to array size
 	 * should point to a static object to avoid memory alloc
 	 */
@@ -13,7 +14,14 @@ interface DataFrameModel {
 
 	/** Uses an existing allocation */
 	fun fill2FArray(destination: FloatArray)
+	/** max index should be equal destination last index
+	 * feature masks should be sorted as features
+	 */
+	fun fill2FArray(destination: FloatArray, featureMasks: ColumnScaleFilter)
 
+	// endregion
+
+	// region implemented
 	/** description of data count, equal to array size produced */
 	val describeDataCount: Int get() = describeHeader.size
 
@@ -22,27 +30,8 @@ interface DataFrameModel {
 		return FloatArray(describeDataCount).also { fill2FArray(it) }
 	}
 
-	fun fill2FArray(filter: ColumnScaleFilter, buffer: FloatArray, destination: FloatArray) {
-		fill2FArray(buffer)
-		var i = 0
-		buffer.forEachIndexed { index, fl ->
-			if (filter.containsKey(describeHeader[index])) {
-				destination[i++] = fl
-			}
-		}
-	}
-
-	fun to2FArray(filter: ColumnScaleFilter): FloatArray {
-		val result = FloatArray(filter.values.size)
-		val buffer = to2FArray()
-
-		var i = 0
-		buffer.forEachIndexed { index, fl ->
-			if (filter.containsKey(describeHeader[index])) {
-				result[i++] = fl
-			}
-		}
-		return result
+	fun to2FArray(featureMasks: ColumnScaleFilter): FloatArray {
+		return FloatArray(featureMasks.size).also { fill2FArray(it, featureMasks) }
 	}
 
 	fun validateMatching(destination: FloatArray) {
@@ -53,5 +42,6 @@ interface DataFrameModel {
 			throw IllegalStateException("Mismatch of data count and headers")
 		}
 	}
+	// endregion
 
 }
