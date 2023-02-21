@@ -15,6 +15,13 @@ class ColumnScaleFilter : LinkedHashMap<String, ScaleMeta>() {
 			return CacheFileProvider.loadJson(file, ColumnScaleFilter::class, path)
 		}
 
+		fun load(file: String, wd: WorkingDirectoryProvider): ColumnScaleFilter? {
+			if (!wd.checkFileExistsAndReadable(file)) {
+				return null
+			}
+			return wd.loadJson(file, ColumnScaleFilter::class)
+		}
+
 		/** all fields are valid, all of them are None-scaled */
 		fun <T : FrameAsset> blankOf(modelFrame: ModelFrame<T>): ColumnScaleFilter {
 			if (modelFrame.isEmpty()) throw IllegalStateException("Can't build from an empty model")
