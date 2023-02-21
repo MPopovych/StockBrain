@@ -39,7 +39,7 @@ class ModelFrameTest {
 
 	@Test
 	fun testToArrayWithFilter() {
-		val array = testSampleSingle.to2FArray(scaleFilter.keys)
+		val array = testSampleSingle.to2FArray(scaleFilter)
 		assertEquals(2, array.size)
 		assertEquals(1f, array[0])
 		assertTrue {  array[1] in (-1.0 .. 1.0) }
@@ -51,7 +51,6 @@ class ModelFrameTest {
 		printBlueBr("Last index: $lastIndex")
 		val lastWindow = testSamples.getBackWindow(lastIndex, windowSize = 2)
 		assertNotNull(lastWindow)
-
 		printGreenBr(lastWindow.describe())
 		val lastArray = lastWindow.to2fArray()
 		assertEquals(2, lastArray.size)
@@ -60,6 +59,17 @@ class ModelFrameTest {
 		assertEquals(98f, lastArray[0][0])
 		assertEquals(-99f, lastArray[1][1])
 		assertEquals(-98f, lastArray[0][1])
+
+		val lastWindow2 = testSamples.getBackWindow(lastIndex - 1, windowSize = 2)
+		assertNotNull(lastWindow2)
+		printGreenBr(lastWindow2.describe())
+		val lastArray2 = lastWindow2.to2fArray()
+		assertEquals(2, lastArray2.size)
+		printRedBr(lastArray2.map { it.toList() })
+		assertEquals(98f, lastArray2[1][0])
+		assertEquals(97f, lastArray2[0][0])
+		assertEquals(-98f, lastArray2[1][1])
+		assertEquals(-97f, lastArray2[0][1])
 
 		val firstWindow = testSamples.getBackWindow(0, windowSize = 2)
 		assertNull(firstWindow)

@@ -123,7 +123,7 @@ class ModelFrame<T : FrameAsset> : ArrayList<T>(), WindowProvider<T> {
 		}
 
 		override fun to2fArray(filter: ColumnScaleFilter): Array<FloatArray> {
-			return Array(windowSize) { FloatArray(dataCount) }.also {
+			return Array(windowSize) { FloatArray(filter.size) }.also {
 				fill2fArray(it, filter)
 			}
 		}
