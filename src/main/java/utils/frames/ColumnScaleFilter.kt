@@ -39,6 +39,7 @@ class ColumnScaleFilter : LinkedHashMap<String, ScaleMeta>() {
 			for ((key, type) in map) {
 				val column = modelFrame.getNumberColumn(key)
 					?: throw IllegalStateException("No $key in ${modelFrame.getHeadString()}")
+				if (column.isEmpty()) throw IllegalStateException("Empty array for $key key")
 				scales[key] = type.buildForArray(column)
 			}
 
