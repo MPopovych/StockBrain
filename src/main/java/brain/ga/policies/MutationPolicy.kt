@@ -131,9 +131,9 @@ open class InversionMutationPolicy(private val fraction: Double = 0.01) : Mutati
 class CyclicMutationPolicy(
 	fraction: Double = 0.01, // from 1.0 to 0.0
 	private val additiveRatio: Int = 6,
-	private val upscaleRatio: Int = 0,
+	private val upscaleRatio: Int = 1,
 	private val inversionRatio: Int = 1,
-	private val replaceRatio: Int = 2,
+	private val replaceRatio: Int = 3,
 ) : MutationPolicy {
 
 	private val sum = additiveRatio + upscaleRatio + inversionRatio + replaceRatio
