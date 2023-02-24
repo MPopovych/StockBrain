@@ -85,10 +85,19 @@ object ModelReader {
 					buffer[parent] ?: throw IllegalStateException("No parent found in buffer")
 				}
 			}
+			Dropout.defaultNameType -> {
+				val meta = (ls.getMetaData() as? LayerMetaData.DropoutMeta)
+					?: throw IllegalStateException("No meta for dropout")
+				val parent = ls.parents?.getOrNull(0)
+					?: throw IllegalStateException("No parent in dropout")
+				Dropout(rate = meta.rate, name = ls.name) {
+					buffer[parent] ?: throw IllegalStateException("No parent found in buffer")
+				}
+			}
 			ConvDelta.defaultNameType -> {
 				val activation = Activations.deserialize(ls.activation)
 				val parent = ls.parents?.getOrNull(0)
-					?: throw IllegalStateException("No parent in direct")
+					?: throw IllegalStateException("No parent in conv delta")
 				ConvDelta(activation = activation, name = ls.name) {
 					buffer[parent] ?: throw IllegalStateException("No parent found in buffer")
 				}
@@ -113,7 +122,7 @@ object ModelReader {
 				val meta = (ls.getMetaData() as? LayerMetaData.TimeMaskMeta)
 					?: throw IllegalStateException("No meta for time mask")
 				val parent = ls.parents?.getOrNull(0)
-					?: throw IllegalStateException("No parent in time dense")
+					?: throw IllegalStateException("No parent in time mask")
 				TimeMask(fromStart = meta.fromStart, fromEnd = meta.fromEnd, name = ls.name) {
 					buffer[parent] ?: throw IllegalStateException("No parent found in buffer")
 				}

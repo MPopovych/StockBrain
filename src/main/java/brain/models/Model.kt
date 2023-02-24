@@ -3,6 +3,7 @@ package brain.models
 import brain.layers.InputLayer
 import brain.layers.Layer
 import brain.layers.LayerBuilder
+import brain.layers.LayerTrainableMode
 import brain.matrix.Matrix
 import brain.utils.printYellowBr
 
@@ -25,6 +26,14 @@ class Model(
 	init {
 		input = originInputs.mapValues { nodeGraph[it.value] as? GraphBuffer.DeadEnd ?: throw IllegalStateException() }
 		output = originOutputs.mapValues { nodeGraph[it.value] ?: throw IllegalStateException() }
+	}
+
+	fun setTrainable(trainable: Boolean) {
+		for (layer in layersMap.values) {
+			if (layer is LayerTrainableMode) {
+				layer.setTrainable(trainable)
+			}
+		}
 	}
 
 	// single
