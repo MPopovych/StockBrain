@@ -28,7 +28,7 @@ public class Matrix {
 			for (int x = 0; x < width; x++) {
 				values[x] = new float[height];
 				for (int y = 0; y < height; y++) {
-					values[x][y] = supplier.supply(x, y);
+					values[x][y] = supplier.supply(height * width, x, y);
 				}
 			}
 		} else {

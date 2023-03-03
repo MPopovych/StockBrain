@@ -9,13 +9,14 @@ object Suppliers {
 	val RandomZP = RandomSupplier.INSTANCE
 	val RandomBinZP = RandomBinaryZP.INSTANCE
 	val RandomBinNP = RandomBinaryNP.INSTANCE
+	val RandomHE = HESupplier.INSTANCE
 	val RandomRangeNP = RandomRangeSupplier.INSTANCE
 
 	fun createMatrix(shape: LayerShape, supplier: ValueSupplier): Matrix {
 		return Matrix(shape.width, shape.height).also {
 			for (x in 0 until it.width) {
 				for (y in 0 until it.height) {
-					it.values[x][y] = supplier.supply(x, y)
+					it.values[x][y] = supplier.supply(shape.width * shape.height, x, y)
 				}
 			}
 		}
@@ -24,7 +25,7 @@ object Suppliers {
 	fun fillFull(matrix: Matrix, supplier: ValueSupplier) {
 		for (x in 0 until matrix.width) {
 			for (y in 0 until matrix.height) {
-				matrix.values[x][y] = supplier.supply(x, y)
+				matrix.values[x][y] = supplier.supply(matrix.width * matrix.width, x, y)
 			}
 		}
 	}

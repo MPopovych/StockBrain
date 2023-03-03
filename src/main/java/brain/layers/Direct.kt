@@ -9,7 +9,7 @@ import brain.suppliers.ValueSupplier
 
 class Direct(
 	private val activation: ActivationFunction? = null,
-	private val kernelInit: ValueSupplier = Suppliers.RandomRangeNP,
+	private val kernelInit: ValueSupplier = Suppliers.RandomHE,
 	private val biasInit: ValueSupplier = Suppliers.Zero,
 	private val useBias: Boolean = true,
 	override var name: String = Layer.DEFAULT_NAME,

@@ -9,7 +9,7 @@ public class OnesSupplier extends ConstSupplier {
 	}
 
 	@Override
-	public float supply(int x, int y) {
+	public float supply(int count, int x, int y) {
 		return 1f;
 	}
 }

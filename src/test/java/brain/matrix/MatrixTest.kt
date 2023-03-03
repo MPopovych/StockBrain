@@ -43,9 +43,9 @@ class MatrixTest {
 
 	@Test
 	fun testMultiplyConst() {
-		val a = Matrix(3, 2) { _, y -> y + 1f }
+		val a = Matrix(3, 2) { _, _, y -> y + 1f }
 		a.print()
-		val b = Matrix(3, 3) { x, y -> y.toFloat() * x }
+		val b = Matrix(3, 3) { _, x, y -> y.toFloat() * x }
 		b.printRedBr()
 		val d = Matrix(3, 2, Suppliers.Zero)
 		MatrixMath.multiply(a, b, d)

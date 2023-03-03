@@ -42,16 +42,17 @@ class DropoutLayerImpl(
 	private val directShape: LayerShape,
 	override var name: String,
 ) : Layer.SingleInputLayer(), LayerTrainableMode {
-	override val nameType: String = Direct.defaultNameType
+	override val nameType: String = Dropout.defaultNameType
 	override lateinit var outputBuffer: Matrix
 
 	private var trainable = false
-	private val countToTake = ((directShape.width * directShape.height).toFloat() * (1.0 - rate)).roundToInt()
-	private val dropoutMConst = 1 / (1 - rate)
+	private val countTotal = (directShape.width * directShape.height).toFloat()
+	private val countToTake = ((directShape.width * directShape.height).toFloat() * rate).roundToInt()
+	private val dropoutMConst = countTotal / (countTotal - countToTake)
 
 	init {
-		require(rate > 0 && rate < 1.0)
-		require(countToTake > 0)
+		require(rate >= 0 && rate < 1.0)
+		require(countToTake >= 0)
 		require(countToTake < directShape.height * directShape.width)
 	}
 

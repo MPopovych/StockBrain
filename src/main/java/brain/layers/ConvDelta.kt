@@ -4,6 +4,7 @@ import brain.activation.ActivationFunction
 import brain.activation.Activations
 import brain.matrix.Matrix
 import brain.matrix.MatrixMath
+import brain.suppliers.Suppliers
 
 class ConvDelta(
 	private val activation: ActivationFunction? = null,
@@ -29,6 +30,7 @@ class ConvDelta(
 			name = name)
 			.also {
 				it.init()
+				Suppliers.fillFull(it.kernel.matrix, Suppliers.RandomHE)
 			}
 	}
 

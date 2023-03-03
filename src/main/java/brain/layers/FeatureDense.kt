@@ -4,6 +4,7 @@ import brain.activation.ActivationFunction
 import brain.activation.Activations
 import brain.matrix.Matrix
 import brain.matrix.MatrixMath
+import brain.suppliers.Suppliers
 
 class FeatureDense(
 	val units: Int,
@@ -66,6 +67,7 @@ class FeatureDenseImpl(
 		kernels = ArrayList()
 		for (i in 0 until parentShape.width) {
 			val localKernel = WeightData("weight_f$i", Matrix(units, parentShape.height), true)
+			Suppliers.fillFull(localKernel.matrix, Suppliers.RandomHE)
 			addWeights(localKernel)
 			kernels.add(localKernel)
 		}

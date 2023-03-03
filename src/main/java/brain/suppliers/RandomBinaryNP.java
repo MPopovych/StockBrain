@@ -13,7 +13,7 @@ public class RandomBinaryNP implements ValueSupplier {
 	}
 
 	@Override
-	public float supply(int x, int y) {
+	public float supply(int count, int x, int y) {
 		return random.nextBoolean() ? -1f : 1f;
 	}
 }
