@@ -6,7 +6,6 @@ import brain.suppliers.Suppliers
 import brain.utils.roundUpInt
 import brain.utils.upscale
 import kotlin.math.min
-import kotlin.random.Random
 
 interface MutationPolicy {
 	fun mutation(source: LayerGenes, destination: LayerGenes) {
@@ -119,18 +118,30 @@ class CyclicMutationPolicy(
 	}
 
 	override fun mutation(source: LayerGenes, destination: LayerGenes) {
-		val random = source.map.values.randomOrNull()
+		val takeCount = (source.map.size * fraction).roundUpInt()
+		val random = source.map.values.shuffled()
 
-		for (weight in source.map) {
-			val sourceW = source.map[weight.key] ?: throw IllegalStateException()
-			val destinationW = destination.map[weight.key] ?: throw IllegalStateException()
-
-			if (random == sourceW) {
-				mutateWeight(sourceW, destinationW)
-			} else {
-				sourceW.copyTo(destinationW)
-			}
+		random.take(takeCount).forEach {
+			val sourceW = source.map[it.weightName] ?: throw IllegalStateException()
+			val destinationW = destination.map[it.weightName] ?: throw IllegalStateException()
+			mutateWeight(sourceW, destinationW)
 		}
+		random.drop(takeCount).forEach {
+			val sourceW = source.map[it.weightName] ?: throw IllegalStateException()
+			val destinationW = destination.map[it.weightName] ?: throw IllegalStateException()
+			sourceW.copyTo(destinationW)
+		}
+
+//		for (weight in source.map) {
+//			val sourceW = source.map[weight.key] ?: throw IllegalStateException()
+//			val destinationW = destination.map[weight.key] ?: throw IllegalStateException()
+//
+//			if (random == sourceW) {
+//				mutateWeight(sourceW, destinationW)
+//			} else {
+//				sourceW.copyTo(destinationW)
+//			}
+//		}
 	}
 
 	override fun mutateWeight(
