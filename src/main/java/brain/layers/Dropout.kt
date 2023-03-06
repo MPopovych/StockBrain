@@ -3,6 +3,7 @@ package brain.layers
 import brain.matrix.Matrix
 import brain.matrix.MatrixMath
 import kotlin.math.roundToInt
+import kotlin.random.Random
 
 class Dropout(
 	private val rate: Float,
@@ -46,20 +47,11 @@ class DropoutLayerImpl(
 	override lateinit var outputBuffer: Matrix
 
 	private var trainable = false
-	private val countTotal = (directShape.width * directShape.height).toFloat()
-	private val countToTake = ((directShape.width * directShape.height).toFloat() * rate).roundToInt()
-	private val dropoutConst = countToTake.toFloat() / countTotal
-	private val dropoutMConst = 1f / (1f - dropoutConst)
+	private val dropoutMConst = 1f / (1f - rate)
 
 	init {
 		require(rate >= 0 && rate < 1.0)
-		require(countToTake >= 0)
-		require(countToTake < directShape.height * directShape.width)
 	}
-
-	private val indexMatrix = (0 until directShape.height)
-		.map { y -> (0 until directShape.width).map { x -> Pair(y, x) } }
-		.flatten()
 
 	override fun init() {
 		outputBuffer = Matrix(directShape.width, directShape.height)
@@ -68,15 +60,16 @@ class DropoutLayerImpl(
 	override fun call(input: Matrix): Matrix {
 		flushBuffer()
 		if (!trainable) {
-			MatrixMath.multiply(input, outputBuffer, 1f - dropoutConst)
-		} else {
 			MatrixMath.transfer(input, outputBuffer)
-			val shuffled = indexMatrix.shuffled()
-			shuffled.take(countToTake).forEach { pair ->
-				outputBuffer.values[pair.first][pair.second] = 0f
-			}
-			shuffled.drop(countToTake).forEach { pair ->
-				outputBuffer.values[pair.first][pair.second] = outputBuffer.values[pair.first][pair.second] * dropoutMConst
+		} else {
+			for (y in 0 until directShape.height) {
+				for (x in 0 until directShape.width) {
+					if (Random.nextFloat() < rate) {
+						outputBuffer.values[y][x] = input.values[y][x] * dropoutMConst
+					} else {
+						outputBuffer.values[y][x] = input.values[y][x]
+					}
+				}
 			}
 		}
 		return outputBuffer
