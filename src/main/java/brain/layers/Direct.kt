@@ -7,6 +7,10 @@ import brain.matrix.MatrixMath
 import brain.suppliers.Suppliers
 import brain.suppliers.ValueSupplier
 
+/**
+ * Applies element wise multiplication and bias on the whole matrix
+ * output size is the same as input
+ */
 class Direct(
 	private val activation: ActivationFunction? = null,
 	private val kernelInit: ValueSupplier = Suppliers.Ones,

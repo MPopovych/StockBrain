@@ -46,8 +46,13 @@ class SinglePointCrossOver : CrossOverPolicy {
 		destination: WeightGenes,
 	) {
 		val destinationPoint = destination.genes.indices.random()
-		a.genes.copyInto(destination.genes, 0, 0, destinationPoint)
-		b.genes.copyInto(destination.genes, destinationPoint, destinationPoint, destination.genes.size)
+		if (Random.nextBoolean()) {
+			a.genes.copyInto(destination.genes, 0, 0, destinationPoint)
+			b.genes.copyInto(destination.genes, destinationPoint, destinationPoint, destination.genes.size)
+		} else {
+			b.genes.copyInto(destination.genes, 0, 0, destinationPoint)
+			a.genes.copyInto(destination.genes, destinationPoint, destinationPoint, destination.genes.size)
+		}
 	}
 }
 

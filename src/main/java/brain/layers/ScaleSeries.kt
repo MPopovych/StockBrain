@@ -7,6 +7,10 @@ import brain.matrix.MatrixMath
 import brain.suppliers.Suppliers
 import brain.suppliers.ValueSupplier
 
+/**
+ * Applies an element wise multiplication and bias on each row, same matrices are used on every (t) row
+ * output size is the same as input
+ */
 class ScaleSeries(
 	private val activation: ActivationFunction? = null,
 	private val kernelInit: ValueSupplier = Suppliers.Ones,

@@ -6,6 +6,14 @@ import brain.matrix.Matrix
 import brain.matrix.MatrixMath
 import brain.suppliers.Suppliers
 
+/**
+ * Similar to a dense layer, but is transposed in weights
+ * which applies to Column(t) and returns same count of columns but with *units* rows
+ *
+ *  output size is:
+ *  column features - same as input features
+ *  rows - equal to *units*
+ */
 class FeatureDense(
 	val units: Int,
 	private val activation: ActivationFunction? = null,

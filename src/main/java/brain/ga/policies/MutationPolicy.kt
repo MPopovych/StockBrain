@@ -37,21 +37,15 @@ open class AdditiveMutationPolicy(private val fraction: Double = 0.01) : Mutatio
 		val indices = source.genes.indices
 		val countToMutateDouble = min((source.size.toDouble() * fraction), source.size.toDouble())
 		val countToMutate = countToMutateDouble.roundUpInt()
-		if (countToMutateDouble >= 1.0) {
-			for (i in 0 until countToMutate) {
-				destination.genes[indices.random()] += supplyNext(countToMutate)
-			}
-		} else {
-			if (Random.nextDouble(0.0, 1.0) <= countToMutateDouble) {
-				destination.genes[indices.random()] += supplyNext(countToMutate)
-			}
+		for (i in 0 until countToMutate) {
+			destination.genes[indices.random()] += supplyNext(countToMutate)
 		}
 	}
 }
 
 open class ReplaceMutationPolicy(private val fraction: Double = 0.01) : MutationPolicy {
-	private val randomRangeSupplier = Suppliers.RandomHE
-	private fun supplyNext(count: Int) = randomRangeSupplier.supply(count, 0, 0)
+	private val randomRangeSupplier = Suppliers.RandomRangeNP
+	private fun supplyNext(count: Int) = randomRangeSupplier.supply(count, 0, 0) * 2
 
 	override fun mutateWeight(
 		source: WeightGenes,
@@ -63,14 +57,8 @@ open class ReplaceMutationPolicy(private val fraction: Double = 0.01) : Mutation
 		val indices = source.genes.indices
 		val countToMutateDouble = min((source.size.toDouble() * fraction), source.size.toDouble())
 		val rounded = countToMutateDouble.roundUpInt()
-		if (countToMutateDouble >= 1.0) {
-			for (i in 0 until rounded) {
-				destination.genes[indices.random()] = supplyNext(rounded)
-			}
-		} else {
-			if (Random.nextDouble(0.0, 1.0) <= countToMutateDouble) {
-				destination.genes[indices.random()] = supplyNext(rounded)
-			}
+		for (i in 0 until rounded) {
+			destination.genes[indices.random()] = supplyNext(rounded)
 		}
 	}
 }
@@ -85,17 +73,10 @@ open class UpscaleMutationPolicy(private val fraction: Double = 0.01) : Mutation
 		}
 		val indices = source.genes.indices
 		val countToMutateDouble = min((source.size.toDouble() * fraction), source.size.toDouble())
-		if (countToMutateDouble >= 1.0) {
-			val countToMutate = countToMutateDouble.roundUpInt()
-			for (i in 0 until countToMutate) {
-				val randomIndex = indices.random()
-				destination.genes[randomIndex] = destination.genes[randomIndex].upscale(2)
-			}
-		} else {
-			if (Random.nextDouble(0.0, 1.0) <= countToMutateDouble) {
-				val randomIndex = indices.random()
-				destination.genes[randomIndex] = destination.genes[randomIndex].upscale(2)
-			}
+		val countToMutate = countToMutateDouble.roundUpInt()
+		for (i in 0 until countToMutate) {
+			val randomIndex = indices.random()
+			destination.genes[randomIndex] = destination.genes[randomIndex].upscale(2)
 		}
 	}
 }
@@ -111,23 +92,16 @@ open class InversionMutationPolicy(private val fraction: Double = 0.01) : Mutati
 		}
 		val indices = source.genes.indices
 		val countToMutateDouble = min((source.size.toDouble() * fraction), source.size.toDouble())
-		if (countToMutateDouble >= 1.0) {
-			val countToMutate = countToMutateDouble.roundUpInt()
-			for (i in 0 until countToMutate) {
-				val randomIndex = indices.random()
-				destination.genes[randomIndex] = -destination.genes[randomIndex]
-			}
-		} else {
-			if (Random.nextDouble(0.0, 1.0) <= countToMutateDouble) {
-				val randomIndex = indices.random()
-				destination.genes[randomIndex] = -destination.genes[randomIndex]
-			}
+		val countToMutate = countToMutateDouble.roundUpInt()
+		for (i in 0 until countToMutate) {
+			val randomIndex = indices.random()
+			destination.genes[randomIndex] = -destination.genes[randomIndex]
 		}
 	}
 }
 
 class CyclicMutationPolicy(
-	fraction: Double = 0.01, // from 1.0 to 0.0
+	private val fraction: Double = 0.01, // from 1.0 to 0.0
 	private val additiveRatio: Int = 6,
 	private val upscaleRatio: Int = 1,
 	private val inversionRatio: Int = 1,
@@ -135,13 +109,28 @@ class CyclicMutationPolicy(
 ) : MutationPolicy {
 
 	private val sum = additiveRatio + upscaleRatio + inversionRatio + replaceRatio
-	private val additive = AdditiveMutationPolicy(fraction * (additiveRatio.toDouble() / sum))
-	private val upscale = UpscaleMutationPolicy(fraction * (upscaleRatio.toDouble() / sum))
-	private val inversion = InversionMutationPolicy(fraction * (inversionRatio.toDouble() / sum))
-	private val replace = ReplaceMutationPolicy(fraction *  (replaceRatio.toDouble() / sum))
+	private val additive = AdditiveMutationPolicy(fraction)
+	private val upscale = UpscaleMutationPolicy(fraction)
+	private val inversion = InversionMutationPolicy(fraction)
+	private val replace = ReplaceMutationPolicy(fraction)
 
 	init {
 		if (sum <= 0) throw IllegalStateException("Sum of rations should bot be zero or less")
+	}
+
+	override fun mutation(source: LayerGenes, destination: LayerGenes) {
+		val random = source.map.values.randomOrNull()
+
+		for (weight in source.map) {
+			val sourceW = source.map[weight.key] ?: throw IllegalStateException()
+			val destinationW = destination.map[weight.key] ?: throw IllegalStateException()
+
+			if (random == sourceW) {
+				mutateWeight(sourceW, destinationW)
+			} else {
+				sourceW.copyTo(destinationW)
+			}
+		}
 	}
 
 	override fun mutateWeight(
