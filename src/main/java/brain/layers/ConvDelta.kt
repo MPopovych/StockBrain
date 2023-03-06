@@ -30,7 +30,7 @@ class ConvDelta(
 			name = name)
 			.also {
 				it.init()
-				Suppliers.fillFull(it.kernel.matrix, Suppliers.RandomHE)
+//				Suppliers.fillFull(it.kernel.matrix, Suppliers.RandomHE)
 			}
 	}
 
@@ -45,12 +45,12 @@ class ConvDeltaImpl(
 	override var name: String,
 ) : Layer.SingleInputLayer() {
 	override val nameType: String = ConvDelta.defaultNameType
-	lateinit var kernel: WeightData
+//	lateinit var kernel: WeightData
 	override lateinit var outputBuffer: Matrix
 
 	override fun init() {
-		kernel = WeightData("weight", Matrix(directShape.width, directShape.height), true)
-		addWeights(kernel)
+//		kernel = WeightData("weight", Matrix(directShape.width, directShape.height), true)
+//		addWeights(kernel)
 
 		outputBuffer = Matrix(directShape.width, directShape.height)
 	}
@@ -59,7 +59,7 @@ class ConvDeltaImpl(
 		flushBuffer()
 
 		MatrixMath.convolutionSubtract(input, outputBuffer)
-		MatrixMath.hadamard(outputBuffer, kernel.matrix, outputBuffer)
+//		MatrixMath.hadamard(outputBuffer, kernel.matrix, outputBuffer)
 		activation?.also {
 			Activations.activate(outputBuffer, outputBuffer, it)
 		}

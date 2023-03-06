@@ -48,7 +48,8 @@ class DropoutLayerImpl(
 	private var trainable = false
 	private val countTotal = (directShape.width * directShape.height).toFloat()
 	private val countToTake = ((directShape.width * directShape.height).toFloat() * rate).roundToInt()
-	private val dropoutMConst = countTotal / (countTotal - countToTake)
+	private val dropoutConst = countToTake.toFloat() / countTotal
+	private val dropoutMConst = 1f / (1f - dropoutConst)
 
 	init {
 		require(rate >= 0 && rate < 1.0)
@@ -56,8 +57,9 @@ class DropoutLayerImpl(
 		require(countToTake < directShape.height * directShape.width)
 	}
 
-	private val indexMatrix = (0 until directShape.width)
-		.map { x -> (0 until directShape.height).map { y-> Pair(x, y) } }.flatten()
+	private val indexMatrix = (0 until directShape.height)
+		.map { y -> (0 until directShape.width).map { x -> Pair(y, x) } }
+		.flatten()
 
 	override fun init() {
 		outputBuffer = Matrix(directShape.width, directShape.height)
@@ -66,7 +68,7 @@ class DropoutLayerImpl(
 	override fun call(input: Matrix): Matrix {
 		flushBuffer()
 		if (!trainable) {
-			MatrixMath.transfer(input, outputBuffer)
+			MatrixMath.multiply(input, outputBuffer, 1f - dropoutConst)
 		} else {
 			MatrixMath.transfer(input, outputBuffer)
 			val shuffled = indexMatrix.shuffled()

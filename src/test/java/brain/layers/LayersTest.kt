@@ -1,5 +1,6 @@
 package brain.layers
 
+import brain.matrix.Matrix
 import brain.models.ModelBuilder
 import brain.suppliers.Suppliers
 import brain.utils.getShape
@@ -12,14 +13,39 @@ import kotlin.test.assertEquals
 class LayersTest {
 
 	@Test
-	fun testDirect() {
+	fun testDense() {
 		val input = InputLayer(3, steps = 2)
-		val d1 = Direct(kernelInit = Suppliers.Ones, biasInit = Suppliers.Zero) { input }
+		val d1 = Dense(2, kernelInit = Suppliers.const(0.5f), biasInit = Suppliers.Ones) { input }
 
 		val builder = ModelBuilder(input, d1, debug = false)
 		val model = builder.build(debug = true)
 
-		val inputData = Suppliers.createMatrix(LayerShape(3, 2), Suppliers.RandomRangeNP)
+		val inputData = Matrix(3, 2) { c, x, y ->
+			return@Matrix (x + y).toFloat()
+		}
+		inputData.printRedBr()
+		val r1 = model.getOutput(inputData).copy()
+		r1.print()
+		assert(r1.getShape().width == 2)
+		assert(r1.getShape().height == 2)
+
+		assertEquals(2.5f, r1.values[0][0])
+		assertEquals(2.5f, r1.values[0][1])
+		assertEquals(4f, r1.values[1][0])
+		assertEquals(4f, r1.values[1][1])
+	}
+
+	@Test
+	fun testDirect() {
+		val input = InputLayer(3, steps = 2)
+		val d1 = Direct(kernelInit = Suppliers.const(0.5f), biasInit = Suppliers.Ones) { input }
+
+		val builder = ModelBuilder(input, d1, debug = false)
+		val model = builder.build(debug = true)
+
+		val inputData = Matrix(3, 2) { c, x, y ->
+			return@Matrix (x + y).toFloat()
+		}
 		inputData.printRedBr()
 		val r1 = model.getOutput(inputData).copy()
 		r1.print()
@@ -28,7 +54,7 @@ class LayersTest {
 
 		for ((x, array) in r1.values.withIndex()) {
 			for ((y, v) in array.withIndex()) {
-				assertEquals(inputData.values[x][y], v)
+				assertEquals((x + y) * 0.5f + 1f, v)
 			}
 		}
 	}
@@ -36,13 +62,15 @@ class LayersTest {
 	@Test
 	fun testDropout() {
 		val input = InputLayer(3, steps = 2)
-		val d1 = Dropout(rate = 0.5f) { input }
+		val d1 = Dropout(rate = 0.1f) { input }
 
 		val builder = ModelBuilder(input, d1, debug = false)
 		val model = builder.build(debug = true)
 		model.setTrainable(true)
 
-		val inputData = Suppliers.createMatrix(LayerShape(3, 2), Suppliers.RandomRangeNP)
+		val inputData = Matrix(3, 2) { c, x, y ->
+			return@Matrix (x + y).toFloat() + 2f
+		}
 		inputData.printRedBr()
 		val r1 = model.getOutput(inputData).copy()
 		r1.print()
@@ -51,8 +79,8 @@ class LayersTest {
 
 		var zeroed = 0
 		var scaled = 0
-		for ((x, array) in r1.values.withIndex()) {
-			for ((y, v) in array.withIndex()) {
+		for (array in r1.values) {
+			for (v in array) {
 				if (v == 0f) {
 					zeroed++
 				} else {
@@ -61,9 +89,9 @@ class LayersTest {
 			}
 		}
 		val totalNodes = d1.getShape().height * d1.getShape().width
-		printGreenBr("Same: ${scaled}, different: $zeroed")
+		printGreenBr("different: ${scaled}, zeroed: $zeroed")
 		assertEquals(totalNodes, zeroed + scaled)
-		assertEquals(totalNodes / 2, zeroed)
+		assertEquals(1, zeroed)
 	}
 
 	@Test
@@ -74,7 +102,9 @@ class LayersTest {
 		val builder = ModelBuilder(input, d1, debug = false)
 		val model = builder.build(debug = true)
 
-		val inputData = Suppliers.createMatrix(LayerShape(3, 3), Suppliers.RandomRangeNP)
+		val inputData = Matrix(3, 3) { c, x, y ->
+			return@Matrix (x + 1f) * (y + 1f)
+		}
 		inputData.printRedBr()
 		val r1 = model.getOutput(inputData).copy()
 		r1.print()
@@ -90,7 +120,9 @@ class LayersTest {
 		val builder = ModelBuilder(input, d1, debug = false)
 		val model = builder.build(debug = true)
 
-		val inputData = Suppliers.createMatrix(LayerShape(3, 3), Suppliers.RandomRangeNP)
+		val inputData = Matrix(3, 3) { c, x, y ->
+			return@Matrix (x + 1f) * (y + 1f)
+		}
 		inputData.printRedBr()
 		val r1 = model.getOutput(inputData).copy()
 		r1.print()
@@ -107,9 +139,13 @@ class LayersTest {
 		val builder = ModelBuilder(mapOf("i1" to input1, "i2" to input2), c1, debug = false)
 		val model = builder.build(debug = true)
 
-		val inputData1 = Suppliers.createMatrix(LayerShape(3, 1), Suppliers.RandomRangeNP)
+		val inputData1 = Matrix(3, 1) { _, x, y ->
+			return@Matrix (x + 1f) * (y + 1f)
+		}
 		inputData1.printRedBr()
-		val inputData2 = Suppliers.createMatrix(LayerShape(3, 1), Suppliers.RandomRangeNP)
+		val inputData2 = Matrix(3, 1) { _, x, y ->
+			return@Matrix - (x + 1f) * (y + 1f)
+		}
 		inputData2.print()
 		val r1 = model.getOutput(mapOf("i1" to inputData1, "i2" to inputData2)).copy()
 		r1.print()
@@ -120,7 +156,7 @@ class LayersTest {
 	@Test
 	fun testTimeMask() {
 		val input = InputLayer(3, steps = 3)
-		val tm = TimeMask(fromEnd = 0, fromStart = 2) { input }
+		val tm = TimeMask(fromStart = 2, fromEnd = 0) { input }
 
 		val builder = ModelBuilder(input, tm, debug = false)
 		val model = builder.build(debug = true)
@@ -141,12 +177,20 @@ class LayersTest {
 		val builder = ModelBuilder(input, fd1, debug = false)
 		val model = builder.build(debug = true)
 
-		val inputData = Suppliers.createMatrix(LayerShape(3, 8), Suppliers.RandomRangeNP)
+		val inputData = Matrix(3, 8) { _, x, y ->
+			return@Matrix (x + 1f) * (y + 1f)
+		}
+		for (i in 0 until 8) {
+			inputData.values[i][0] = 0f
+		}
 		inputData.printRedBr()
 		val r1 = model.getOutput(inputData).copy()
 		r1.print()
 		assert(r1.getShape().width == 3)
 		assert(r1.getShape().height == 2)
+		for (i in 0 until 2) {
+			assertEquals(0f, r1.values[i][0])
+		}
 	}
 
 }

@@ -75,6 +75,16 @@ object ModelReader {
 					buffer[parent] ?: throw IllegalStateException("No parent found in buffer")
 				}
 			}
+			GRU.defaultNameType -> {
+				val meta = (ls.getMetaData() as? LayerMetaData.GRUMeta)
+					?: throw IllegalStateException("No meta for GRU")
+				val activation = Activations.deserialize(ls.activation)
+				val parent = ls.parents?.getOrNull(0)
+					?: throw IllegalStateException("No parent in GRU")
+				GRU(activation = activation, units = ls.width, useBias = meta.useBias, name = ls.name) {
+					buffer[parent] ?: throw IllegalStateException("No parent found in buffer")
+				}
+			}
 			Direct.defaultNameType -> {
 				val meta = (ls.getMetaData() as? LayerMetaData.DirectMeta)
 					?: throw IllegalStateException("No meta for direct")
@@ -82,6 +92,16 @@ object ModelReader {
 				val parent = ls.parents?.getOrNull(0)
 					?: throw IllegalStateException("No parent in direct")
 				Direct(activation = activation, useBias = meta.useBias, name = ls.name) {
+					buffer[parent] ?: throw IllegalStateException("No parent found in buffer")
+				}
+			}
+			ScaleSeries.defaultNameType -> {
+				val meta = (ls.getMetaData() as? LayerMetaData.DirectMeta)
+					?: throw IllegalStateException("No meta for scale series")
+				val activation = Activations.deserialize(ls.activation)
+				val parent = ls.parents?.getOrNull(0)
+					?: throw IllegalStateException("No parent in scale series")
+				ScaleSeries(activation = activation, useBias = meta.useBias, name = ls.name) {
 					buffer[parent] ?: throw IllegalStateException("No parent found in buffer")
 				}
 			}
@@ -173,9 +193,19 @@ private class LayerDeserializer : JsonDeserializer<LayerSerialized> {
 				val data = ModelReader.innerGson.fromJson<LayerMetaData.DirectMeta>(element)
 				temp.copy(builderData = data)
 			}
+			ScaleSeries.defaultNameType -> {
+				val element = json.asJsonObject["builderData"]
+				val data = ModelReader.innerGson.fromJson<LayerMetaData.DirectMeta>(element)
+				temp.copy(builderData = data)
+			}
 			Dropout.defaultNameType -> {
 				val element = json.asJsonObject["builderData"]
 				val data = ModelReader.innerGson.fromJson<LayerMetaData.DropoutMeta>(element)
+				temp.copy(builderData = data)
+			}
+			GRU.defaultNameType -> {
+				val element = json.asJsonObject["builderData"]
+				val data = ModelReader.innerGson.fromJson<LayerMetaData.GRUMeta>(element)
 				temp.copy(builderData = data)
 			}
 			FeatureDense.defaultNameType -> {

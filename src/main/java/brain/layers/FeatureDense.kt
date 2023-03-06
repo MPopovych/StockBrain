@@ -83,12 +83,20 @@ class FeatureDenseImpl(
 	override fun call(input: Matrix): Matrix {
 		flushBuffer()
 
-		for (i in 0 until input.width) {
-			MatrixMath.transferArrayToMatrixRoot(input.values[i], transposeFeatureBuffer) // performs additional checks
-			val kernel = kernels[i]
+		for (x in 0 until input.width) { // per feature
+			MatrixMath.flush(transposeFeatureBuffer)
+			for (y in 0 until input.height) {
+				// fill horizontally
+				transposeFeatureBuffer.values[0][y] = input.values[y][x]
+			}
+			val kernel = kernels[x]
 			MatrixMath.flush(transposeOutputBuffer)
 			MatrixMath.multiply(transposeFeatureBuffer, kernel.matrix, transposeOutputBuffer)
-			MatrixMath.transferMatrixRootToArray(transposeOutputBuffer, outputBuffer.values[i])
+
+			for (y in 0 until units) {
+				// fill vertically
+				outputBuffer.values[y][x] = transposeOutputBuffer.values[0][y]
+			}
 		}
 
 		if (useBias) MatrixMath.add(outputBuffer, bias.matrix, outputBuffer)

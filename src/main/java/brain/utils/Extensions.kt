@@ -23,22 +23,12 @@ fun Matrix.printGreenBr() {
 fun Matrix.describe(): String {
 	val sb = StringBuilder()
 	for (y in 0 until height) {
-		val line = "[${values.joinToString { it[y].roundDisplay() }}]"
+		val line = "[${values[y].joinToString { it.roundDisplay() }}]"
 		sb.append(line).appendLine()
 	}
 	return sb.toString().trimIndent()
 }
 
-
-fun Matrix.printTransposed() {
-	val sb = StringBuilder().append("[")
-	for (x in 0 until width) {
-		val line = "[${values[x].joinToString { it.roundDisplay() }}]"
-		sb.append(line).appendLine()
-	}
-	sb.append("]")
-	printBlueBr(sb.toString().trimIndent())
-}
 
 fun FloatArray.encodeGenes(): String {
 	val buff = ByteBuffer.allocate(this.size * 4)

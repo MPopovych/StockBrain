@@ -8,9 +8,21 @@ import brain.suppliers.RandomRangeSupplier
 import brain.suppliers.Suppliers
 import brain.utils.*
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class ModelTest {
 
+	@Test
+	fun testReshape() {
+		val array1 = floatArrayOf(0.4f, 0f, 1f, 4f, 0f, 0f)
+		val m = array1.reshapeToMatrix(3, 2)
+		assertEquals(array1[0], m.values[0][0])
+		assertEquals(array1[1], m.values[0][1])
+		assertEquals(array1[2], m.values[0][2])
+		assertEquals(array1[3], m.values[1][0])
+		assertEquals(array1[4], m.values[1][1])
+		assertEquals(array1[5], m.values[1][2])
+	}
 
 	@Test
 	fun testForReadMeMulti() {

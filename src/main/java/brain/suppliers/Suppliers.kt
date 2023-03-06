@@ -12,20 +12,23 @@ object Suppliers {
 	val RandomHE = HESupplier.INSTANCE
 	val RandomRangeNP = RandomRangeSupplier.INSTANCE
 
+	fun const(const: Float) = ConstSupplier(const)
+
 	fun createMatrix(shape: LayerShape, supplier: ValueSupplier): Matrix {
 		return Matrix(shape.width, shape.height).also {
-			for (x in 0 until it.width) {
-				for (y in 0 until it.height) {
-					it.values[x][y] = supplier.supply(shape.width * shape.height, x, y)
+			for (y in 0 until it.height) {
+				for (x in 0 until it.width) {
+
+					it.values[y][x] = supplier.supply(shape.width * shape.height, x, y)
 				}
 			}
 		}
 	}
 
 	fun fillFull(matrix: Matrix, supplier: ValueSupplier) {
-		for (x in 0 until matrix.width) {
-			for (y in 0 until matrix.height) {
-				matrix.values[x][y] = supplier.supply(matrix.width * matrix.width, x, y)
+		for (y in 0 until matrix.height) {
+			for (x in 0 until matrix.width) {
+				matrix.values[y][x] = supplier.supply(matrix.width * matrix.width, x, y)
 			}
 		}
 	}

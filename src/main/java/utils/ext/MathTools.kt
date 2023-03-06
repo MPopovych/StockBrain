@@ -100,6 +100,27 @@ fun FloatArray.std(): Float {
 	return sqrt((sumSquared - (sum.pow(2) / size)) / size)
 }
 
+fun FloatArray.median(): Float {
+	val sorted = this.sorted()
+	return if (sorted.size % 2 == 0)
+		(sorted[sorted.size / 2] + sorted[(sorted.size - 1) / 2]) / 2
+	else
+		sorted[sorted.size / 2]
+}
+
+fun FloatArray.iqrAndMedian(): Pair<Float, Float> {
+	val sorted = this.sorted()
+	val median = if (sorted.size % 2 == 0)
+		(sorted[sorted.size / 2] + sorted[(sorted.size - 1) / 2]) / 2
+	else
+		sorted[sorted.size / 2]
+
+	val q1: Float = sorted[floor(sorted.size * 0.25).toInt()]
+	val q3: Float = sorted[ceil(sorted.size * 0.75).toInt()]
+	val iqr = q3 - q1
+	return Pair(iqr, median)
+}
+
 fun Iterable<Number>.average(): Float {
 	val mapped = this.map { it.toDouble() }
 	val sum = mapped.sum()
@@ -112,6 +133,28 @@ fun Iterable<Number>.std(): Float {
 	val sum = this.sumOf { it.toDouble() }
 	return sqrt((sumSquared - (sum.pow(2) / squared.size)) / squared.size).toFloat()
 }
+
+fun Iterable<Number>.median(): Float {
+	val sorted = this.map { it.toFloat() }.sorted()
+	return if (sorted.size % 2 == 0)
+		(sorted[sorted.size / 2] + sorted[(sorted.size - 1) / 2]) / 2
+	else
+		sorted[sorted.size / 2]
+}
+
+fun Iterable<Number>.iqrAndMedian(): Pair<Float, Float> {
+	val sorted = this.map { it.toFloat() }.sorted()
+	val median = if (sorted.size % 2 == 0)
+		(sorted[sorted.size / 2] + sorted[(sorted.size - 1) / 2]) / 2
+	else
+		sorted[sorted.size / 2]
+
+	val q1: Float = sorted[floor(sorted.size * 0.25).toInt()]
+	val q3: Float = sorted[ceil(sorted.size * 0.75).toInt()]
+	val iqr = q3 - q1
+	return Pair(iqr, median)
+}
+
 
 // l = size
 fun <T> movingAverageFull(inputEntries: List<T>, count: Int, block: (T) -> Double): DoubleArray {

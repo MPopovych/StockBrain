@@ -3,6 +3,7 @@ package brain.activation
 import brain.matrix.Matrix
 
 object Activations {
+	val Abs = AbsFunction()
 	val ReLu = ReLuFunction()
 	val LeReLu = LeakyReLuFunction()
 	val ReLuMinMax = ReLuMinMaxFunction()
@@ -16,9 +17,9 @@ object Activations {
 	val MirrorReversedReLu = MirrorReLuReversedFunction()
 
 	fun activate(matrix: Matrix, buffer: Matrix, function: ActivationFunction) {
-		for (x in 0 until matrix.width) {
-			for (y in 0 until matrix.height) {
-				buffer.values[x][y] = function.apply(matrix.values[x][y])
+		for (y in 0 until matrix.height) {
+			for (x in 0 until matrix.width) {
+				buffer.values[y][x] = function.apply(matrix.values[y][x])
 			}
 		}
 	}
@@ -27,6 +28,7 @@ object Activations {
 		name ?: return null
 
 		return when (name.lowercase()) {
+			Abs.nameType() -> Abs
 			ReLu.nameType() -> ReLu
 			LeReLu.nameType() -> LeReLu
 			NegZeroPos.nameType() -> NegZeroPos

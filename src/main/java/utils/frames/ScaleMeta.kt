@@ -1,15 +1,19 @@
 package utils.frames
 
 import utils.ext.average
+import utils.ext.iqrAndMedian
+import utils.ext.median
 import utils.ext.std
 import utils.math.NPStandardize
 import utils.math.NegativePositiveNorm
+import utils.math.RobustNorm
 import utils.math.ZeroPositiveNorm
 
 enum class ScaleMetaType {
 	NormalizeZP,
 	NormalizeNP,
 	Standardize,
+	Robust,
 
 	None;
 
@@ -18,8 +22,9 @@ enum class ScaleMetaType {
 		val max = array.max()
 		val min = array.min()
 		val std = array.std()
+		val (iqr, median) = array.iqrAndMedian()
 
-		return ScaleMeta(this, mean, max, min, std)
+		return ScaleMeta(this, mean, max, min, std, median, iqr)
 	}
 
 	fun buildForArray(array: Iterable<Number>): ScaleMeta {
@@ -27,8 +32,9 @@ enum class ScaleMetaType {
 		val max = array.maxOf { it.toFloat() }
 		val min = array.minOf { it.toFloat() }
 		val std = array.std()
+		val (iqr, median) = array.iqrAndMedian()
 
-		return ScaleMeta(this, mean, max, min, std)
+		return ScaleMeta(this, mean, max, min, std, median, iqr)
 	}
 }
 
@@ -38,13 +44,16 @@ data class ScaleMeta(
 	val max: Float,
 	val min: Float,
 	val std: Float,
+	val median: Float,
+	val iqr: Float
 ) {
 
 	companion object {
-		val None = ScaleMeta(type = ScaleMetaType.None, 0f, 0f, 0f, 0f)
+		val None = ScaleMeta(type = ScaleMetaType.None, 0f, 0f, 0f, 0f, 0f, 0f)
 		private val ZPNorm = ZeroPositiveNorm()
 		private val NPNorm = NegativePositiveNorm()
 		private val NPStandardize = NPStandardize()
+		private val RobustNorm = RobustNorm()
 	}
 
 	fun getMeanAndStdString(): String {
@@ -56,6 +65,7 @@ data class ScaleMeta(
 			ScaleMetaType.NormalizeZP -> ZPNorm.performScale(this, value)
 			ScaleMetaType.NormalizeNP -> NPNorm.performScale(this, value)
 			ScaleMetaType.Standardize -> NPStandardize.performScale(this, value)
+			ScaleMetaType.Robust -> RobustNorm.performScale(this, value)
 			ScaleMetaType.None -> value
 		}
 	}
@@ -65,6 +75,7 @@ data class ScaleMeta(
 			ScaleMetaType.NormalizeZP -> ZPNorm.performScale(this, array)
 			ScaleMetaType.NormalizeNP -> NPNorm.performScale(this, array)
 			ScaleMetaType.Standardize -> NPStandardize.performScale(this, array)
+			ScaleMetaType.Robust -> RobustNorm.performScale(this, array)
 			ScaleMetaType.None -> array.copyOf()
 		}
 	}

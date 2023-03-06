@@ -16,7 +16,7 @@ public class Matrix {
 
 	public Matrix(int width, // columns
 	              int height) { // rows
-		this(width, height, ZeroSupplier.INSTANCE);
+		this(width, height, null);
 	}
 
 	public Matrix(int width, int height, ValueSupplier supplier) {
@@ -24,17 +24,17 @@ public class Matrix {
 		this.height = height;
 
 		if (supplier != null) {
-			values = new float[width][];
-			for (int x = 0; x < width; x++) {
-				values[x] = new float[height];
-				for (int y = 0; y < height; y++) {
-					values[x][y] = supplier.supply(height * width, x, y);
+			values = new float[height][];
+			for (int y = 0; y < height; y++) {
+				values[y] = new float[width];
+				for (int x = 0; x < width; x++) {
+					values[y][x] = supplier.supply(height * width, x, y);
 				}
 			}
 		} else {
-			values = new float[width][];
-			for (int x = 0; x < width; x++) {
-				values[x] = new float[height];
+			values = new float[height][];
+			for (int y = 0; y < height; y++) {
+				values[y] = new float[width];
 			}
 		}
 	}
@@ -48,9 +48,9 @@ public class Matrix {
 	public String readStringData() {
 		int count = width * height;
 		ByteBuffer buff = ByteBuffer.allocate(count * 4);
-		for (int x = 0; x < width; x++) {
-			for (int y = 0; y < height; y++) {
-				buff.putFloat(values[x][y]); // BIAS VALUES
+		for (int y = 0; y < height; y++) {
+			for (int x = 0; x < width; x++) {
+				buff.putFloat(values[y][x]);
 			}
 		}
 		return Base64.getEncoder().encodeToString(buff.array());
@@ -65,9 +65,9 @@ public class Matrix {
 			throw new IllegalStateException("Mismatch of %s vs %s".formatted(bytes.length, expectedCount * 4));
 		}
 
-		for (int x = 0; x < width; x++) {
-			for (int y = 0; y < height; y++) {
-				values[x][y] = buff.getFloat();
+		for (int y = 0; y < height; y++) {
+			for (int x = 0; x < width; x++) {
+				values[y][x] = buff.getFloat();
 			}
 		}
 	}
@@ -75,16 +75,16 @@ public class Matrix {
 	public float[] readFloatData() {
 		int count = width * height;
 		float[] array = new float[count];
-		for (int x = 0; x < width; x++) {
-			System.arraycopy(values[x], 0, array, x * height, height);
+		for (int y = 0; y < height; y++) {
+			System.arraycopy(values[y], 0, array, y * width, width);
 		}
 		return array;
 	}
 
 
 	public void writeFloatData(@NotNull float[] data) {
-		for (int x = 0; x < width; x++) {
-			System.arraycopy(data, x * height, values[x], 0, height);
+		for (int y = 0; y < height; y++) {
+			System.arraycopy(data, y * width, values[y], 0, width);
 		}
 	}
 }

@@ -62,7 +62,8 @@ class ModelWriterTest {
 		val builder = ModelBuilder(input, output)
 		val modelOriginal = builder.build()
 
-		val inputData = Suppliers.createMatrix(input.getShape(), Suppliers.RandomRangeNP)
+		val inputData = Suppliers.createMatrix(input.getShape(), Suppliers.RandomBinNP)
+		inputData.printRedBr()
 		val resultOriginal = modelOriginal.getOutput(inputData)
 		resultOriginal.print()
 

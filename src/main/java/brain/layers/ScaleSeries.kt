@@ -7,32 +7,28 @@ import brain.matrix.MatrixMath
 import brain.suppliers.Suppliers
 import brain.suppliers.ValueSupplier
 
-class Dense(
-	private val units: Int,
+class ScaleSeries(
 	private val activation: ActivationFunction? = null,
-	private val kernelInit: ValueSupplier = Suppliers.RandomBinZP,
+	private val kernelInit: ValueSupplier = Suppliers.Ones,
 	private val biasInit: ValueSupplier = Suppliers.Zero,
 	private val useBias: Boolean = true,
 	override var name: String = Layer.DEFAULT_NAME,
 	parentLayerBlock: (() -> LayerBuilder<*>),
-) : LayerBuilder.SingleInput<DenseLayerImpl> {
+) : LayerBuilder.SingleInput<ScaleSeriesLayerImpl> {
 	companion object {
-		const val defaultNameType = "Dense"
+		const val defaultNameType = "ScaleSeries"
 	}
 
 	override val nameType: String = defaultNameType
 	override val parentLayer: LayerBuilder<*> = parentLayerBlock()
-	private val shape = LayerShape(units, parentLayer.getShape().height)
+	private val shape = parentLayer.getShape()
 
-	override fun create(): DenseLayerImpl {
-		val weightShape = LayerShape(units, parentLayer.getShape().width)
-
-		return DenseLayerImpl(
+	override fun create(): ScaleSeriesLayerImpl {
+		return ScaleSeriesLayerImpl(
 			activation = activation,
-			weightShape = weightShape,
-			biasShape = shape,
-			useBias = useBias,
-			name = name
+			directShape = shape,
+			name = name,
+			useBias = useBias
 		)
 			.also {
 				it.init()
@@ -45,35 +41,34 @@ class Dense(
 		return shape
 	}
 
-	override fun getSerializedBuilderData(): LayerMetaData.DenseMeta {
-		return LayerMetaData.DenseMeta(useBias = useBias)
+	override fun getSerializedBuilderData(): LayerMetaData.DirectMeta {
+		return LayerMetaData.DirectMeta(useBias = useBias)
 	}
 }
 
-class DenseLayerImpl(
+class ScaleSeriesLayerImpl(
 	override val activation: ActivationFunction? = null,
-	private val weightShape: LayerShape,
-	private val biasShape: LayerShape,
-	private val useBias: Boolean = true,
+	private val directShape: LayerShape,
+	private val useBias: Boolean,
 	override var name: String,
 ) : Layer.SingleInputLayer() {
-	override val nameType: String = Dense.defaultNameType
+	override val nameType: String = ScaleSeries.defaultNameType
 	override lateinit var outputBuffer: Matrix
 	lateinit var kernel: WeightData
 	lateinit var bias: WeightData
 
 	override fun init() {
-		kernel = WeightData("weight", Matrix(weightShape.width, weightShape.height), true)
+		kernel = WeightData("weight", Matrix(directShape.width, 1), true)
 		addWeights(kernel)
-		bias = WeightData("bias", Matrix(biasShape.width, biasShape.height), trainable = useBias)
+		bias = WeightData("bias", Matrix(directShape.width, 1), trainable = useBias)
 		addWeights(bias)
-		outputBuffer = Matrix(biasShape.width, biasShape.height)
+		outputBuffer = Matrix(directShape.width, directShape.height)
 	}
 
 	override fun call(input: Matrix): Matrix {
 		flushBuffer()
-		MatrixMath.multiply(input, kernel.matrix, outputBuffer)
-		if (useBias) MatrixMath.add(outputBuffer, bias.matrix, outputBuffer)
+		MatrixMath.hadamardSingleRow(input, kernel.matrix, outputBuffer)
+		if (useBias) MatrixMath.addSingleRow(outputBuffer, bias.matrix, outputBuffer)
 		activation?.also {
 			Activations.activate(outputBuffer, outputBuffer, it)
 		}

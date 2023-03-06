@@ -8,6 +8,7 @@ import brain.utils.printGreenBr
 import brain.utils.printRedBr
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
 
 class MatrixTest {
 
@@ -52,12 +53,12 @@ class MatrixTest {
 		d.print()
 
 		assertEquals(d.values[0][0], 0f)
-		assertEquals(d.values[1][0], 3f)
-		assertEquals(d.values[2][0], 6f)
+		assertEquals(d.values[0][1], 3f)
+		assertEquals(d.values[0][2], 6f)
 
-		assertEquals(d.values[0][1], 0f)
+		assertEquals(d.values[1][0], 0f)
 		assertEquals(d.values[1][1], 6f)
-		assertEquals(d.values[2][1], 12f)
+		assertEquals(d.values[1][2], 12f)
 
 	}
 
@@ -101,6 +102,27 @@ class MatrixTest {
 		val b = Matrix(3, 1, ConstSupplier(2f))
 		MatrixMath.hadamard(a, b, b)
 		b.print()
+	}
+
+	@Test
+	fun testFlush() {
+		val a = Matrix(3, 3, Suppliers.Ones)
+
+		a.print()
+		println()
+
+		for (array in a.values) {
+			for (v in array) {
+				assertEquals(1f, v)
+			}
+		}
+		MatrixMath.flush(a)
+		a.print()
+		for (array in a.values) {
+			for (v in array) {
+				assertEquals(0f, v)
+			}
+		}
 	}
 
 }

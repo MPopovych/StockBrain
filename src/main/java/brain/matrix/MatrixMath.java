@@ -16,27 +16,37 @@ public class MatrixMath {
 	}
 
 	public static void multiply(Matrix a, Matrix b, Matrix d) {
-		//Column major implementation, ijk algorithm
-
-		int aW = a.width;
-		int aH = a.height;
-		int bW = b.width;
-		int bH = b.height;
-		int dW = d.width;
-		int dH = d.height;
-
-		if (aW != bH || aH != dH || bW != dW) {
-			throw new IllegalArgumentException("shape conflict %s:%s vs %s:%s vs %s:%s".formatted(aW, aH, bW, bH, dW, dH));
+		// Row major implementation, ijk algorithm
+		if (a.width != b.height) {
+			throw new IllegalArgumentException("Matrix input dimensions are not compatible for multiplication" +
+					"a: [%s:%s], b[%s:%s]".formatted(a.height, a.width, b.height, b.width));
 		}
 
-		float value;
-		for (int i = 0; i < aH; i++) {
-			for (int j = 0; j < bW; j++) {
-				value = d.values[j][i];
-				for (int k = 0; k < aW; k++) {
-					value += a.values[k][i] * b.values[j][k];
+		if (a.height != d.height || b.width != d.width) {
+			throw new IllegalArgumentException(("Matrix destination dimensions are not compatible for multiplication" +
+					"has to be: dw[%s vs final %s], dh[%s vs final %s]").formatted(b.width, d.width, a.height, d.height));
+		}
+
+		for (int i = 0; i < a.height; i++) {
+			for (int j = 0; j < b.width; j++) {
+				float sum = 0;
+				for (int k = 0; k < a.width; k++) {
+					sum += a.values[i][k] * b.values[k][j];
 				}
-				d.values[j][i] = value;
+				d.values[i][j] = sum;
+			}
+		}
+	}
+
+	public static void multiply(Matrix a, Matrix d, float m) {
+		// Row major implementation, ijk algorithm
+		if (a.height != d.height || a.width != d.width) {
+			throw new IllegalArgumentException("Matrix dimensions are not compatible for multiplication.");
+		}
+
+		for (int y = 0; y < a.height; y++) {
+			for (int x = 0; x < a.width; x++) {
+				d.values[y][x] = a.values[y][x] * m;
 			}
 		}
 	}
@@ -47,9 +57,22 @@ public class MatrixMath {
 
 		checkSameDimensions(a, b, destination);
 
-		for (int i = 0; i < thisX; i++) {
-			for (int j = 0; j < thisY; j++) {
-				destination.values[i][j] = a.values[i][j] + b.values[i][j];
+		for (int y = 0; y < thisY; y++) {
+			for (int x = 0; x < thisX; x++) {
+				destination.values[y][x] = a.values[y][x] + b.values[y][x];
+			}
+		}
+	}
+
+	public static void add(Matrix a, Matrix d, float constant) {
+		int thisX = a.width; // right, number of columns
+		int thisY = a.height; // down, number of rows
+
+		checkSameDimensions(a, d);
+
+		for (int y = 0; y < thisY; y++) {
+			for (int x = 0; x < thisX; x++) {
+				d.values[y][x] = a.values[y][x] + constant;
 			}
 		}
 	}
@@ -59,10 +82,9 @@ public class MatrixMath {
 		int thisY = a.height; // down, number of rows
 
 		checkSameDimensions(a, b, destination);
-
-		for (int i = 0; i < thisX; i++) {
-			for (int j = 0; j < thisY; j++) {
-				destination.values[i][j] = a.values[i][j] - b.values[i][j];
+		for (int y = 0; y < thisY; y++) {
+			for (int x = 0; x < thisX; x++) {
+				destination.values[y][x] = a.values[y][x] - b.values[y][x];
 			}
 		}
 	}
@@ -77,9 +99,9 @@ public class MatrixMath {
 			throw new IllegalArgumentException("shape conflict %s:%s vs %s:%s".formatted(thisX, thisY, targetX, targetY));
 		}
 
-		for (int i = 0; i < targetX; i++) {
-			for (int j = 0; j < targetY; j++) {
-				destination.values[i][j] = a.values[i][j + 1] - a.values[i][j];
+		for (int y = 0; y < targetY; y++) {
+			for (int x = 0; x < targetX; x++) {
+				destination.values[y][x] = a.values[y + 1][x] - a.values[y][x];
 			}
 		}
 	}
@@ -95,9 +117,9 @@ public class MatrixMath {
 		}
 
 		int pending = 0;
-		for (int j = 0; j < thisY; j++) {
-			for (int i = 0; i < thisX; i++) {
-				destination.values[pending++][0] = a.values[i][j];
+		for (int y = 0; y < thisY; y++) {
+			for (int x = 0; x < thisX; x++) {
+				destination.values[0][pending++] = a.values[y][x];
 			}
 		}
 	}
@@ -108,9 +130,41 @@ public class MatrixMath {
 
 		checkSameDimensions(a, b, destination);
 
-		for (int i = 0; i < thisX; i++) {
-			for (int j = 0; j < thisY; j++) {
-				destination.values[i][j] = a.values[i][j] * b.values[i][j];
+		for (int y = 0; y < thisY; y++) {
+			for (int x = 0; x < thisX; x++) {
+				destination.values[y][x] = a.values[y][x] * b.values[y][x];
+			}
+		}
+	}
+
+	public static void addSingleRow(Matrix a, Matrix single, Matrix destination) {
+		int thisX = a.width; // right, number of columns
+		int thisY = a.height; // down, number of rows
+
+		checkSameDimensions(a, destination);
+		if (single.height != 1 || single.width != thisX) {
+			throw new IllegalArgumentException("shape conflict %s:%s vs %s:%s".formatted(thisX, thisY, single.width, single.height));
+		}
+
+		for (int y = 0; y < thisY; y++) {
+			for (int x = 0; x < thisX; x++) {
+				destination.values[y][x] = a.values[y][x] + single.values[0][x];
+			}
+		}
+	}
+
+	public static void hadamardSingleRow(Matrix a, Matrix single, Matrix destination) {
+		int thisX = a.width; // right, number of columns
+		int thisY = a.height; // down, number of rows
+
+		checkSameDimensions(a, destination);
+		if (single.height != 1 || single.width != thisX) {
+			throw new IllegalArgumentException("shape conflict %s:%s vs %s:%s".formatted(thisX, thisY, single.width, single.height));
+		}
+
+		for (int y = 0; y < thisY; y++) {
+			for (int x = 0; x < thisX; x++) {
+				destination.values[y][x] = a.values[y][x] * single.values[0][x];
 			}
 		}
 	}
@@ -121,8 +175,8 @@ public class MatrixMath {
 
 		checkSameDimensions(from, to);
 
-		for (int x = 0; x < thisX; x++) {
-			System.arraycopy(from.values[x], 0, to.values[x], 0, thisY);
+		for (int y = 0; y < thisY; y++) {
+			System.arraycopy(from.values[y], 0, to.values[y], 0, thisX);
 		}
 	}
 
@@ -134,42 +188,19 @@ public class MatrixMath {
 			throw new IllegalArgumentException("shape conflict %s:%s vs %s:%s".formatted(thisX, thisY, to.width, to.height));
 		}
 
-		int pendingY = 0;
+		int pendingX = 0;
 		for (int x = 0; x < thisX; x++) {
-			if (filter.contains(x)) {
-				System.arraycopy(from.values[x], 0, to.values[pendingY], 0, thisY);
-				pendingY++;
+			if (!filter.contains(x)) {
+				continue;
 			}
+			for (int y = 0; y < thisY; y++) {
+				to.values[y][pendingX] = from.values[y][x];
+			}
+			pendingX++;
 		}
 	}
 
-	public static void transferArrayToMatrixRoot(float[] from, Matrix to) {
-		int targetX = to.width;
-		int targetY = to.height;
-
-		if (from.length != targetX || targetY != 1) {
-			throw new IllegalArgumentException("shape conflict %s:%s vs %s:%s".formatted(1, from.length, targetX, targetY));
-		}
-
-		for (int x = 0; x < targetX; x++) {
-			to.values[x][0] = from[x];
-		}
-	}
-
-	public static void transferMatrixRootToArray(Matrix from, float[] to) {
-		int thisX = from.width; // right, number of columns
-		int thisY = from.height; // down, number of rows
-
-		if (thisX != to.length || thisY != 1) {
-			throw new IllegalArgumentException("shape conflict %s:%s vs %s:%s".formatted(1, to.length, thisX, thisY));
-		}
-
-		for (int x = 0; x < thisX; x++) {
-			to[x] = from.values[x][0];
-		}
-	}
-
-	public static void transferHeightRange(Matrix from, Matrix to, int maskStart, int maskEnd) {
+	public static void transferEndRange(Matrix from, Matrix to, int maskStart, int maskEnd) {
 		int thisX = from.width; // right, number of columns
 		int thisY = from.height; // down, number of rows
 		int targetX = to.width;
@@ -180,9 +211,22 @@ public class MatrixMath {
 			throw new IllegalArgumentException("shape conflict %s:%s vs %s:%s".formatted(thisX, thisY, targetX, targetY));
 		}
 
-		for (int x = 0; x < thisX; x++) {
-			System.arraycopy(from.values[x], maskStart, to.values[x], 0, destHeight);
+		for (int y = maskStart; y < thisY - maskEnd; y++) {
+			System.arraycopy(from.values[y], 0, to.values[y - maskStart], 0, targetX);
 		}
+	}
+
+	public static void transferSingleRow(Matrix from, Matrix to, int row, int destRow) {
+		int thisX = from.width; // right, number of columns
+		int thisY = from.height; // down, number of rows
+		int targetX = to.width;
+		int targetY = to.height;
+
+		if (thisX != targetX || row >= thisY || destRow >= targetY) {
+			throw new IllegalArgumentException("shape conflict %s:%s vs %s:%s".formatted(thisX, thisY, targetX, targetY));
+		}
+
+		System.arraycopy(from.values[row], 0, to.values[destRow], 0, targetX);
 	}
 
 	public static void flush(Matrix d) {
@@ -190,9 +234,9 @@ public class MatrixMath {
 		int thisX = d.width; //right, number of columns
 		int thisY = d.height; // down, number of rows
 
-		for (int i = 0; i < thisX; i++) {
-			for (int j = 0; j < thisY; j++) {
-				d.values[i][j] = 0f;
+		for (int y = 0; y < thisY; y++) {
+			for (int x = 0; x < thisX; x++) {
+				d.values[y][x] = 0f;
 			}
 		}
 	}

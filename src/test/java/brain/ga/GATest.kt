@@ -29,9 +29,9 @@ class GATest {
 
 		val inputArray = Suppliers.createMatrix(input.getShape(), Suppliers.RandomBinNP)
 		val targetArray = inputArray.copy().also { m ->
-			m.values.forEachIndexed { x, a ->
-				a.forEachIndexed { y, value ->
-					m.values[x][y] = -value
+			m.values.forEachIndexed { y, a ->
+				a.forEachIndexed { x, value ->
+					m.values[y][x] = -value
 				}
 			}
 		}
@@ -62,9 +62,9 @@ class GATest {
 				val newInput = Suppliers.createMatrix(input.getShape(), Suppliers.RandomBinNP)
 				val output = it.model.getOutput(newInput)
 				var absoluteError = 0.0
-				output.values.forEachIndexed { x, a ->
-					a.forEachIndexed { y, value ->
-						val error = abs(value - newInput.values[x][y] * -1)
+				output.values.forEachIndexed { y, a ->
+					a.forEachIndexed { x, value ->
+						val error = abs(value - newInput.values[y][x] * -1)
 						absoluteError += error
 					}
 				}

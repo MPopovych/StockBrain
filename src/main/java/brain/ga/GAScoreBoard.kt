@@ -51,7 +51,7 @@ class GAScoreBoard(private val settings: GASettings) {
 		scoreList.addAll(batch
 			.onEach {
 				if (it.score.isNaN() || it.score.isInfinite()) {
-					throw IllegalStateException("NaN or Infinite in score")
+					throw IllegalStateException("NaN or Infinite in score : ${it}")
 				}
 			}
 			.distinctBy { it.id }

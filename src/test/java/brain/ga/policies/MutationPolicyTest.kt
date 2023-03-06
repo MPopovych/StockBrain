@@ -13,9 +13,10 @@ class MutationPolicyTest {
 		val d = a.emptyCopy()
 		assertNotEqualModel(a, d)
 
-		AdditiveMutationPolicy().mutateWeight(a, d)
+		AdditiveMutationPolicy(fraction = 0.5).mutateWeight(a, d)
 
 		printBlueBr("testAdditiveMutationPolicy ${d.genes.toList()}")
+		assertNotEqualModel(a, d)
 	}
 
 

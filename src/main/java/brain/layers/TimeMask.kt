@@ -55,7 +55,7 @@ class TimeMaskImpl(
 	override fun call(input: Matrix): Matrix {
 		flushBuffer()
 
-		MatrixMath.transferHeightRange(input, outputBuffer, fromStart, fromEnd)
+		MatrixMath.transferEndRange(input, outputBuffer, fromStart, fromEnd)
 		return outputBuffer
 	}
 
