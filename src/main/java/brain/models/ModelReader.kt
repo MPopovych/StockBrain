@@ -75,6 +75,16 @@ object ModelReader {
 					buffer[parent] ?: throw IllegalStateException("No parent found in buffer")
 				}
 			}
+			DenseMax.defaultNameType -> {
+				val meta = (ls.getMetaData() as? LayerMetaData.OnlyBiasMeta)
+					?: throw IllegalStateException("No meta for dense")
+				val activation = Activations.deserialize(ls.activation)
+				val parent = ls.parents?.getOrNull(0)
+					?: throw IllegalStateException("No parent in dense")
+				DenseMax(units = ls.width, activation = activation, useBias = meta.useBias, name = ls.name) {
+					buffer[parent] ?: throw IllegalStateException("No parent found in buffer")
+				}
+			}
 			GRU.defaultNameType -> {
 				val meta = (ls.getMetaData() as? LayerMetaData.GRUMeta)
 					?: throw IllegalStateException("No meta for GRU")
@@ -213,6 +223,11 @@ private class LayerDeserializer : JsonDeserializer<LayerSerialized> {
 
 		return when (temp.nameType) {
 			Dense.defaultNameType -> {
+				val element = json.asJsonObject[FIELD_BUILDER_DATA]
+				val data = ModelReader.innerGson.fromJson<LayerMetaData.OnlyBiasMeta>(element)
+				temp.copy(builderData = data)
+			}
+			DenseMax.defaultNameType -> {
 				val element = json.asJsonObject[FIELD_BUILDER_DATA]
 				val data = ModelReader.innerGson.fromJson<LayerMetaData.OnlyBiasMeta>(element)
 				temp.copy(builderData = data)

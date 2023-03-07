@@ -38,7 +38,35 @@ public class MatrixMath {
 		}
 	}
 
-	public static void multiply(Matrix a, Matrix d, float m) {
+	public static void multiplyMax(Matrix a, Matrix b, Matrix d) {
+		// Row major implementation, ijk algorithm
+		if (a.width != b.height) {
+			throw new IllegalArgumentException("Matrix input dimensions are not compatible for multiplication" +
+					"a: [%s:%s], b[%s:%s]".formatted(a.height, a.width, b.height, b.width));
+		}
+
+		if (a.height != d.height || b.width != d.width) {
+			throw new IllegalArgumentException(("Matrix destination dimensions are not compatible for multiplication" +
+					"has to be: dw[%s vs final %s], dh[%s vs final %s]").formatted(b.width, d.width, a.height, d.height));
+		}
+
+		for (int i = 0; i < a.height; i++) {
+			for (int j = 0; j < b.width; j++) {
+				float sum = 0;
+				for (int k = 0; k < a.width; k++) {
+					sum = Math.max(a.values[i][k] * b.values[k][j], sum);
+				}
+				d.values[i][j] = sum;
+			}
+		}
+	}
+
+	private static float fast_custom_sigmoid(float value) {
+		float abs = (float) Math.exp(-value);
+		return (1f / (1f + abs)) + 1f;
+	}
+
+	public static void multiply(Matrix a, float m, Matrix d) {
 		// Row major implementation, ijk algorithm
 		if (a.height != d.height || a.width != d.width) {
 			throw new IllegalArgumentException("Matrix dimensions are not compatible for multiplication.");

@@ -295,4 +295,27 @@ class LayersTest {
 		assertEquals(54f, r1.values[0][1])
 	}
 
+	@Test
+	fun testPivot() {
+		val input = InputLayer(3, steps = 1)
+		val pivot = PivotNorm (biasAInit = Suppliers.Ones, kernelInit = Suppliers.const(2f), biasBInit = Suppliers.const(-1f)){ input }
+
+		val builder = ModelBuilder(input, pivot, debug = false)
+		val model = builder.build(debug = true)
+
+		val inputData = Matrix(input.features, input.steps) { _, x, y ->
+			return@Matrix 0f
+		}
+		inputData.printRedBr()
+		val r1 = model.getOutput(inputData).copy()
+		r1.print()
+		assert(r1.getShape().width == input.features)
+		assert(r1.getShape().height == input.steps)
+		for (y in 0 until input.steps) {
+			for (x in 0 until input.features) {
+				assertEquals(1f, r1.values[y][x])
+			}
+		}
+	}
+
 }
