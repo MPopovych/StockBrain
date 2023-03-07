@@ -9,6 +9,9 @@ data class GAScoreHolder(
 ) {
 	val idHashcode = id.hashCode()
 
+	val bornOnEpoch: Int
+		get() = genes.bornOnEpoch
+
 	val chromosomeHash: String
 		get() = genes.chromosome
 

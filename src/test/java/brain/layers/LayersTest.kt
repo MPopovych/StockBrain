@@ -36,6 +36,24 @@ class LayersTest {
 	}
 
 	@Test
+	fun testDenseMax() {
+		val input = InputLayer(3, steps = 2)
+		val d1 = DenseMax(2, kernelInit = Suppliers.RandomHE, biasInit = Suppliers.Ones) { input }
+
+		val builder = ModelBuilder(input, d1, debug = false)
+		val model = builder.build(debug = true)
+
+		val inputData = Matrix(3, 2) { c, x, y ->
+			return@Matrix (x + y).toFloat()
+		}
+		inputData.printRedBr()
+		val r1 = model.getOutput(inputData).copy()
+		r1.print()
+		assert(r1.getShape().width == 2)
+		assert(r1.getShape().height == 2)
+	}
+
+	@Test
 	fun testDirect() {
 		val input = InputLayer(3, steps = 2)
 		val d1 = Direct(kernelInit = Suppliers.const(0.5f), biasInit = Suppliers.Ones) { input }

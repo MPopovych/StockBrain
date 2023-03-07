@@ -16,7 +16,7 @@ class GA(
 ) {
 
 	private val originalBuilder = initialModel.revertToBuilder()
-	private val originalGenes = ModelGenes(initialModel)
+	private val originalGenes = ModelGenes(0, initialModel)
 	private val modelBuffer = (0..settings.totalPopulationCount).mapTo(ArrayList()) { index ->
 		if (index == 0) { // keep origin
 			val model = originalBuilder.build()
@@ -39,7 +39,7 @@ class GA(
 			val commands = runGeneration(genCount, action)
 			val elapsed = (System.currentTimeMillis() - time) / 1000
 			val newGenes = commands.map { command ->
-				handleCommand(command)
+				handleCommand(i, command)
 			}
 
 			newGenes.forEachIndexed { index, modelGenes ->
@@ -65,7 +65,7 @@ class GA(
 		return scoreBoard.getTop()?.genes ?: throw IllegalStateException("No top score")
 	}
 
-	private fun handleCommand(command: FutureMatch): ModelGenes {
+	private fun handleCommand(generation: Int, command: FutureMatch): ModelGenes {
 		return when (command) {
 			is FutureMatch.CrossMatch -> {
 				val destination = command.parentA.copyGene()
@@ -73,14 +73,19 @@ class GA(
 				if (command.mutate) {
 					destination.applyMutationPolicy(settings.mutationPolicy, source = destination)
 				}
+				destination.bornOnEpoch = generation
 				destination
 			}
 			is FutureMatch.MutateMatch -> {
 				val destination = command.source.copyGene()
-				destination.applyMutationPolicy(settings.mutationPolicy, source = command.source.genes)
+				destination.bornOnEpoch = generation
+				destination.applyMutationPolicy(settings.mutationPolicy, source = command.source.genes).also {
+					it.bornOnEpoch = generation
+				}
 			}
 			is FutureMatch.Repeat -> {
 				val destination = command.source.copyGene()
+				// keep bornOnEpoch the same
 				destination
 			}
 		}
@@ -106,7 +111,7 @@ class GA(
 
 		scoreBoard.pushBatch(scores)
 
-		return settings.matchMakingPolicy.select(settings, scoreBoard)
+		return settings.matchMakingPolicy.select(settings, scoreBoard, generation)
 	}
 
 }

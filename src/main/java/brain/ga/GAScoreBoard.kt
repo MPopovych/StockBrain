@@ -18,7 +18,7 @@ class GAScoreBoard(private val settings: GASettings) {
 	val size: Int
 		get() = scoreList.size
 
-	fun getAscendingScoreList(): List<GAScoreHolder> = scoreList
+	fun getAscendingFitnessList(): List<GAScoreHolder> = scoreList
 
 	fun getTop(): GAScoreHolder? {
 		return scoreList.lastOrNull()
@@ -61,7 +61,7 @@ class GAScoreBoard(private val settings: GASettings) {
 		)
 		when (settings.scoreBoardOrder) {
 			GAScoreBoardOrder.Ascending -> scoreList.sortBy { it.score } // ascending
-			GAScoreBoardOrder.Descending -> scoreList.sortByDescending { it.score } // ascending
+			GAScoreBoardOrder.Descending -> scoreList.sortByDescending { it.score } // decending
 		}
 		while (scoreList.size > settings.topParentCount) {
 			scoreList.removeFirst()

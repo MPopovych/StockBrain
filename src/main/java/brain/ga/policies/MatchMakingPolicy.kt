@@ -6,7 +6,7 @@ import brain.ga.GASettings
 import kotlin.random.Random
 
 interface MatchMakingPolicy {
-	fun select(settings: GASettings, scoreBoard: GAScoreBoard): List<FutureMatch>
+	fun select(settings: GASettings, scoreBoard: GAScoreBoard, generation: Int): List<FutureMatch>
 }
 
 sealed class FutureMatch {
@@ -15,18 +15,18 @@ sealed class FutureMatch {
 	class MutateMatch(val source: GAScoreHolder) : FutureMatch()
 }
 
-class DefaultMatchMakingPolicy(val repeatTop: Int) : MatchMakingPolicy {
-	override fun select(settings: GASettings, scoreBoard: GAScoreBoard): List<FutureMatch> {
+class DefaultMatchMakingPolicy(private val repeatTop: Int) : MatchMakingPolicy {
+	override fun select(settings: GASettings, scoreBoard: GAScoreBoard, generation: Int): List<FutureMatch> {
 		val buffer = ArrayList<FutureMatch>()
 		val top = scoreBoard.getTop() ?: throw IllegalStateException()
 		if (repeatTop > 0) {
-			scoreBoard.getAscendingScoreList().takeLast(repeatTop).forEach { best ->
+			scoreBoard.getAscendingFitnessList().takeLast(repeatTop).forEach { best ->
 				buffer.add(FutureMatch.Repeat(best))
 			}
 		}
 		buffer.add(FutureMatch.MutateMatch(top))
 
-		val holders = scoreBoard.getAscendingScoreList()
+		val holders = scoreBoard.getAscendingFitnessList()
 		while (buffer.size < settings.totalPopulationCount - 1) {
 			val a = holders.random()
 			val b = holders.random()
@@ -36,5 +36,40 @@ class DefaultMatchMakingPolicy(val repeatTop: Int) : MatchMakingPolicy {
 		}
 		return buffer
 	}
+}
 
+/**
+ * According to some articles this approach provides better regularization
+ */
+class AgingMatchMakingPolicy(private val repeatTop: Int, private val lifespan: Int) : MatchMakingPolicy {
+
+	init {
+		require(lifespan > 0)
+	}
+	override fun select(settings: GASettings, scoreBoard: GAScoreBoard, generation: Int): List<FutureMatch> {
+		val buffer = ArrayList<FutureMatch>()
+		val freshOnes = scoreBoard.getAscendingFitnessList().filter { it.bornOnEpoch >= generation - lifespan }
+		if (freshOnes.isNotEmpty()) {
+			val top = freshOnes.last()
+			if (repeatTop > 0) {
+				freshOnes.takeLast(repeatTop).forEach { best ->
+					buffer.add(FutureMatch.Repeat(best))
+				}
+			}
+			buffer.add(FutureMatch.MutateMatch(top))
+		}
+		val youngest = freshOnes.ifEmpty { scoreBoard.getAscendingFitnessList() } // fallback if all are expired
+		while (buffer.size < settings.totalPopulationCount - 1) {
+			val a = youngest.random()
+			val b = youngest.last()
+
+			if (a == b && youngest.size > 2) continue
+			if (a == b) {
+				buffer.add(FutureMatch.MutateMatch(a))
+			} else {
+				buffer.add(FutureMatch.CrossMatch(a, b, mutate = Random.nextBoolean()))
+			}
+		}
+		return buffer
+	}
 }

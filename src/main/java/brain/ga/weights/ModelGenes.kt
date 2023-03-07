@@ -6,9 +6,9 @@ import brain.models.Model
 import brain.utils.encodeGenes
 
 // a hard copy of weights
-class ModelGenes(val layers: Map<String, LayerGenes>) {
+class ModelGenes(var bornOnEpoch: Int, val layers: Map<String, LayerGenes>) {
 	companion object {
-		operator fun invoke(model: Model): ModelGenes {
+		operator fun invoke(bornOnEpoch: Int, model: Model): ModelGenes {
 			val weights: Map<String, LayerGenes> = model.layersMap.values
 				.map {
 					val map = it.weights.values
@@ -21,7 +21,7 @@ class ModelGenes(val layers: Map<String, LayerGenes>) {
 					return@map LayerGenes(it.name, map)
 				}.associateBy { it.layerId }
 
-			return ModelGenes(weights)
+			return ModelGenes(bornOnEpoch, weights)
 		}
 	}
 
@@ -41,7 +41,7 @@ class ModelGenes(val layers: Map<String, LayerGenes>) {
 
 	fun copy(): ModelGenes {
 		val wCopy = layers.mapValues { it.value.copy() }
-		return ModelGenes(wCopy)
+		return ModelGenes(bornOnEpoch, wCopy)
 	}
 
 	fun applyCrossOverPolicy(crossOverPolicy: CrossOverPolicy, a: ModelGenes, b: ModelGenes): ModelGenes {
