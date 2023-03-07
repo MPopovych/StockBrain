@@ -8,36 +8,38 @@ import brain.suppliers.Suppliers
 import brain.suppliers.ValueSupplier
 
 /**
- * Applies an element wise multiplication and bias on each row, same matrices are used on every (t) row
+ * Applies an element wise bias, multiplication and bias on each row, same matrices are used on every (t) row
  * output size is the same as input
+ *
+ * ((Input + B1) • W) + B2
  */
-class ScaleSeries(
+class PivotNorm(
 	private val activation: ActivationFunction? = null,
+	private val biasAInit: ValueSupplier = Suppliers.Zero,
 	private val kernelInit: ValueSupplier = Suppliers.Ones,
-	private val biasInit: ValueSupplier = Suppliers.Zero,
-	private val useBias: Boolean = true,
+	private val biasBInit: ValueSupplier = Suppliers.Zero,
 	override var name: String = Layer.DEFAULT_NAME,
 	parentLayerBlock: (() -> LayerBuilder<*>),
-) : LayerBuilder.SingleInput<ScaleSeriesLayerImpl> {
+) : LayerBuilder.SingleInput<PivotNormLayerImpl> {
 	companion object {
-		const val defaultNameType = "ScaleSeries"
+		const val defaultNameType = "PivotNorm"
 	}
 
 	override val nameType: String = defaultNameType
 	override val parentLayer: LayerBuilder<*> = parentLayerBlock()
 	private val shape = parentLayer.getShape()
 
-	override fun create(): ScaleSeriesLayerImpl {
-		return ScaleSeriesLayerImpl(
+	override fun create(): PivotNormLayerImpl {
+		return PivotNormLayerImpl(
 			activation = activation,
 			directShape = shape,
 			name = name,
-			useBias = useBias
 		)
 			.also {
 				it.init()
 				Suppliers.fillFull(it.kernel.matrix, kernelInit)
-				Suppliers.fillFull(it.bias.matrix, biasInit)
+				Suppliers.fillFull(it.biasA.matrix, biasAInit)
+				Suppliers.fillFull(it.biasB.matrix, biasBInit)
 			}
 	}
 
@@ -46,33 +48,36 @@ class ScaleSeries(
 	}
 
 	override fun getSerializedBuilderData(): LayerMetaData.OnlyBiasMeta {
-		return LayerMetaData.OnlyBiasMeta(useBias = useBias)
+		return LayerMetaData.OnlyBiasMeta(useBias = true)
 	}
 }
 
-class ScaleSeriesLayerImpl(
+class PivotNormLayerImpl(
 	override val activation: ActivationFunction? = null,
 	private val directShape: LayerShape,
-	private val useBias: Boolean,
 	override var name: String,
 ) : Layer.SingleInputLayer() {
-	override val nameType: String = ScaleSeries.defaultNameType
+	override val nameType: String = PivotNorm.defaultNameType
 	override lateinit var outputBuffer: Matrix
 	lateinit var kernel: WeightData
-	lateinit var bias: WeightData
+	lateinit var biasA: WeightData
+	lateinit var biasB: WeightData
 
 	override fun init() {
 		kernel = WeightData("weight", Matrix(directShape.width, 1), true)
 		addWeights(kernel)
-		bias = WeightData("bias", Matrix(directShape.width, 1), trainable = useBias)
-		addWeights(bias)
+		biasA = WeightData("biasA", Matrix(directShape.width, 1), true)
+		addWeights(biasA)
+		biasB = WeightData("biasB", Matrix(directShape.width, 1), true)
+		addWeights(biasB)
 		outputBuffer = Matrix(directShape.width, directShape.height)
 	}
 
 	override fun call(input: Matrix): Matrix {
 		flushBuffer()
+		MatrixMath.addSingleRow(outputBuffer, biasA.matrix, outputBuffer)
 		MatrixMath.hadamardSingleRow(input, kernel.matrix, outputBuffer)
-		if (useBias) MatrixMath.addSingleRow(outputBuffer, bias.matrix, outputBuffer)
+		MatrixMath.addSingleRow(outputBuffer, biasB.matrix, outputBuffer)
 		activation?.also {
 			Activations.activate(outputBuffer, outputBuffer, it)
 		}

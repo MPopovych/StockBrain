@@ -51,8 +51,8 @@ class FeatureDense(
 		return shape
 	}
 
-	override fun getSerializedBuilderData(): LayerMetaData.FeatureDenseMeta {
-		return LayerMetaData.FeatureDenseMeta(useBias = useBias)
+	override fun getSerializedBuilderData(): LayerMetaData.OnlyBiasMeta {
+		return LayerMetaData.OnlyBiasMeta(useBias = useBias)
 	}
 }
 

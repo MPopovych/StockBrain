@@ -193,4 +193,58 @@ class LayersTest {
 		}
 	}
 
+	@Test
+	fun testFeatureConv() {
+		val input = InputLayer(3, steps = 8)
+		val fd1 = FeatureConv(1, kernelSize = 4, kernelInit = Suppliers.Ones) { input }
+
+		val builder = ModelBuilder(input, fd1, debug = false)
+		val model = builder.build(debug = true)
+
+		val inputData = Matrix(3, 8) { _, x, y ->
+			return@Matrix (x + 1f) * (y + 1f)
+		}
+		for (i in 0 until 8) {
+			inputData.values[i][0] = 0f
+		}
+		inputData.printRedBr()
+		val r1 = model.getOutput(inputData).copy()
+		r1.print()
+		assert(r1.getShape().width == 3)
+		assert(r1.getShape().height == 8 - 4 + 1) // 5
+		for (i in 0 until 2) {
+			assertEquals(0f, r1.values[i][0])
+		}
+		assertEquals(20f, r1.values[0][1])
+		assertEquals(52f, r1.values[4][1])
+	}
+
+	@Test
+	fun testFeatureConv2() {
+		val input = InputLayer(3, steps = 8)
+		val fd1 = FeatureConv(2, kernelSize = 4, kernelInit = Suppliers.Ones) { input }
+
+		val builder = ModelBuilder(input, fd1, debug = false)
+		val model = builder.build(debug = true)
+
+		val inputData = Matrix(3, 8) { _, x, y ->
+			return@Matrix (x + 1f) * (y + 1f)
+		}
+		for (i in 0 until 8) {
+			inputData.values[i][0] = 0f
+		}
+		inputData.printRedBr()
+		val r1 = model.getOutput(inputData).copy()
+		r1.print()
+		assert(r1.getShape().width == 3)
+		assert(r1.getShape().height == (8 - 4 + 1) * 2) // 10
+		for (i in 0 until 2) {
+			assertEquals(0f, r1.values[i][0])
+		}
+		assertEquals(20f, r1.values[0][1])
+		assertEquals(20f, r1.values[1][1])
+		assertEquals(52f, r1.values[8][1])
+		assertEquals(52f, r1.values[9][1])
+	}
+
 }

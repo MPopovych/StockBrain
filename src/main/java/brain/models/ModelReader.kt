@@ -66,7 +66,7 @@ object ModelReader {
 				}
 			}
 			Dense.defaultNameType -> {
-				val meta = (ls.getMetaData() as? LayerMetaData.DenseMeta)
+				val meta = (ls.getMetaData() as? LayerMetaData.OnlyBiasMeta)
 					?: throw IllegalStateException("No meta for dense")
 				val activation = Activations.deserialize(ls.activation)
 				val parent = ls.parents?.getOrNull(0)
@@ -86,7 +86,7 @@ object ModelReader {
 				}
 			}
 			Direct.defaultNameType -> {
-				val meta = (ls.getMetaData() as? LayerMetaData.DirectMeta)
+				val meta = (ls.getMetaData() as? LayerMetaData.OnlyBiasMeta)
 					?: throw IllegalStateException("No meta for direct")
 				val activation = Activations.deserialize(ls.activation)
 				val parent = ls.parents?.getOrNull(0)
@@ -96,12 +96,20 @@ object ModelReader {
 				}
 			}
 			ScaleSeries.defaultNameType -> {
-				val meta = (ls.getMetaData() as? LayerMetaData.DirectMeta)
+				val meta = (ls.getMetaData() as? LayerMetaData.OnlyBiasMeta)
 					?: throw IllegalStateException("No meta for scale series")
 				val activation = Activations.deserialize(ls.activation)
 				val parent = ls.parents?.getOrNull(0)
 					?: throw IllegalStateException("No parent in scale series")
 				ScaleSeries(activation = activation, useBias = meta.useBias, name = ls.name) {
+					buffer[parent] ?: throw IllegalStateException("No parent found in buffer")
+				}
+			}
+			PivotNorm.defaultNameType -> {
+				val activation = Activations.deserialize(ls.activation)
+				val parent = ls.parents?.getOrNull(0)
+					?: throw IllegalStateException("No parent in scale series")
+				PivotNorm(activation = activation, name = ls.name) {
 					buffer[parent] ?: throw IllegalStateException("No parent found in buffer")
 				}
 			}
@@ -148,12 +156,28 @@ object ModelReader {
 				}
 			}
 			FeatureDense.defaultNameType -> {
-				val meta = (ls.getMetaData() as? LayerMetaData.FeatureDenseMeta)
+				val meta = (ls.getMetaData() as? LayerMetaData.OnlyBiasMeta)
 					?: throw IllegalStateException("No meta for feature dense")
 				val activation = Activations.deserialize(ls.activation)
 				val parent = ls.parents?.getOrNull(0)
 					?: throw IllegalStateException("No parent in feature dense")
 				FeatureDense(units = ls.height, activation = activation, useBias = meta.useBias, name = ls.name) {
+					buffer[parent] ?: throw IllegalStateException("No parent found in buffer")
+				}
+			}
+			FeatureConv.defaultNameType -> {
+				val meta = (ls.getMetaData() as? LayerMetaData.FeatureConvMeta)
+					?: throw IllegalStateException("No meta for feature conv")
+				val activation = Activations.deserialize(ls.activation)
+				val parent = ls.parents?.getOrNull(0)
+					?: throw IllegalStateException("No parent in feature conv")
+				FeatureConv(
+					units = meta.units,
+					kernelSize = meta.kernels,
+					activation = activation,
+					useBias = meta.useBias,
+					name = ls.name
+				) {
 					buffer[parent] ?: throw IllegalStateException("No parent found in buffer")
 				}
 			}
@@ -175,6 +199,10 @@ object ModelReader {
 }
 
 private class LayerDeserializer : JsonDeserializer<LayerSerialized> {
+
+	companion object {
+		const val FIELD_BUILDER_DATA = "builderData"
+	}
 	override fun deserialize(
 		json: JsonElement,
 		typeOfT: Type,
@@ -184,42 +212,52 @@ private class LayerDeserializer : JsonDeserializer<LayerSerialized> {
 
 		return when (temp.nameType) {
 			Dense.defaultNameType -> {
-				val element = json.asJsonObject["builderData"]
-				val data = ModelReader.innerGson.fromJson<LayerMetaData.DenseMeta>(element)
+				val element = json.asJsonObject[FIELD_BUILDER_DATA]
+				val data = ModelReader.innerGson.fromJson<LayerMetaData.OnlyBiasMeta>(element)
 				temp.copy(builderData = data)
 			}
 			Direct.defaultNameType -> {
-				val element = json.asJsonObject["builderData"]
-				val data = ModelReader.innerGson.fromJson<LayerMetaData.DirectMeta>(element)
+				val element = json.asJsonObject[FIELD_BUILDER_DATA]
+				val data = ModelReader.innerGson.fromJson<LayerMetaData.OnlyBiasMeta>(element)
 				temp.copy(builderData = data)
 			}
 			ScaleSeries.defaultNameType -> {
-				val element = json.asJsonObject["builderData"]
-				val data = ModelReader.innerGson.fromJson<LayerMetaData.DirectMeta>(element)
+				val element = json.asJsonObject[FIELD_BUILDER_DATA]
+				val data = ModelReader.innerGson.fromJson<LayerMetaData.OnlyBiasMeta>(element)
+				temp.copy(builderData = data)
+			}
+			PivotNorm.defaultNameType -> {
+				val element = json.asJsonObject[FIELD_BUILDER_DATA]
+				val data = ModelReader.innerGson.fromJson<LayerMetaData.OnlyBiasMeta>(element)
 				temp.copy(builderData = data)
 			}
 			Dropout.defaultNameType -> {
-				val element = json.asJsonObject["builderData"]
+				val element = json.asJsonObject[FIELD_BUILDER_DATA]
 				val data = ModelReader.innerGson.fromJson<LayerMetaData.DropoutMeta>(element)
 				temp.copy(builderData = data)
 			}
 			GRU.defaultNameType -> {
-				val element = json.asJsonObject["builderData"]
+				val element = json.asJsonObject[FIELD_BUILDER_DATA]
 				val data = ModelReader.innerGson.fromJson<LayerMetaData.GRUMeta>(element)
 				temp.copy(builderData = data)
 			}
 			FeatureDense.defaultNameType -> {
-				val element = json.asJsonObject["builderData"]
-				val data = ModelReader.innerGson.fromJson<LayerMetaData.FeatureDenseMeta>(element)
+				val element = json.asJsonObject[FIELD_BUILDER_DATA]
+				val data = ModelReader.innerGson.fromJson<LayerMetaData.OnlyBiasMeta>(element)
+				temp.copy(builderData = data)
+			}
+			FeatureConv.defaultNameType -> {
+				val element = json.asJsonObject[FIELD_BUILDER_DATA]
+				val data = ModelReader.innerGson.fromJson<LayerMetaData.FeatureConvMeta>(element)
 				temp.copy(builderData = data)
 			}
 			TimeMask.defaultNameType -> {
-				val element = json.asJsonObject["builderData"]
+				val element = json.asJsonObject[FIELD_BUILDER_DATA]
 				val data = ModelReader.innerGson.fromJson<LayerMetaData.TimeMaskMeta>(element)
 				temp.copy(builderData = data)
 			}
 			FeatureMask.defaultNameType -> {
-				val element = json.asJsonObject["builderData"]
+				val element = json.asJsonObject[FIELD_BUILDER_DATA]
 				val data = ModelReader.innerGson.fromJson<LayerMetaData.FeatureMaskMeta>(element)
 				temp.copy(builderData = data)
 			}
