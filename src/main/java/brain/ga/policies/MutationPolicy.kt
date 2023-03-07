@@ -62,6 +62,26 @@ open class ReplaceMutationPolicy(private val fraction: Double = 0.01) : Mutation
 	}
 }
 
+open class SwapMutationPolicy(private val fraction: Double = 0.01) : MutationPolicy {
+	override fun mutateWeight(
+		source: WeightGenes,
+		destination: WeightGenes,
+	) {
+		if (source != destination) {
+			source.copyTo(destination)
+		}
+		val indices = source.genes.indices
+		val countToMutateDouble = min((source.size.toDouble() * fraction), source.size.toDouble())
+		val rounded = countToMutateDouble.roundUpInt()
+		for (i in 0 until rounded) {
+			val randomPosA = indices.random()
+			val randomPosB = indices.random()
+			destination.genes[randomPosA] = source.genes[randomPosB]
+			destination.genes[randomPosB] = source.genes[randomPosA]
+		}
+	}
+}
+
 open class UpscaleMutationPolicy(private val fraction: Double = 0.01) : MutationPolicy {
 	override fun mutateWeight(
 		source: WeightGenes,
@@ -101,16 +121,18 @@ open class InversionMutationPolicy(private val fraction: Double = 0.01) : Mutati
 
 class CyclicMutationPolicy(
 	private val fraction: Double = 0.01, // from 1.0 to 0.0
-	private val additiveRatio: Int = 6,
+	private val additiveRatio: Int = 4,
 	private val upscaleRatio: Int = 1,
 	private val inversionRatio: Int = 1,
-	private val replaceRatio: Int = 3,
+	private val swapRatio: Int = 2,
+	private val replaceRatio: Int = 2,
 ) : MutationPolicy {
 
-	private val sum = additiveRatio + upscaleRatio + inversionRatio + replaceRatio
+	private val sum = additiveRatio + upscaleRatio + inversionRatio + swapRatio + replaceRatio
 	private val additive = AdditiveMutationPolicy(fraction)
 	private val upscale = UpscaleMutationPolicy(fraction)
 	private val inversion = InversionMutationPolicy(fraction)
+	private val swap = SwapMutationPolicy(fraction)
 	private val replace = ReplaceMutationPolicy(fraction)
 
 	init {
@@ -155,6 +177,8 @@ class CyclicMutationPolicy(
 			upscale.mutateWeight(source, destination)
 		} else if (r < additiveRatio + upscaleRatio + inversionRatio){
 			inversion.mutateWeight(source, destination)
+		} else if (r < additiveRatio + upscaleRatio + inversionRatio + swapRatio) {
+			swap.mutateWeight(source, destination)
 		} else {
 			replace.mutateWeight(source, destination)
 		}

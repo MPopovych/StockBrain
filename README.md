@@ -1,10 +1,21 @@
 # StockBrain
 Lightweight Java-Kotlin based library for neural networks
+I am using this for my personal project. 
+
+#### Why in Kotlin + Java? 
+Because I am able to prototype experimental layers and use the end result in the project which is running on Kotlin
 
 ### Supported layers
 *InputLayer* - defines entry for a set of data, multiple inputs can be used in the same model
 
 *Direct* - layer in a *Hadamard* multiplication style, can have an activation function, bias
+Direct applies weights and biases of the same size as input
+
+*ScaleSeries* - layer in a *Hadamard* multiplication style, can have an activation function, bias
+ScaleSeries applies (X_i • W) + B values on every individual row
+
+*PivotPoint*  - layer in a *Hadamard* multiplication style, used for changing the data center by element wise adding, multiplying and adding
+PivotPoint applies ((X_i + B_1) • W) + B_2 values on every individual row
 
 *Dense* - the most basic layer, can have an activation function, bias
 
@@ -12,9 +23,16 @@ Lightweight Java-Kotlin based library for neural networks
 
 *Flatten* - turns an {X,Y} layer into a {X*Y, 1} array
 
-*Concat* - turns a list of layers into one (at the moment limited only to layers with height 1)
+*Concat* - turns a list of layers into one (layers have to be of same height)
 
 *ConvDelta* - turn a layer of {X,Y} into {X,Y-1}, applies subtraction between two rows
+
+*FeatureConv* - applies a convolution feature wise (by {X} indicies)
+Uses a sliding window of *kernelSize* to produce rows of height *units* and same width as input
+
+*FeatureDense* - applies a convolution feature wise (by {X} indicies)
+Uses a fully connected weight to produce rows of height *units* and same width as input
+
 
 This a set of components developed for genetic algorithms coupled with a deep neural network.
 As a reference for declaration style tensorflow-keras was used

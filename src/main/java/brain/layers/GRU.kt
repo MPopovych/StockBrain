@@ -129,11 +129,11 @@ class GRUImpl(
 		MatrixMath.flush(cellStateBufferCurrent) // x
 		MatrixMath.flush(cellStateBufferPrev) // h_prev
 
-		var iter = (0 until input.height).toList()
+		var rowIterator = (0 until input.height).toList()
 		if (reverse) {
-			iter = iter.reversed()
+			rowIterator = rowIterator.asReversed()
 		}
-		for (t in iter) {
+		for (t in rowIterator) {
 			MatrixMath.transferSingleRow(input, cellStateBufferCurrent, t, 0)
 
 			// z

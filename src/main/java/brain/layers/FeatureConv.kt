@@ -9,12 +9,17 @@ import brain.suppliers.ValueSupplier
 
 /**
  * Output width = input width
- * Output height = (input height - kernelSize + 1) * units
+ * for zero step:
+ *  Output height = (input height - kernelSize + 1) * units
+ * for non-zero step:
+ *  Output height = ((input height  - kernelSize) / step + 1)
  */
 
 class FeatureConv(
 	val units: Int,
 	val kernelSize: Int,
+	val step: Int = 1,
+	val reverse: Boolean = false,
 	private val activation: ActivationFunction? = null,
 	private val useBias: Boolean = true,
 	private val kernelInit: ValueSupplier = Suppliers.RandomHE,
@@ -28,18 +33,23 @@ class FeatureConv(
 	override val nameType: String = defaultNameType
 	override val parentLayer: LayerBuilder<*> = parentLayerBlock()
 
-	private val shape = parentLayer.getShape().copy(height = (parentLayer.getShape().height - kernelSize + 1) * units)
+	private val slidingCount = (parentLayer.getShape().height - kernelSize) / step + 1
+	private val shape = parentLayer.getShape().copy(height = slidingCount * units)
 
 	init {
-		if (shape.height < 1) throw IllegalStateException("height cant be zero or less")
+		require(slidingCount <= parentLayer.getShape().height)
+		require(shape.height >= 1)
+		require(step >= 1)
 	}
 
 	override fun create(): FeatureConvImpl {
 		return FeatureConvImpl(
 			units = units,
 			kernelSize = kernelSize,
+			step = step,
 			parentShape = parentLayer.getShape(),
 			useBias = useBias,
+			reverse = reverse,
 			activation = activation,
 			name = name,
 		)
@@ -56,15 +66,23 @@ class FeatureConv(
 	}
 
 	override fun getSerializedBuilderData(): LayerMetaData.FeatureConvMeta {
-		return LayerMetaData.FeatureConvMeta(useBias = useBias, units = units, kernels = kernelSize)
+		return LayerMetaData.FeatureConvMeta(
+			useBias = useBias,
+			units = units,
+			kernels = kernelSize,
+			step = step,
+			reverse = reverse
+		)
 	}
 }
 
 class FeatureConvImpl(
 	val units: Int,
 	val kernelSize: Int,
+	val step: Int,
 	val parentShape: LayerShape,
 	val useBias: Boolean,
+	val reverse: Boolean,
 	override val activation: ActivationFunction? = null,
 	override var name: String,
 ) : Layer.SingleInputLayer() {
@@ -75,6 +93,12 @@ class FeatureConvImpl(
 
 	internal lateinit var kernels: ArrayList<WeightData>
 	private lateinit var biases: ArrayList<WeightData>
+
+	private val windowCount = ((parentShape.height - kernelSize) / step + 1)
+
+	init {
+		require(windowCount <= parentShape.height)
+	}
 
 	override fun init() {
 		kernels = ArrayList()
@@ -91,20 +115,24 @@ class FeatureConvImpl(
 			biases.add(localKernel)
 		}
 
-		val windowCount = (parentShape.height - kernelSize + 1) * units
 		transposeFeatureBuffer = Matrix(kernelSize, 1) // width = height, height = 1, that's correct
 		transposeOutputBuffer = Matrix(units, 1) // width = height, height = 1, that's correct
-		outputBuffer = Matrix(parentShape.width, windowCount)
+		outputBuffer = Matrix(parentShape.width, windowCount * units)
 	}
 
 	override fun call(input: Matrix): Matrix {
 		flushBuffer()
 
 		for (x in 0 until input.width) { // per feature
-			for (y in 0 until input.height - kernelSize + 1) {
+			for (y in 0 until windowCount) {
 				for (t in 0 until kernelSize) {
 					// fill horizontally
-					transposeFeatureBuffer.values[0][t] = input.values[t + y][x]
+					val pos = (t + y * step)
+					if (reverse) {
+						transposeFeatureBuffer.values[0][t] = input.values[input.height - 1 - pos][x]
+					} else {
+						transposeFeatureBuffer.values[0][t] = input.values[pos][x]
+					}
 				}
 				val kernel = kernels[x]
 				MatrixMath.flush(transposeOutputBuffer)

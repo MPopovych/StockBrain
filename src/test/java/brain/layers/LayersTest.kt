@@ -161,7 +161,7 @@ class LayersTest {
 		val builder = ModelBuilder(input, tm, debug = false)
 		val model = builder.build(debug = true)
 
-		val inputData = Suppliers.createMatrix(LayerShape(3, 3), Suppliers.RandomRangeNP)
+		val inputData = Suppliers.createMatrix(LayerShape(input.features, input.steps), Suppliers.RandomRangeNP)
 		inputData.printRedBr()
 		val r1 = model.getOutput(inputData).copy()
 		r1.print()
@@ -177,10 +177,10 @@ class LayersTest {
 		val builder = ModelBuilder(input, fd1, debug = false)
 		val model = builder.build(debug = true)
 
-		val inputData = Matrix(3, 8) { _, x, y ->
+		val inputData = Matrix(3, input.steps) { _, x, y ->
 			return@Matrix (x + 1f) * (y + 1f)
 		}
-		for (i in 0 until 8) {
+		for (i in 0 until input.steps) {
 			inputData.values[i][0] = 0f
 		}
 		inputData.printRedBr()
@@ -196,15 +196,15 @@ class LayersTest {
 	@Test
 	fun testFeatureConv() {
 		val input = InputLayer(3, steps = 8)
-		val fd1 = FeatureConv(1, kernelSize = 4, kernelInit = Suppliers.Ones) { input }
+		val fd1 = FeatureConv(1, kernelSize = 4, reverse = false, kernelInit = Suppliers.Ones) { input }
 
 		val builder = ModelBuilder(input, fd1, debug = false)
 		val model = builder.build(debug = true)
 
-		val inputData = Matrix(3, 8) { _, x, y ->
+		val inputData = Matrix(3, input.steps) { _, x, y ->
 			return@Matrix (x + 1f) * (y + 1f)
 		}
-		for (i in 0 until 8) {
+		for (i in 0 until input.steps) {
 			inputData.values[i][0] = 0f
 		}
 		inputData.printRedBr()
@@ -222,15 +222,15 @@ class LayersTest {
 	@Test
 	fun testFeatureConv2() {
 		val input = InputLayer(3, steps = 8)
-		val fd1 = FeatureConv(2, kernelSize = 4, kernelInit = Suppliers.Ones) { input }
+		val fd1 = FeatureConv(2, kernelSize = 4, reverse = false, kernelInit = Suppliers.Ones) { input }
 
 		val builder = ModelBuilder(input, fd1, debug = false)
 		val model = builder.build(debug = true)
 
-		val inputData = Matrix(3, 8) { _, x, y ->
+		val inputData = Matrix(3, input.steps) { _, x, y ->
 			return@Matrix (x + 1f) * (y + 1f)
 		}
-		for (i in 0 until 8) {
+		for (i in 0 until input.steps) {
 			inputData.values[i][0] = 0f
 		}
 		inputData.printRedBr()
@@ -245,6 +245,54 @@ class LayersTest {
 		assertEquals(20f, r1.values[1][1])
 		assertEquals(52f, r1.values[8][1])
 		assertEquals(52f, r1.values[9][1])
+	}
+
+	@Test
+	fun testFeatureConv2Step() {
+		val input = InputLayer(3, steps = 9)
+		val fd1 = FeatureConv(1, kernelSize = 3, step = 3, reverse = false, kernelInit = Suppliers.Ones) { input }
+
+		val builder = ModelBuilder(input, fd1, debug = false)
+		val model = builder.build(debug = true)
+
+		val inputData = Matrix(3, input.steps) { _, x, y ->
+			return@Matrix (x + 1f) * (y + 1f)
+		}
+		for (i in 0 until input.steps) {
+			inputData.values[i][0] = 0f
+		}
+		inputData.printRedBr()
+		val r1 = model.getOutput(inputData).copy()
+		r1.print()
+		assert(r1.getShape().width == 3)
+		assert(r1.getShape().height == input.steps / fd1.kernelSize)
+	}
+
+	@Test
+	fun testFeatureConv2Reverse() {
+		val input = InputLayer(3, steps = 10)
+		val fd1 = FeatureConv(1, kernelSize = 3, step = 3, reverse = true, kernelInit = Suppliers.Ones) { input }
+
+		val builder = ModelBuilder(input, fd1, debug = false)
+		val model = builder.build(debug = true)
+
+		val inputData = Matrix(3, input.steps) { _, x, y ->
+			return@Matrix (x + 1f) * (y + 1f)
+		}
+		for (i in 0 until input.steps) {
+			inputData.values[i][0] = 0f
+		}
+		inputData.printRedBr()
+		val r1 = model.getOutput(inputData).copy()
+		r1.print()
+		assert(r1.getShape().width == 3)
+		assert(r1.getShape().height == 3)
+		for (i in 0 until 3) {
+			assertEquals(0f, r1.values[i][0])
+		}
+		assertEquals(18f, r1.values[2][1])
+		assertEquals(36f, r1.values[1][1])
+		assertEquals(54f, r1.values[0][1])
 	}
 
 }

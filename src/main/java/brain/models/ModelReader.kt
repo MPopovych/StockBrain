@@ -174,6 +174,7 @@ object ModelReader {
 				FeatureConv(
 					units = meta.units,
 					kernelSize = meta.kernels,
+					step = meta.step,
 					activation = activation,
 					useBias = meta.useBias,
 					name = ls.name

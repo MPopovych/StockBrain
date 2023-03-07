@@ -1,7 +1,6 @@
 package brain.matrix;
 
 import brain.suppliers.ValueSupplier;
-import brain.suppliers.ZeroSupplier;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.ByteBuffer;
