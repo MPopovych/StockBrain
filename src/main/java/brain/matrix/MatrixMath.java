@@ -54,7 +54,10 @@ public class MatrixMath {
 			for (int j = 0; j < b.width; j++) {
 				float sum = 0;
 				for (int k = 0; k < a.width; k++) {
-					sum = Math.max(a.values[i][k] * b.values[k][j], sum);
+					float newV = a.values[i][k] * b.values[k][j];
+					if (Math.abs(newV) > Math.abs(sum)) {
+						sum = newV;
+					}
 				}
 				d.values[i][j] = sum;
 			}

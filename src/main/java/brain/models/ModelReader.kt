@@ -149,6 +149,15 @@ object ModelReader {
 					parents
 				}
 			}
+			ConcatMultiply.defaultNameType -> {
+				val parents = ls.parents
+					?.map { p -> buffer[p] ?: throw IllegalStateException("No parent found in buffer") }
+					?: throw IllegalStateException("No parent in concat multiply")
+
+				ConcatMultiply(name = ls.name) {
+					parents
+				}
+			}
 			Flatten.defaultNameType -> {
 				val parent = ls.parents?.getOrNull(0)
 					?: throw IllegalStateException("No parent in Flatten")

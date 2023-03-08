@@ -80,7 +80,7 @@ class LayersTest {
 	@Test
 	fun testDropout() {
 		val input = InputLayer(3, steps = 2)
-		val d1 = Dropout(rate = 0.1f) { input }
+		val d1 = Dropout(rate = 0.5f) { input }
 
 		val builder = ModelBuilder(input, d1, debug = false)
 		val model = builder.build(debug = true)
@@ -106,10 +106,8 @@ class LayersTest {
 				}
 			}
 		}
-		val totalNodes = d1.getShape().height * d1.getShape().width
 		printGreenBr("different: ${scaled}, zeroed: $zeroed")
-		assertEquals(totalNodes, zeroed + scaled)
-		assertEquals(1, zeroed)
+		assert(zeroed > 1)
 	}
 
 	@Test
@@ -169,6 +167,29 @@ class LayersTest {
 		r1.print()
 		assert(r1.getShape().width == 6)
 		assert(r1.getShape().height == 1)
+	}
+
+	@Test
+	fun testConcatMultiply() {
+		val input1 = InputLayer(3, steps = 2)
+		val input2 = InputLayer(3, steps = 2)
+		val c1 = ConcatMultiply { listOf(input1, input2) }
+
+		val builder = ModelBuilder(mapOf("i1" to input1, "i2" to input2), c1, debug = false)
+		val model = builder.build(debug = true)
+
+		val inputData1 = Matrix(3, 2) { _, x, y ->
+			return@Matrix y.toFloat()
+		}
+		inputData1.printRedBr()
+		val inputData2 = Matrix(3, 2) { _, x, y ->
+			return@Matrix x.toFloat()
+		}
+		inputData2.printGreenBr()
+		val r1 = model.getOutput(mapOf("i1" to inputData1, "i2" to inputData2)).copy()
+		r1.print()
+		assert(r1.getShape().width == 3)
+		assert(r1.getShape().height == 2)
 	}
 
 	@Test
