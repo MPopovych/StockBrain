@@ -4,7 +4,6 @@ import brain.activation.ActivationFunction
 import brain.activation.Activations
 import brain.matrix.Matrix
 import brain.matrix.MatrixMath
-import brain.suppliers.Suppliers
 
 class ConvDelta(
 	private val activation: ActivationFunction? = null,
@@ -30,7 +29,6 @@ class ConvDelta(
 			name = name)
 			.also {
 				it.init()
-//				Suppliers.fillFull(it.kernel.matrix, Suppliers.RandomHE)
 			}
 	}
 
@@ -45,13 +43,9 @@ class ConvDeltaImpl(
 	override var name: String,
 ) : Layer.SingleInputLayer() {
 	override val nameType: String = ConvDelta.defaultNameType
-//	lateinit var kernel: WeightData
 	override lateinit var outputBuffer: Matrix
 
 	override fun init() {
-//		kernel = WeightData("weight", Matrix(directShape.width, directShape.height), true)
-//		addWeights(kernel)
-
 		outputBuffer = Matrix(directShape.width, directShape.height)
 	}
 
@@ -59,7 +53,6 @@ class ConvDeltaImpl(
 		flushBuffer()
 
 		MatrixMath.convolutionSubtract(input, outputBuffer)
-//		MatrixMath.hadamard(outputBuffer, kernel.matrix, outputBuffer)
 		activation?.also {
 			Activations.activate(outputBuffer, outputBuffer, it)
 		}
