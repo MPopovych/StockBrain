@@ -40,6 +40,8 @@ class DefaultMatchMakingPolicy(private val repeatTop: Int) : MatchMakingPolicy {
 
 /**
  * According to some articles this approach provides better regularization
+ * Allows the neural network to take a "step back" while training and trial a new path
+ * While eliminating the aged out solution instead of over-fitting it
  */
 class AgingMatchMakingPolicy(private val repeatTop: Int, private val lifespan: Int) : MatchMakingPolicy {
 
@@ -58,7 +60,8 @@ class AgingMatchMakingPolicy(private val repeatTop: Int, private val lifespan: I
 			}
 			buffer.add(FutureMatch.MutateMatch(top))
 		}
-		val youngest = freshOnes.ifEmpty { scoreBoard.getAscendingFitnessList() } // fallback if all are expired
+		val youngest = freshOnes.takeLast(settings.topParentCount)
+			.ifEmpty { scoreBoard.getAscendingFitnessList() } // fallback if all are expired
 		while (buffer.size < settings.totalPopulationCount - 1) {
 			val a = youngest.random()
 			val b = youngest.last()

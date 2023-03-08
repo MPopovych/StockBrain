@@ -79,9 +79,7 @@ class GA(
 			is FutureMatch.MutateMatch -> {
 				val destination = command.source.copyGene()
 				destination.bornOnEpoch = generation
-				destination.applyMutationPolicy(settings.mutationPolicy, source = command.source.genes).also {
-					it.bornOnEpoch = generation
-				}
+				destination.applyMutationPolicy(settings.mutationPolicy, source = command.source.genes)
 			}
 			is FutureMatch.Repeat -> {
 				val destination = command.source.copyGene()

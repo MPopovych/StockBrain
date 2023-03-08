@@ -63,7 +63,7 @@ class GAScoreBoard(private val settings: GASettings) {
 			GAScoreBoardOrder.Ascending -> scoreList.sortBy { it.score } // ascending
 			GAScoreBoardOrder.Descending -> scoreList.sortByDescending { it.score } // decending
 		}
-		while (scoreList.size > settings.topParentCount) {
+		while (scoreList.size > settings.totalPopulationCount) {
 			scoreList.removeFirst()
 		}
 		idSet.clear()

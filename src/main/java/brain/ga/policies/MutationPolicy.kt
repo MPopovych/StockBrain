@@ -37,7 +37,7 @@ open class AdditiveMutationPolicy(private val fraction: Double = 0.01) : Mutatio
 		val countToMutateDouble = min((source.size.toDouble() * fraction), source.size.toDouble())
 		val countToMutate = countToMutateDouble.roundUpInt()
 		for (i in 0 until countToMutate) {
-			destination.genes[indices.random()] += supplyNext(countToMutate)
+			destination.genes[indices.random()] += supplyNext(destination.size)
 		}
 	}
 }
