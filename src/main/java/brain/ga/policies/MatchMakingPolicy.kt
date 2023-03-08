@@ -26,7 +26,7 @@ class DefaultMatchMakingPolicy(private val repeatTop: Int) : MatchMakingPolicy {
 		}
 		buffer.add(FutureMatch.MutateMatch(top))
 
-		val holders = scoreBoard.getAscendingFitnessList()
+		val holders = scoreBoard.getAscendingFitnessList().takeLast(settings.topParentCount)
 		while (buffer.size < settings.totalPopulationCount - 1) {
 			val a = holders.random()
 			val b = holders.random()
