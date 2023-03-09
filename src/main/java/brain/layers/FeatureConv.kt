@@ -5,6 +5,7 @@ import brain.activation.Activations
 import brain.matrix.Matrix
 import brain.matrix.MatrixMath
 import brain.suppliers.Suppliers
+import brain.suppliers.ValueFiller
 import brain.suppliers.ValueSupplier
 
 /**
@@ -22,7 +23,7 @@ class FeatureConv(
 	val reverse: Boolean = false,
 	private val activation: ActivationFunction? = null,
 	private val useBias: Boolean = true,
-	private val kernelInit: ValueSupplier = Suppliers.RandomHE,
+	private val kernelInit: ValueFiller = Suppliers.RandomHE,
 	override var name: String = Layer.DEFAULT_NAME,
 	parentLayerBlock: (() -> LayerBuilder<*>),
 ) : LayerBuilder.SingleInput<FeatureConvImpl> {

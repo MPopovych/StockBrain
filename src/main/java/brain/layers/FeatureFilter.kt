@@ -5,6 +5,7 @@ import brain.activation.Activations
 import brain.matrix.Matrix
 import brain.matrix.MatrixMath
 import brain.suppliers.Suppliers
+import brain.suppliers.ValueFiller
 import brain.suppliers.ValueSupplier
 
 /**
@@ -15,7 +16,7 @@ import brain.suppliers.ValueSupplier
  */
 class FeatureFilter(
 	private val weightActivation: ActivationFunction = Activations.Binary,
-	private val kernelInit: ValueSupplier = Suppliers.Ones,
+	private val kernelInit: ValueFiller = Suppliers.Ones,
 	override var name: String = Layer.DEFAULT_NAME,
 	parentLayerBlock: (() -> LayerBuilder<*>),
 ) : LayerBuilder.SingleInput<FeatureFilterLayerImpl> {

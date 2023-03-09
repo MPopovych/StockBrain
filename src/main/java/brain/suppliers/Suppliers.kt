@@ -14,21 +14,18 @@ object Suppliers {
 
 	fun const(const: Float) = ConstSupplier(const)
 
-	fun createMatrix(shape: LayerShape, supplier: ValueSupplier): Matrix {
+	fun createMatrix(shape: LayerShape, supplier: ValueFiller): Matrix {
 		return Matrix(shape.width, shape.height).also {
 			for (y in 0 until it.height) {
-				for (x in 0 until it.width) {
-
-					it.values[y][x] = supplier.supply(shape.width * shape.height, x, y)
-				}
+				supplier.fill(it.values[y])
 			}
 		}
 	}
 
-	fun fillFull(matrix: Matrix, supplier: ValueSupplier) {
+	fun fillFull(matrix: Matrix, supplier: ValueFiller) {
 		for (y in 0 until matrix.height) {
 			for (x in 0 until matrix.width) {
-				matrix.values[y][x] = supplier.supply(matrix.width * matrix.width, x, y)
+				supplier.fill(matrix.values[y])
 			}
 		}
 	}

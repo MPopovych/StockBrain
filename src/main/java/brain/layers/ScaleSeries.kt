@@ -5,6 +5,7 @@ import brain.activation.Activations
 import brain.matrix.Matrix
 import brain.matrix.MatrixMath
 import brain.suppliers.Suppliers
+import brain.suppliers.ValueFiller
 import brain.suppliers.ValueSupplier
 
 /**
@@ -13,8 +14,8 @@ import brain.suppliers.ValueSupplier
  */
 class ScaleSeries(
 	private val activation: ActivationFunction? = null,
-	private val kernelInit: ValueSupplier = Suppliers.Ones,
-	private val biasInit: ValueSupplier = Suppliers.Zero,
+	private val kernelInit: ValueFiller = Suppliers.Ones,
+	private val biasInit: ValueFiller = Suppliers.Zero,
 	private val useBias: Boolean = true,
 	override var name: String = Layer.DEFAULT_NAME,
 	parentLayerBlock: (() -> LayerBuilder<*>),

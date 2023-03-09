@@ -2,7 +2,7 @@ package brain.suppliers;
 
 import java.util.Random;
 
-public class RandomSupplier implements ValueSupplier {
+public class RandomSupplier implements ValueFiller {
 
 	public static final RandomSupplier INSTANCE = new RandomSupplier(new Random(System.currentTimeMillis()));
 
@@ -15,5 +15,12 @@ public class RandomSupplier implements ValueSupplier {
 	@Override
 	public float supply(int count, int x, int y) {
 		return random.nextFloat();
+	}
+
+	@Override
+	public void fill(float[] array) {
+		for (int i = 0; i < array.length; i++) {
+			array[i] = random.nextFloat();
+		}
 	}
 }

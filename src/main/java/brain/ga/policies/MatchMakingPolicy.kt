@@ -56,7 +56,6 @@ class AgingMatchMakingPolicy(private val repeatTop: Int, private val lifespan: I
 			if (repeatTop > 0) {
 				freshOnes.takeLast(repeatTop).forEach { best ->
 					buffer.add(FutureMatch.Repeat(best))
-					buffer.add(FutureMatch.MutateMatch(best))
 				}
 			}
 			buffer.add(FutureMatch.MutateMatch(top))
@@ -67,11 +66,10 @@ class AgingMatchMakingPolicy(private val repeatTop: Int, private val lifespan: I
 			val a = youngest.random()
 			val b = youngest.random()
 
-			if (a == b && youngest.size > 2) continue
 			if (a == b) {
 				buffer.add(FutureMatch.MutateMatch(a))
 			} else {
-				buffer.add(FutureMatch.CrossMatch(a, b, mutate = if (repeatTop > 0) false else Random.nextBoolean()))
+				buffer.add(FutureMatch.CrossMatch(a, b, mutate = Random.nextInt(10) == 0))
 			}
 		}
 		return buffer

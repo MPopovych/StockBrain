@@ -1,5 +1,6 @@
 package brain.matrix;
 
+import brain.suppliers.ValueFiller;
 import brain.suppliers.ValueSupplier;
 import org.jetbrains.annotations.NotNull;
 
@@ -16,6 +17,24 @@ public class Matrix {
 	public Matrix(int width, // columns
 	              int height) { // rows
 		this(width, height, null);
+	}
+
+	public Matrix(int width, int height, ValueFiller supplier) {
+		this.width = width;
+		this.height = height;
+
+		if (supplier != null) {
+			values = new float[height][];
+			for (int y = 0; y < height; y++) {
+				values[y] = new float[width];
+				supplier.fill(values[y]);
+			}
+		} else {
+			values = new float[height][];
+			for (int y = 0; y < height; y++) {
+				values[y] = new float[width];
+			}
+		}
 	}
 
 	public Matrix(int width, int height, ValueSupplier supplier) {
