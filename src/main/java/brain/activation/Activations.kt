@@ -5,6 +5,7 @@ import brain.matrix.Matrix
 object Activations {
 	val Abs = AbsFunction()
 	val ReLu = ReLuFunction()
+	val ReverseReLu = ReverseReLuFunction()
 	val LeReLu = LeakyReLuFunction()
 	val ReLuMinMax = ReLuMinMaxFunction()
 	val NegZeroPos = NegZeroPosFunction()
@@ -30,6 +31,7 @@ object Activations {
 		return when (name.lowercase()) {
 			Abs.nameType() -> Abs
 			ReLu.nameType() -> ReLu
+			ReverseReLu.nameType() -> ReverseReLu
 			LeReLu.nameType() -> LeReLu
 			NegZeroPos.nameType() -> NegZeroPos
 			BinaryNegPos.nameType() -> BinaryNegPos

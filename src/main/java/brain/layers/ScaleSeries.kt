@@ -72,7 +72,7 @@ class ScaleSeriesLayerImpl(
 	override fun call(input: Matrix): Matrix {
 		flushBuffer()
 		MatrixMath.hadamardSingleRow(input, kernel.matrix, outputBuffer)
-		if (useBias) MatrixMath.addSingleRow(outputBuffer, bias.matrix, outputBuffer)
+		if (useBias) MatrixMath.addSingleToEveryRow(outputBuffer, bias.matrix, outputBuffer)
 		activation?.also {
 			Activations.activate(outputBuffer, outputBuffer, it)
 		}

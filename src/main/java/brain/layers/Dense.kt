@@ -30,7 +30,7 @@ class Dense(
 		return DenseLayerImpl(
 			activation = activation,
 			weightShape = weightShape,
-			biasShape = shape,
+			biasShape = shape.copy(height = 1),
 			useBias = useBias,
 			name = name
 		)
@@ -73,7 +73,7 @@ class DenseLayerImpl(
 	override fun call(input: Matrix): Matrix {
 		flushBuffer()
 		MatrixMath.multiply(input, kernel.matrix, outputBuffer)
-		if (useBias) MatrixMath.add(outputBuffer, bias.matrix, outputBuffer)
+		if (useBias) MatrixMath.addSingleToEveryRow(outputBuffer, bias.matrix, outputBuffer)
 		activation?.also {
 			Activations.activate(outputBuffer, outputBuffer, it)
 		}

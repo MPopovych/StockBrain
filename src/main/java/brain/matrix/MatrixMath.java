@@ -168,7 +168,7 @@ public class MatrixMath {
 		}
 	}
 
-	public static void addSingleRow(Matrix a, Matrix single, Matrix destination) {
+	public static void addSingleToEveryRow(Matrix a, Matrix single, Matrix destination) {
 		int thisX = a.width; // right, number of columns
 		int thisY = a.height; // down, number of rows
 

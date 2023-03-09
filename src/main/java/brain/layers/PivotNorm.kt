@@ -75,9 +75,9 @@ class PivotNormLayerImpl(
 
 	override fun call(input: Matrix): Matrix {
 		flushBuffer()
-		MatrixMath.addSingleRow(input, biasA.matrix, outputBuffer)
+		MatrixMath.addSingleToEveryRow(input, biasA.matrix, outputBuffer)
 		MatrixMath.hadamardSingleRow(outputBuffer, kernel.matrix, outputBuffer)
-		MatrixMath.addSingleRow(outputBuffer, biasB.matrix, outputBuffer)
+		MatrixMath.addSingleToEveryRow(outputBuffer, biasB.matrix, outputBuffer)
 		activation?.also {
 			Activations.activate(outputBuffer, outputBuffer, it)
 		}

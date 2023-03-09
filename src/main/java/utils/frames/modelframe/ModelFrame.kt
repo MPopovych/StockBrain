@@ -103,9 +103,8 @@ class ModelFrame<T : FrameAsset> : ArrayList<T>(), WindowProvider<T> {
 
 		fun iterate(block: (relative: Int, data: G) -> Unit) {
 			var i = 0
-			return parent.subList(startIndex, endIndex + 1).forEachIndexed { index, g ->
-				if (index % gapSize != 0) return@forEachIndexed
-				block(i++, g)
+			for (index in startIndex..endIndex step gapSize) {
+				block(i++, parent[index])
 			}
 		}
 
