@@ -118,8 +118,16 @@ object ModelReader {
 			PivotNorm.defaultNameType -> {
 				val activation = Activations.deserialize(ls.activation)
 				val parent = ls.parents?.getOrNull(0)
-					?: throw IllegalStateException("No parent in scale series")
+					?: throw IllegalStateException("No parent in pivot norm")
 				PivotNorm(activation = activation, name = ls.name) {
+					buffer[parent] ?: throw IllegalStateException("No parent found in buffer")
+				}
+			}
+			FeatureFilter.defaultNameType -> {
+				val activation = Activations.deserialize(ls.activation) ?: throw IllegalStateException("No Activation in feature filter")
+				val parent = ls.parents?.getOrNull(0)
+					?: throw IllegalStateException("No parent in feature filter")
+				FeatureFilter(weightActivation = activation, name = ls.name) {
 					buffer[parent] ?: throw IllegalStateException("No parent found in buffer")
 				}
 			}

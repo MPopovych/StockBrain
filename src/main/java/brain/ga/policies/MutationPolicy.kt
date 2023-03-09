@@ -6,6 +6,7 @@ import brain.suppliers.Suppliers
 import brain.utils.roundUpInt
 import brain.utils.upscale
 import kotlin.math.min
+import kotlin.random.Random
 
 interface MutationPolicy {
 	fun mutation(source: LayerGenes, destination: LayerGenes) {
@@ -36,8 +37,14 @@ open class AdditiveMutationPolicy(private val fraction: Double = 0.01) : Mutatio
 		val indices = source.genes.indices
 		val countToMutateDouble = min((source.size.toDouble() * fraction), source.size.toDouble())
 		val countToMutate = countToMutateDouble.roundUpInt()
-		for (i in 0 until countToMutate) {
-			destination.genes[indices.random()] += supplyNext(destination.size)
+		if (countToMutateDouble >= 1) {
+			for (i in 0 until countToMutate) {
+				destination.genes[indices.random()] += supplyNext(destination.size)
+			}
+		} else {
+			if (Random.nextFloat() < fraction * (1.0f / source.size)) {
+				destination.genes[indices.random()] += supplyNext(destination.size)
+			}
 		}
 	}
 }
@@ -55,9 +62,15 @@ open class ReplaceMutationPolicy(private val fraction: Double = 0.01) : Mutation
 		}
 		val indices = source.genes.indices
 		val countToMutateDouble = min((source.size.toDouble() * fraction), source.size.toDouble())
-		val rounded = countToMutateDouble.roundUpInt()
-		for (i in 0 until rounded) {
-			destination.genes[indices.random()] = supplyNext(rounded)
+		val countToMutate = countToMutateDouble.roundUpInt()
+		if (countToMutateDouble >= 1) {
+			for (i in 0 until countToMutate) {
+				destination.genes[indices.random()] = supplyNext(destination.size)
+			}
+		} else {
+			if (Random.nextFloat() < fraction * (1.0f / source.size)) {
+				destination.genes[indices.random()] = supplyNext(destination.size)
+			}
 		}
 	}
 }
@@ -72,12 +85,21 @@ open class SwapMutationPolicy(private val fraction: Double = 0.01) : MutationPol
 		}
 		val indices = source.genes.indices
 		val countToMutateDouble = min((source.size.toDouble() * fraction), source.size.toDouble())
-		val rounded = countToMutateDouble.roundUpInt()
-		for (i in 0 until rounded) {
-			val randomPosA = indices.random()
-			val randomPosB = indices.random()
-			destination.genes[randomPosA] = source.genes[randomPosB]
-			destination.genes[randomPosB] = source.genes[randomPosA]
+		val countToMutate = countToMutateDouble.roundUpInt()
+		if (countToMutateDouble >= 1) {
+			for (i in 0 until countToMutate) {
+				val randomPosA = indices.random()
+				val randomPosB = indices.random()
+				destination.genes[randomPosA] = source.genes[randomPosB]
+				destination.genes[randomPosB] = source.genes[randomPosA]
+			}
+		} else {
+			if (Random.nextFloat() < fraction * (1.0f / source.size)) {
+				val randomPosA = indices.random()
+				val randomPosB = indices.random()
+				destination.genes[randomPosA] = source.genes[randomPosB]
+				destination.genes[randomPosB] = source.genes[randomPosA]
+			}
 		}
 	}
 }
@@ -112,9 +134,16 @@ open class InversionMutationPolicy(private val fraction: Double = 0.01) : Mutati
 		val indices = source.genes.indices
 		val countToMutateDouble = min((source.size.toDouble() * fraction), source.size.toDouble())
 		val countToMutate = countToMutateDouble.roundUpInt()
-		for (i in 0 until countToMutate) {
-			val randomIndex = indices.random()
-			destination.genes[randomIndex] = -destination.genes[randomIndex]
+		if (countToMutateDouble >= 1) {
+			for (i in 0 until countToMutate) {
+				val randomIndex = indices.random()
+				destination.genes[randomIndex] = -destination.genes[randomIndex]
+			}
+		} else {
+			if (Random.nextFloat() < fraction * (1.0f / source.size)) {
+				val randomIndex = indices.random()
+				destination.genes[randomIndex] = -destination.genes[randomIndex]
+			}
 		}
 	}
 }
@@ -140,30 +169,12 @@ class CyclicMutationPolicy(
 	}
 
 	override fun mutation(source: LayerGenes, destination: LayerGenes) {
-		val takeCount = (source.map.size * fraction).roundUpInt()
-		val random = source.map.values.shuffled()
+		for (weight in source.map) {
+			val sourceW = source.map[weight.key] ?: throw IllegalStateException()
+			val destinationW = destination.map[weight.key] ?: throw IllegalStateException()
 
-		random.take(takeCount).forEach {
-			val sourceW = source.map[it.weightName] ?: throw IllegalStateException()
-			val destinationW = destination.map[it.weightName] ?: throw IllegalStateException()
 			mutateWeight(sourceW, destinationW)
 		}
-		random.drop(takeCount).forEach {
-			val sourceW = source.map[it.weightName] ?: throw IllegalStateException()
-			val destinationW = destination.map[it.weightName] ?: throw IllegalStateException()
-			sourceW.copyTo(destinationW)
-		}
-
-//		for (weight in source.map) {
-//			val sourceW = source.map[weight.key] ?: throw IllegalStateException()
-//			val destinationW = destination.map[weight.key] ?: throw IllegalStateException()
-//
-//			if (random == sourceW) {
-//				mutateWeight(sourceW, destinationW)
-//			} else {
-//				sourceW.copyTo(destinationW)
-//			}
-//		}
 	}
 
 	override fun mutateWeight(

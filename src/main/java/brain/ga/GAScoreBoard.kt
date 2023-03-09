@@ -25,7 +25,7 @@ class GAScoreBoard(private val settings: GASettings) {
 	}
 
 	fun getStandardDeviation(): Double {
-		return scoreList.map { it.score }.let {
+		return scoreList.takeLast(settings.topParentCount).map { it.score }.let {
 			val mean = it.average()
 			val stdSum = it.sumOf { score -> (score - mean).pow(2) }
 			return@let sqrt(stdSum / size)
@@ -61,7 +61,7 @@ class GAScoreBoard(private val settings: GASettings) {
 		)
 		when (settings.scoreBoardOrder) {
 			GAScoreBoardOrder.Ascending -> scoreList.sortBy { it.score } // ascending
-			GAScoreBoardOrder.Descending -> scoreList.sortByDescending { it.score } // decending
+			GAScoreBoardOrder.Descending -> scoreList.sortByDescending { it.score } // descending
 		}
 		while (scoreList.size > settings.totalPopulationCount) {
 			scoreList.removeFirst()

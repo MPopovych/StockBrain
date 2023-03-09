@@ -21,6 +21,10 @@ fun assertNotEqualModel(a: WeightGenes, b: WeightGenes) {
 	assert(!a.genes.toTypedArray().contentDeepEquals(b.genes.toTypedArray()))
 }
 
+fun assertEqualModel(a: WeightGenes, b: WeightGenes) {
+	assert(a.genes.toTypedArray().contentDeepEquals(b.genes.toTypedArray()))
+}
+
 
 class TestExtensions {
 	@Test
