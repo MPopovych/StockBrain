@@ -26,12 +26,11 @@ class Dense(
 	private val shape = LayerShape(units, parentLayer.getShape().height)
 
 	override fun create(): DenseLayerImpl {
-		val weightShape = LayerShape(units, parentLayer.getShape().width)
 
 		return DenseLayerImpl(
+			units = units,
 			activation = activation,
-			weightShape = weightShape,
-			biasShape = shape.copy(height = 1),
+			parentShape = parentLayer.getShape(),
 			useBias = useBias,
 			name = name
 		)
@@ -52,9 +51,9 @@ class Dense(
 }
 
 class DenseLayerImpl(
+	val units: Int,
 	override val activation: ActivationFunction? = null,
-	private val weightShape: LayerShape,
-	private val biasShape: LayerShape,
+	private val parentShape: LayerShape,
 	private val useBias: Boolean = true,
 	override var name: String,
 ) : Layer.SingleInputLayer() {
@@ -64,11 +63,11 @@ class DenseLayerImpl(
 	lateinit var bias: WeightData
 
 	override fun init() {
-		kernel = WeightData("weight", Matrix(weightShape.width, weightShape.height), true)
+		kernel = WeightData("weight", Matrix(units, parentShape.width), true)
 		addWeights(kernel)
-		bias = WeightData("bias", Matrix(biasShape.width, biasShape.height), trainable = useBias)
+		bias = WeightData("bias", Matrix(units, 1), trainable = useBias)
 		addWeights(bias)
-		outputBuffer = Matrix(biasShape.width, biasShape.height)
+		outputBuffer = Matrix(units, parentShape.height)
 	}
 
 	override fun call(input: Matrix): Matrix {

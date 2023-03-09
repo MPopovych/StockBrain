@@ -32,39 +32,45 @@ public class MatrixMath {
 			return;
 		}
 
-		int m = a.height;
-		int g = a.width;
-		int h = b.width;
-		float[][] aa = a.values;
-		float[][] bb = b.values;
-		float[][] dd = d.values;
+		final int m = a.height;
+		final int g = a.width;
+		final int h = b.width;
+		final float[][] aa = a.values;
+		final float[][] bb = b.values;
+		final float[][] dd = d.values;
 		for (int i = 0; i < m; i++) {
+			final float[] ddi = dd[i];
 			for (int j = 0; j < h; j++) {
 				float sum = 0;
+				final float[] aai = aa[i];
 				for (int k = 0; k < g; k++) {
-					sum += aa[i][k] * bb[k][j];
+					sum += aai[k] * bb[k][j];
 				}
-				dd[i][j] = sum;
+				ddi[j] = sum;
 			}
 		}
 	}
 
-	private static void multiplyBig(Matrix a, Matrix b, Matrix d, int blockSize) {
-		int m = a.height;
-		int n = a.width;
-		int p = b.width;
 
-		float[][] aa = a.values;
-		float[][] bb = b.values;
-		float[][] dd = d.values;
+	private static void multiplyBig(Matrix a, Matrix b, Matrix d, int blockSize) {
+		final int m = a.height;
+		final int n = a.width;
+		final int p = b.width;
+
+		final float[][] aa = a.values;
+		final float[][] bb = b.values;
+		final float[][] dd = d.values;
 		for (int i = 0; i < m; i += blockSize) {
 			for (int j = 0; j < p; j += blockSize) {
 				for (int k = 0; k < n; k += blockSize) {
 					// perform block matrix multiplication
-					for (int ii = i; ii < Math.min(i + blockSize, m); ii++) {
-						for (int jj = j; jj < Math.min(j + blockSize, p); jj++) {
+					final int capI = Math.min(i + blockSize, m);
+					final int capJ = Math.min(j + blockSize, p);
+					for (int ii = i; ii < capI; ii++) {
+						for (int jj = j; jj < capJ; jj++) {
 							float s = 0;
-							for (int kk = k; kk < Math.min(k + blockSize, n); kk++) {
+							final int capK = Math.min(k + blockSize, n);
+							for (int kk = k; kk < capK; kk++) {
 								s += aa[ii][kk] * bb[kk][jj];
 							}
 							dd[ii][jj] += s;
@@ -99,11 +105,6 @@ public class MatrixMath {
 				d.values[i][j] = sum;
 			}
 		}
-	}
-
-	private static float fast_custom_sigmoid(float value) {
-		float abs = (float) Math.exp(-value);
-		return (1f / (1f + abs)) + 1f;
 	}
 
 	public static void multiply(Matrix a, float m, Matrix d) {
@@ -141,6 +142,30 @@ public class MatrixMath {
 		for (int y = 0; y < thisY; y++) {
 			for (int x = 0; x < thisX; x++) {
 				d.values[y][x] = a.values[y][x] + constant;
+			}
+		}
+	}
+
+	public static void constantSub(float constant, Matrix a, Matrix d) {
+		int thisX = a.width; // right, number of columns
+		int thisY = a.height; // down, number of rows
+
+		checkSameDimensions(a, d);
+
+		for (int y = 0; y < thisY; y++) {
+			for (int x = 0; x < thisX; x++) {
+				d.values[y][x] = constant - a.values[y][x];
+			}
+		}
+	}
+
+	public static void add(Matrix d, float constant) {
+		final int thisX = d.width; // right, number of columns
+		final int thisY = d.height; // down, number of rows
+
+		for (int y = 0; y < thisY; y++) {
+			for (int x = 0; x < thisX; x++) {
+				d.values[y][x] += constant;
 			}
 		}
 	}

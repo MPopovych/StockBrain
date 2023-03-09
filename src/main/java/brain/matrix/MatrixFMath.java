@@ -27,15 +27,16 @@ public class MatrixFMath {
 					"has to be: dw[%s vs final %s], dh[%s vs final %s]").formatted(b.width, d.width, a.height, d.height));
 		}
 
-		if (d.width * d.height > 225) {
-			multiplyBig(a, b, d, 64);
+		if (b.width >= 15) {
+			multiplyReordered(a, b, d);
 			return;
 		}
 
-		int m = a.height;
-		int f = d.width;
-		int g = a.width;
-		int h = b.width;
+		final int m = a.height;
+		final int g = a.width;
+		final int f = d.width;
+		final int h = b.width;
+		final int p = b.height;
 		for (int i = 0; i < m; i++) {
 			for (int j = 0; j < h; j++) {
 				float sum = 0;
@@ -43,6 +44,62 @@ public class MatrixFMath {
 					sum += a.values[i * g + k] * b.values[k * h + j];
 				}
 				d.values[i * f + j] = sum;
+			}
+		}
+
+		for (int i = 0; i < m; i++) {
+			int cIndex = i * f;
+			int aIndexStart = i * g;
+			for (int j = 0; j < h; j++) {
+				float total = 0;
+
+				int indexA = aIndexStart;
+				int indexB = j;
+				int end = indexA + p;
+				while (indexA < end) {
+					total += a.values[indexA++] * b.values[indexB];
+					indexB += h;
+				}
+
+				d.values[cIndex++] = total;
+			}
+		}
+	}
+
+	private static void multiplyReordered(MatrixF a, MatrixF b, MatrixF d) {
+		final int m = a.height;
+		final int g = a.width;
+		final int f = d.width;
+		final int h = b.width;
+		final int p = b.height;
+
+		final int endOfKLoop = p * h;
+
+		for (int i = 0; i < m; i++) {
+			int indexCbase = i * f;
+			int indexA = i * g;
+
+			// need to assign C.data to a value initially
+			int indexB = 0;
+			int indexC = indexCbase;
+			int end = indexB + h;
+
+			float valA = a.values[indexA++];
+
+			while (indexB < end) {
+				d.values[indexC++] = valA * b.values[indexB++];
+			}
+
+			// now add to it
+			while (indexB != endOfKLoop) { // k loop
+				indexC = indexCbase;
+				end = indexB + h;
+
+				valA = a.values[indexA++];
+
+				while (indexB < end) { // j loop
+					d.values[indexC++] += valA * b.values[indexB++];
+				}
 			}
 		}
 	}

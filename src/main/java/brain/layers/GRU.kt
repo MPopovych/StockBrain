@@ -8,7 +8,7 @@ import brain.suppliers.Suppliers
 
 class GRU(
 	val units: Int,
-	val activation: ActivationFunction? = Activations.Tanh,
+	val activation: ActivationFunction? = Activations.FastTanh,
 	val reverse: Boolean = false,
 	val useBias: Boolean = true,
 	override var name: String = Layer.DEFAULT_NAME,
@@ -162,10 +162,10 @@ class GRUImpl(
 			}
 
 			// h
-			MatrixMath.add(zGateBufferA1, cGateBufferS1, -1f)
-			MatrixMath.hadamard(cGateBufferS1, cellStateBufferPrev, cGateBufferM1)
-			MatrixMath.hadamard(zGateBufferA1, nGateBufferA1, cGateBufferM2)
-			MatrixMath.add(cGateBufferM1, cGateBufferM2, cellStateBufferPrev)
+			MatrixMath.constantSub(-1f, zGateBufferA1, cGateBufferS1) // (1 - z)
+			MatrixMath.hadamard(cGateBufferS1, cellStateBufferPrev, cGateBufferM1) // (1 - z) * h_t-1
+			MatrixMath.hadamard(zGateBufferA1, nGateBufferA1, cGateBufferM2) // z * n
+			MatrixMath.add(cGateBufferM1, cGateBufferM2, cellStateBufferPrev) // (1 - z) * h_t-1 +  z * n
 		}
 		MatrixMath.transfer(cellStateBufferPrev, outputBuffer)
 		return outputBuffer

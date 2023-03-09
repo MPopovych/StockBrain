@@ -24,9 +24,7 @@ object Suppliers {
 
 	fun fillFull(matrix: Matrix, supplier: ValueFiller) {
 		for (y in 0 until matrix.height) {
-			for (x in 0 until matrix.width) {
-				supplier.fill(matrix.values[y])
-			}
+			supplier.fill(matrix.values[y])
 		}
 	}
 }

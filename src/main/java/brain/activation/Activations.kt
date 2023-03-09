@@ -13,7 +13,9 @@ object Activations {
 	val Binary = BinaryStepFunction()
 	val Zero = ZeroFunction() // test
 	val Tanh = TanhFunction()
+	val FastTanh = FastTanhFunction()
 	val Sigmoid = SigmoidFunction()
+	val HardSigmoid = HardSigmoidFunction()
 	val MirrorReLu = MirrorReLuFunction()
 	val MirrorReversedReLu = MirrorReLuReversedFunction()
 
@@ -38,6 +40,7 @@ object Activations {
 			Binary.nameType() -> Binary
 			Zero.nameType() -> Zero
 			Tanh.nameType() -> Tanh
+			FastTanh.nameType() -> FastTanh
 			Sigmoid.nameType() -> Sigmoid
 			ReLuMinMax.nameType() -> ReLuMinMax
 			MirrorReLu.nameType() -> MirrorReLu

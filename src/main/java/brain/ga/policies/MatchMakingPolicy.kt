@@ -23,8 +23,9 @@ class DefaultMatchMakingPolicy(private val repeatTop: Int) : MatchMakingPolicy {
 			scoreBoard.getAscendingFitnessList().takeLast(repeatTop).forEach { best ->
 				buffer.add(FutureMatch.Repeat(best))
 			}
+		} else {
+			buffer.add(FutureMatch.MutateMatch(top))
 		}
-		buffer.add(FutureMatch.MutateMatch(top))
 
 		val holders = scoreBoard.getAscendingFitnessList().takeLast(settings.topParentCount)
 		while (buffer.size < settings.totalPopulationCount - 1) {
@@ -52,13 +53,13 @@ class AgingMatchMakingPolicy(private val repeatTop: Int, private val lifespan: I
 		val buffer = ArrayList<FutureMatch>()
 		val freshOnes = scoreBoard.getAscendingFitnessList().filter { it.bornOnEpoch >= generation - lifespan }
 		if (freshOnes.isNotEmpty()) {
-			val top = freshOnes.last()
 			if (repeatTop > 0) {
 				freshOnes.takeLast(repeatTop).forEach { best ->
 					buffer.add(FutureMatch.Repeat(best))
 				}
+			} else {
+				buffer.add(FutureMatch.MutateMatch(freshOnes.last()))
 			}
-			buffer.add(FutureMatch.MutateMatch(top))
 		}
 		val youngest = freshOnes.takeLast(settings.topParentCount)
 			.ifEmpty { scoreBoard.getAscendingFitnessList() } // fallback if all are expired
@@ -69,7 +70,8 @@ class AgingMatchMakingPolicy(private val repeatTop: Int, private val lifespan: I
 			if (a == b) {
 				buffer.add(FutureMatch.MutateMatch(a))
 			} else {
-				buffer.add(FutureMatch.CrossMatch(a, b, mutate = Random.nextInt(10) == 0))
+				// magic number
+				buffer.add(FutureMatch.CrossMatch(a, b, mutate = Random.nextInt(8) == 0))
 			}
 		}
 		return buffer
