@@ -95,6 +95,16 @@ object ModelReader {
 					buffer[parent] ?: throw IllegalStateException("No parent found in buffer")
 				}
 			}
+			RNN.defaultNameType -> {
+				val meta = (ls.getMetaData() as? LayerMetaData.RNNMeta)
+					?: throw IllegalStateException("No meta for RNN")
+				val activation = Activations.deserialize(ls.activation)
+				val parent = ls.parents?.getOrNull(0)
+					?: throw IllegalStateException("No parent in RNN")
+				RNN(activation = activation, units = ls.width, useBias = meta.useBias, name = ls.name) {
+					buffer[parent] ?: throw IllegalStateException("No parent found in buffer")
+				}
+			}
 			Direct.defaultNameType -> {
 				val meta = (ls.getMetaData() as? LayerMetaData.OnlyBiasMeta)
 					?: throw IllegalStateException("No meta for direct")
@@ -272,6 +282,11 @@ private class LayerDeserializer : JsonDeserializer<LayerSerialized> {
 			GRU.defaultNameType -> {
 				val element = json.asJsonObject[FIELD_BUILDER_DATA]
 				val data = ModelReader.innerGson.fromJson<LayerMetaData.GRUMeta>(element)
+				temp.copy(builderData = data)
+			}
+			RNN.defaultNameType -> {
+				val element = json.asJsonObject[FIELD_BUILDER_DATA]
+				val data = ModelReader.innerGson.fromJson<LayerMetaData.RNNMeta>(element)
 				temp.copy(builderData = data)
 			}
 			FeatureDense.defaultNameType -> {

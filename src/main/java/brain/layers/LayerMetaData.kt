@@ -17,6 +17,7 @@ sealed interface LayerMetaData {
 	) : LayerMetaData
 
 	data class GRUMeta(val useBias: Boolean, val reverse: Boolean) : LayerMetaData
+	data class RNNMeta(val useBias: Boolean, val reverse: Boolean) : LayerMetaData
 	data class TimeMaskMeta(val fromStart: Int, val fromEnd: Int) : LayerMetaData
 	data class FeatureMaskMeta(val allowIndexes: Set<Int>) : LayerMetaData
 }
