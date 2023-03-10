@@ -64,7 +64,7 @@ class AgingMatchMakingPolicy(private val repeatTop: Int, private val lifespan: I
 				buffer.add(FutureMatch.MutateMatch(freshOnes.last()))
 			}
 		}
-		val youngest = freshOnes.takeLast(settings.topParentCount)
+		val youngest = freshOnes.distinctBy { it.score }.takeLast(settings.topParentCount)
 			.ifEmpty { scoreBoard.getAscendingFitnessList() } // fallback if all are expired
 
 		if (cataclysmEvery != null && (generation + 1) % cataclysmEvery == 0) {
