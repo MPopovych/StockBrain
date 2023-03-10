@@ -7,6 +7,10 @@ fun Double.roundUpInt(): Int {
 	return this.toBigDecimal().setScale(0, RoundingMode.UP).toInt()
 }
 
+fun Double.roundDownInt(): Int {
+	return this.toBigDecimal().setScale(0, RoundingMode.UP).toInt()
+}
+
 fun Double.roundDownInt(decimals: Int): Int {
 	return this.toBigDecimal().setScale(0, RoundingMode.DOWN).toInt()
 }
