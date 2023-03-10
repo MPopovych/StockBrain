@@ -14,6 +14,12 @@ public class Matrix {
 	public final int width;
 	public final int height;
 
+	public Matrix(float[][] wrap) {
+		this.values = wrap;
+		this.height = wrap.length;
+		this.width = wrap[0].length;
+	}
+
 	public Matrix(int width, // columns
 	              int height) { // rows
 		this(width, height, null);

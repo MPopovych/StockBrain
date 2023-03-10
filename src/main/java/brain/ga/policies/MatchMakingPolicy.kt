@@ -63,11 +63,12 @@ class AgingMatchMakingPolicy(private val repeatTop: Int, private val lifespan: I
 		}
 		val youngest = freshOnes.takeLast(settings.topParentCount)
 			.ifEmpty { scoreBoard.getAscendingFitnessList() } // fallback if all are expired
+
 		while (buffer.size < settings.totalPopulationCount) {
 			val a = youngest.random()
 			val b = youngest.random()
 
-			if (a == b) {
+			if (a.score == b.score) {
 				buffer.add(FutureMatch.MutateMatch(a))
 			} else {
 				// magic number
