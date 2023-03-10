@@ -100,7 +100,7 @@ class FeatureDenseImpl(
 				transposeFeatureBuffer.values[0][y] = input.values[y][x]
 			}
 			val kernel = kernels[x]
-			MatrixMath.flush(transposeOutputBuffer)
+//			MatrixMath.flush(transposeOutputBuffer) no need
 			MatrixMath.multiply(transposeFeatureBuffer, kernel.matrix, transposeOutputBuffer)
 
 			for (y in 0 until units) {

@@ -67,8 +67,8 @@ class RNNImpl(
 	private val iBufferM1: Matrix = Matrix(units, 1)
 	private val hBufferM1: Matrix = Matrix(units, 1)
 
-	lateinit var cellStateBufferCurrent: Matrix
-	lateinit var cellStateBufferPrev: Matrix
+	private lateinit var cellStateBufferCurrent: Matrix
+	private lateinit var cellStateBufferPrev: Matrix
 	override lateinit var outputBuffer: Matrix
 
 	override fun init() {
@@ -91,10 +91,7 @@ class RNNImpl(
 
 	override fun call(input: Matrix): Matrix {
 		flushBuffer()
-		MatrixMath.flush(cellStateBufferCurrent) // x
 		MatrixMath.flush(cellStateBufferPrev) // h_prev
-		MatrixMath.flush(iBufferM1)
-		MatrixMath.flush(hBufferM1)
 
 		var rowIterator = (0 until input.height).toList()
 		if (reverse) {
@@ -104,12 +101,11 @@ class RNNImpl(
 			MatrixMath.transferSingleRow(input, cellStateBufferCurrent, t, 0)
 			MatrixMath.multiply(cellStateBufferCurrent, iKernel.matrix, iBufferM1)
 			MatrixMath.multiply(cellStateBufferPrev, hKernel.matrix, hBufferM1)
-			MatrixMath.add(iBufferM1, hBufferM1, cellStateBufferPrev)
+			MatrixMath.add(iBufferM1, hBufferM1, outputBuffer)
 			activation?.also {
-				Activations.activate(cellStateBufferPrev, cellStateBufferPrev, it)
+				Activations.activate(outputBuffer, outputBuffer, it)
 			}
 		}
-		MatrixMath.transfer(cellStateBufferPrev, outputBuffer)
 		return outputBuffer
 	}
 

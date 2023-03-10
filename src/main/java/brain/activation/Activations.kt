@@ -54,7 +54,8 @@ object Activations {
 	}
 }
 
-fun ActivationFunction.applyFromMatrixTo(matrix: Matrix, buffer: Matrix) {
+fun ActivationFunction?.applyFromMatrixTo(matrix: Matrix, buffer: Matrix) {
+	this ?: return
 	Activations.activate(matrix, buffer, this)
 }
 

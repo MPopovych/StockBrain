@@ -124,7 +124,7 @@ class FeatureConvImpl(
 	override fun call(input: Matrix): Matrix {
 		flushBuffer()
 		MatrixMath.flush(transposeFeatureBuffer)
-		MatrixMath.flush(transposeOutputBuffer)
+//		MatrixMath.flush(transposeOutputBuffer)
 
 		for (x in 0 until input.width) { // per feature
 			for (y in 0 until windowCount) {
@@ -138,7 +138,7 @@ class FeatureConvImpl(
 					}
 				}
 				val kernel = kernels[x]
-				MatrixMath.flush(transposeOutputBuffer)
+//				MatrixMath.flush(transposeOutputBuffer) // no need
 				MatrixMath.multiply(transposeFeatureBuffer, kernel.matrix, transposeOutputBuffer)
 				if (useBias) {
 					val bias = biases[x]

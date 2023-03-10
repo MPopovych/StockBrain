@@ -8,8 +8,4 @@ public class ZeroSupplier extends ConstSupplier {
 		super(0);
 	}
 
-	@Override
-	public float supply(int count, int x, int y) {
-		return 0f;
-	}
 }
