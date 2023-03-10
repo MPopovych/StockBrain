@@ -93,6 +93,8 @@ class RNNImpl(
 		flushBuffer()
 		MatrixMath.flush(cellStateBufferCurrent) // x
 		MatrixMath.flush(cellStateBufferPrev) // h_prev
+		MatrixMath.flush(iBufferM1)
+		MatrixMath.flush(hBufferM1)
 
 		var rowIterator = (0 until input.height).toList()
 		if (reverse) {

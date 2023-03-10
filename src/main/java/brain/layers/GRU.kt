@@ -128,6 +128,9 @@ class GRUImpl(
 		flushBuffer()
 		MatrixMath.flush(cellStateBufferCurrent) // x
 		MatrixMath.flush(cellStateBufferPrev) // h_prev
+		MatrixMath.flush(zGateBufferA1)
+		MatrixMath.flush(rGateBufferA1)
+		MatrixMath.flush(nGateBufferA1)
 
 		var rowIterator = (0 until input.height).toList()
 		if (reverse) {

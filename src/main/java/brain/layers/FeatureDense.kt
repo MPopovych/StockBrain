@@ -90,6 +90,8 @@ class FeatureDenseImpl(
 
 	override fun call(input: Matrix): Matrix {
 		flushBuffer()
+		MatrixMath.flush(transposeFeatureBuffer)
+		MatrixMath.flush(transposeOutputBuffer)
 
 		for (x in 0 until input.width) { // per feature
 			MatrixMath.flush(transposeFeatureBuffer)

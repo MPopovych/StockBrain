@@ -1,5 +1,6 @@
 package brain.matrix;
 
+import java.util.Arrays;
 import java.util.Set;
 
 public class MatrixMath {
@@ -56,6 +57,8 @@ public class MatrixMath {
 		final int m = a.height;
 		final int n = a.width;
 		final int p = b.width;
+
+		MatrixMath.flush(d);
 
 		final float[][] aa = a.values;
 		final float[][] bb = b.values;
@@ -324,13 +327,10 @@ public class MatrixMath {
 
 	public static void flush(Matrix d) {
 		//Column major implementation, ijk algorithm
-		int thisX = d.width; //right, number of columns
 		int thisY = d.height; // down, number of rows
 
 		for (int y = 0; y < thisY; y++) {
-			for (int x = 0; x < thisX; x++) {
-				d.values[y][x] = 0f;
-			}
+			Arrays.fill(d.values[y], 0f);
 		}
 	}
 }
