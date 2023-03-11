@@ -151,8 +151,7 @@ class GRUImpl(
 
 			// n
 			MatrixMath.multiply(cellStateBufferCurrent, hGate.matrix, nGateBufferM1)
-
-			MatrixMath.multiply(cellStateBufferPrev, hRecGate.matrix, nGateBufferM2) // ok
+			MatrixMath.multiply(cellStateBufferPrev, hRecGate.matrix, nGateBufferM2)
 			MatrixMath.hadamard(rGateBufferA1, nGateBufferM1, nGateBufferM3)
 			MatrixMath.add(nGateBufferM1, nGateBufferM3, nGateBufferA1)
 			if (useBias) MatrixMath.add(nGateBufferA1, hBias.matrix, nGateBufferA1)
@@ -164,6 +163,7 @@ class GRUImpl(
 			MatrixMath.constantSub(1f, zGateBufferA1, cGateBufferS1) // (1 - z)
 			MatrixMath.hadamard(cGateBufferS1, cellStateBufferPrev, cGateBufferM1) // (1 - z) * h_t-1
 			MatrixMath.hadamard(zGateBufferA1, nGateBufferA1, cGateBufferM2) // z * n
+			// save to previous
 			MatrixMath.add(cGateBufferM1, cGateBufferM2, cellStateBufferPrev) // (1 - z) * h_t-1 +  z * n
 		}
 		MatrixMath.transfer(cellStateBufferPrev, outputBuffer)

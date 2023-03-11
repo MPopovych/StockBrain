@@ -101,11 +101,13 @@ class RNNImpl(
 			MatrixMath.transferSingleRow(input, cellStateBufferCurrent, t, 0)
 			MatrixMath.multiply(cellStateBufferCurrent, iKernel.matrix, iBufferM1)
 			MatrixMath.multiply(cellStateBufferPrev, hKernel.matrix, hBufferM1)
-			MatrixMath.add(iBufferM1, hBufferM1, outputBuffer)
+			// save to previous, make sure its flushed
+			MatrixMath.add(iBufferM1, hBufferM1, cellStateBufferPrev)
 			activation?.also {
-				Activations.activate(outputBuffer, outputBuffer, it)
+				Activations.activate(cellStateBufferPrev, cellStateBufferPrev, it)
 			}
 		}
+		MatrixMath.transfer(cellStateBufferPrev, outputBuffer)
 		return outputBuffer
 	}
 
