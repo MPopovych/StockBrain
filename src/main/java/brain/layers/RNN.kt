@@ -62,7 +62,8 @@ class RNNImpl(
 
 	private lateinit var iKernel: WeightData
 	private lateinit var hKernel: WeightData
-	private lateinit var bias: WeightData
+	private lateinit var hBias: WeightData
+	private lateinit var oBias: WeightData
 
 	private val iBufferM1: Matrix = Matrix(units, 1)
 	private val hBufferM1: Matrix = Matrix(units, 1)
@@ -81,8 +82,10 @@ class RNNImpl(
 			Suppliers.fillFull(w.matrix, Suppliers.RandomHE)
 		}
 
-		bias = WeightData("zBias", Matrix(units, 1), trainable = useBias)
-		addWeights(bias)
+		hBias = WeightData("hBias", Matrix(units, 1), trainable = useBias)
+		addWeights(hBias)
+		oBias = WeightData("oBias", Matrix(units, 1), trainable = useBias)
+		addWeights(oBias)
 
 		cellStateBufferCurrent = Matrix(parentShape.width, 1)
 		cellStateBufferPrev = Matrix(units, 1)
@@ -100,9 +103,12 @@ class RNNImpl(
 		for (t in rowIterator) {
 			MatrixMath.transferSingleRow(input, cellStateBufferCurrent, t, 0)
 			MatrixMath.multiply(cellStateBufferCurrent, iKernel.matrix, iBufferM1)
+
 			MatrixMath.multiply(cellStateBufferPrev, hKernel.matrix, hBufferM1)
+			if (useBias) MatrixMath.add(hBufferM1, hBias.matrix, hBufferM1)
 			// save to previous, make sure its flushed
 			MatrixMath.add(iBufferM1, hBufferM1, cellStateBufferPrev)
+			if (useBias) MatrixMath.add(cellStateBufferPrev, oBias.matrix, cellStateBufferPrev)
 			activation?.also {
 				Activations.activate(cellStateBufferPrev, cellStateBufferPrev, it)
 			}
