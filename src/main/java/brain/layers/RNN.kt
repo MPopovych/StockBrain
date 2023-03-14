@@ -50,7 +50,7 @@ class RNN(
 	}
 }
 
-class RNNImpl(
+open class RNNImpl(
 	override val activation: ActivationFunction?,
 	val units: Int,
 	val reverse: Boolean,
@@ -68,8 +68,8 @@ class RNNImpl(
 	private val iBufferM1: Matrix = Matrix(units, 1)
 	private val hBufferM1: Matrix = Matrix(units, 1)
 
-	private lateinit var cellStateBufferCurrent: Matrix
-	private lateinit var cellStateBufferPrev: Matrix
+	protected lateinit var cellStateBufferCurrent: Matrix
+	protected lateinit var cellStateBufferPrev: Matrix
 	override lateinit var outputBuffer: Matrix
 
 	override fun init() {
@@ -79,7 +79,7 @@ class RNNImpl(
 		addWeights(hKernel)
 
 		for (w in weights.values) {
-			Suppliers.fillFull(w.matrix, Suppliers.RandomHE)
+			Suppliers.fillFull(w.matrix, Suppliers.RandomRangeNP)
 		}
 
 		hBias = WeightData("hBias", Matrix(units, 1), trainable = useBias)
@@ -92,6 +92,19 @@ class RNNImpl(
 		outputBuffer = Matrix(units, 1)
 	}
 
+	protected fun transferCurrentToOutput() {
+		MatrixMath.multiply(cellStateBufferCurrent, iKernel.matrix, iBufferM1)
+
+		MatrixMath.multiply(cellStateBufferPrev, hKernel.matrix, hBufferM1)
+		if (useBias) MatrixMath.add(hBufferM1, hBias.matrix, hBufferM1)
+		// save to previous, make sure its flushed
+		MatrixMath.add(iBufferM1, hBufferM1, cellStateBufferPrev)
+		if (useBias) MatrixMath.add(cellStateBufferPrev, oBias.matrix, cellStateBufferPrev)
+		activation?.also {
+			Activations.activate(cellStateBufferPrev, cellStateBufferPrev, it)
+		}
+	}
+
 	override fun call(input: Matrix): Matrix {
 		flushBuffer()
 		MatrixMath.flush(cellStateBufferPrev) // h_prev
@@ -102,16 +115,7 @@ class RNNImpl(
 		}
 		for (t in rowIterator) {
 			MatrixMath.transferSingleRow(input, cellStateBufferCurrent, t, 0)
-			MatrixMath.multiply(cellStateBufferCurrent, iKernel.matrix, iBufferM1)
-
-			MatrixMath.multiply(cellStateBufferPrev, hKernel.matrix, hBufferM1)
-			if (useBias) MatrixMath.add(hBufferM1, hBias.matrix, hBufferM1)
-			// save to previous, make sure its flushed
-			MatrixMath.add(iBufferM1, hBufferM1, cellStateBufferPrev)
-			if (useBias) MatrixMath.add(cellStateBufferPrev, oBias.matrix, cellStateBufferPrev)
-			activation?.also {
-				Activations.activate(cellStateBufferPrev, cellStateBufferPrev, it)
-			}
+			transferCurrentToOutput()
 		}
 		MatrixMath.transfer(cellStateBufferPrev, outputBuffer)
 		return outputBuffer

@@ -50,7 +50,7 @@ class GRU(
 	}
 }
 
-class GRUImpl(
+open class GRUImpl(
 	override val activation: ActivationFunction?,
 	val units: Int,
 	val reverse: Boolean,
@@ -109,7 +109,7 @@ class GRUImpl(
 		addWeights(hRecGate)
 
 		for (w in weights.values) {
-			Suppliers.fillFull(w.matrix, Suppliers.RandomHE)
+			Suppliers.fillFull(w.matrix, Suppliers.RandomRangeNP)
 		}
 
 		zBias = WeightData("zBias", Matrix(units, 1), trainable = useBias)
@@ -135,39 +135,43 @@ class GRUImpl(
 		for (t in rowIterator) {
 			MatrixMath.transferSingleRow(input, cellStateBufferCurrent, t, 0)
 
-			// z
-			MatrixMath.multiply(cellStateBufferCurrent, zGate.matrix, zGateBufferM1)
-			MatrixMath.multiply(cellStateBufferPrev, zRecGate.matrix, zGateBufferM2)
-			MatrixMath.add(zGateBufferM1, zGateBufferM2, zGateBufferA1)
-			if (useBias) MatrixMath.add(zGateBufferA1, zBias.matrix, zGateBufferA1)
-			Activations.activate(zGateBufferA1, zGateBufferA1, Activations.Sigmoid)
-
-			// r
-			MatrixMath.multiply(cellStateBufferCurrent, rGate.matrix, rGateBufferM1)
-			MatrixMath.multiply(cellStateBufferPrev, rRecGate.matrix, rGateBufferM2)
-			MatrixMath.add(rGateBufferM1, rGateBufferM2, rGateBufferA1)
-			if (useBias) MatrixMath.add(rGateBufferA1, rBias.matrix, rGateBufferA1)
-			Activations.activate(rGateBufferA1, rGateBufferA1, Activations.Sigmoid)
-
-			// n
-			MatrixMath.multiply(cellStateBufferCurrent, hGate.matrix, nGateBufferM1)
-			MatrixMath.multiply(cellStateBufferPrev, hRecGate.matrix, nGateBufferM2)
-			MatrixMath.hadamard(rGateBufferA1, nGateBufferM1, nGateBufferM3)
-			MatrixMath.add(nGateBufferM1, nGateBufferM3, nGateBufferA1)
-			if (useBias) MatrixMath.add(nGateBufferA1, hBias.matrix, nGateBufferA1)
-			if (activation != null) {
-				Activations.activate(nGateBufferA1, nGateBufferA1, activation)
-			}
-
-			// h
-			MatrixMath.constantSub(1f, zGateBufferA1, cGateBufferS1) // (1 - z)
-			MatrixMath.hadamard(cGateBufferS1, cellStateBufferPrev, cGateBufferM1) // (1 - z) * h_t-1
-			MatrixMath.hadamard(zGateBufferA1, nGateBufferA1, cGateBufferM2) // z * n
-			// save to previous
-			MatrixMath.add(cGateBufferM1, cGateBufferM2, cellStateBufferPrev) // (1 - z) * h_t-1 +  z * n
+			transferCurrentToOutput()
 		}
 		MatrixMath.transfer(cellStateBufferPrev, outputBuffer)
 		return outputBuffer
+	}
+
+	protected fun transferCurrentToOutput() {
+		// z
+		MatrixMath.multiply(cellStateBufferCurrent, zGate.matrix, zGateBufferM1)
+		MatrixMath.multiply(cellStateBufferPrev, zRecGate.matrix, zGateBufferM2)
+		MatrixMath.add(zGateBufferM1, zGateBufferM2, zGateBufferA1)
+		if (useBias) MatrixMath.add(zGateBufferA1, zBias.matrix, zGateBufferA1)
+		Activations.activate(zGateBufferA1, zGateBufferA1, Activations.Sigmoid)
+
+		// r
+		MatrixMath.multiply(cellStateBufferCurrent, rGate.matrix, rGateBufferM1)
+		MatrixMath.multiply(cellStateBufferPrev, rRecGate.matrix, rGateBufferM2)
+		MatrixMath.add(rGateBufferM1, rGateBufferM2, rGateBufferA1)
+		if (useBias) MatrixMath.add(rGateBufferA1, rBias.matrix, rGateBufferA1)
+		Activations.activate(rGateBufferA1, rGateBufferA1, Activations.Sigmoid)
+
+		// n
+		MatrixMath.multiply(cellStateBufferCurrent, hGate.matrix, nGateBufferM1)
+		MatrixMath.multiply(cellStateBufferPrev, hRecGate.matrix, nGateBufferM2)
+		MatrixMath.hadamard(rGateBufferA1, nGateBufferM1, nGateBufferM3)
+		MatrixMath.add(nGateBufferM1, nGateBufferM3, nGateBufferA1)
+		if (useBias) MatrixMath.add(nGateBufferA1, hBias.matrix, nGateBufferA1)
+		activation?.let {
+			Activations.activate(nGateBufferA1, nGateBufferA1, it)
+		}
+
+		// h
+		MatrixMath.constantSub(1f, zGateBufferA1, cGateBufferS1) // (1 - z)
+		MatrixMath.hadamard(cGateBufferS1, cellStateBufferPrev, cGateBufferM1) // (1 - z) * h_t-1
+		MatrixMath.hadamard(zGateBufferA1, nGateBufferA1, cGateBufferM2) // z * n
+		// save to previous
+		MatrixMath.add(cGateBufferM1, cGateBufferM2, cellStateBufferPrev) // (1 - z) * h_t-1 +  z * n
 	}
 
 }

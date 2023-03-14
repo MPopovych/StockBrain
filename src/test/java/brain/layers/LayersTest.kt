@@ -160,7 +160,7 @@ class LayersTest {
 		}
 		inputData1.printRedBr()
 		val inputData2 = Matrix(3, 1) { _, x, y ->
-			return@Matrix - (x + 1f) * (y + 1f)
+			return@Matrix -(x + 1f) * (y + 1f)
 		}
 		inputData2.print()
 		val r1 = model.getOutput(mapOf("i1" to inputData1, "i2" to inputData2)).copy()
@@ -173,7 +173,7 @@ class LayersTest {
 	fun testConcatMultiply() {
 		val input1 = InputLayer(3, steps = 2)
 		val input2 = InputLayer(3, steps = 2)
-		val c1 = ConcatMultiply { listOf(input1, input2) }
+		val c1 = AttentionMultiply { listOf(input1, input2) }
 
 		val builder = ModelBuilder(mapOf("i1" to input1, "i2" to input2), c1, debug = false)
 		val model = builder.build(debug = true)
@@ -337,7 +337,11 @@ class LayersTest {
 	@Test
 	fun testPivot() {
 		val input = InputLayer(3, steps = 1)
-		val pivot = PivotNorm (biasAInit = Suppliers.Ones, kernelInit = Suppliers.const(2f), biasBInit = Suppliers.const(-1f)){ input }
+		val pivot = PivotNorm(
+			biasAInit = Suppliers.Ones,
+			kernelInit = Suppliers.const(2f),
+			biasBInit = Suppliers.const(-1f)
+		) { input }
 
 		val builder = ModelBuilder(input, pivot, debug = false)
 		val model = builder.build(debug = true)
@@ -355,6 +359,70 @@ class LayersTest {
 				assertEquals(1f, r1.values[y][x])
 			}
 		}
+	}
+
+	@Test
+	fun testRNN() {
+		val input = InputLayer(3, steps = 5)
+		val rnn = RNN(units = 4) { input }
+
+		val builder = ModelBuilder(input, rnn, debug = false)
+		val model = builder.build(debug = true)
+
+		val inputData = Matrix(input.features, input.steps, Suppliers.RandomHE)
+		inputData.printRedBr()
+		val r1 = model.getOutput(inputData).copy()
+		r1.print()
+		assert(r1.getShape().width == 4)
+		assert(r1.getShape().height == 1)
+	}
+
+	@Test
+	fun testRNNIterative() {
+		val input = InputLayer(3, steps = 5)
+		val rnn = RNNIterative(units = 4) { input }
+
+		val builder = ModelBuilder(input, rnn, debug = false)
+		val model = builder.build(debug = true)
+
+		val inputData = Matrix(input.features, input.steps, Suppliers.RandomHE)
+		inputData.printRedBr()
+		val r1 = model.getOutput(inputData).copy()
+		r1.print()
+		assert(r1.getShape().width == 4)
+		assert(r1.getShape().height == input.steps)
+	}
+
+	@Test
+	fun testGRU() {
+		val input = InputLayer(3, steps = 5)
+		val gru = GRU(units = 4) { input }
+
+		val builder = ModelBuilder(input, gru, debug = false)
+		val model = builder.build(debug = true)
+
+		val inputData = Matrix(input.features, input.steps, Suppliers.RandomHE)
+		inputData.printRedBr()
+		val r1 = model.getOutput(inputData).copy()
+		r1.print()
+		assert(r1.getShape().width == 4)
+		assert(r1.getShape().height == 1)
+	}
+
+	@Test
+	fun testGRUIterative() {
+		val input = InputLayer(3, steps = 5)
+		val gru = GRUIterative(units = 4) { input }
+
+		val builder = ModelBuilder(input, gru, debug = false)
+		val model = builder.build(debug = true)
+
+		val inputData = Matrix(input.features, input.steps, Suppliers.RandomHE)
+		inputData.printRedBr()
+		val r1 = model.getOutput(inputData).copy()
+		r1.print()
+		assert(r1.getShape().width == 4)
+		assert(r1.getShape().height == input.steps)
 	}
 
 }

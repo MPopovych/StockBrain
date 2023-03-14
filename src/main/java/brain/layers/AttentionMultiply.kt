@@ -1,13 +1,14 @@
 package brain.layers
 
 import brain.matrix.Matrix
-import brain.utils.getShape
 
 
-class ConcatMultiply(
+class AttentionMultiply(
 	override var name: String = Layer.DEFAULT_NAME,
 	parentLayerBlock: (() -> List<LayerBuilder<*>>),
-) : LayerBuilder.MultiInput<ConcatMultiplyImpl> {
+) : LayerBuilder.MultiInput<AttentionMultiplyImpl> {
+	constructor(vararg layer: LayerBuilder<*>, name: String = Layer.DEFAULT_NAME): this(name, { layer.toList() })
+
 	companion object {
 		const val defaultNameType = "ConcatMultiply"
 	}
@@ -29,8 +30,8 @@ class ConcatMultiply(
 
 	private val concatShape = parentLayers.first().getShape()
 
-	override fun create(): ConcatMultiplyImpl {
-		return ConcatMultiplyImpl(concatShape, name).also {
+	override fun create(): AttentionMultiplyImpl {
+		return AttentionMultiplyImpl(concatShape, name).also {
 			it.init()
 		}
 	}
@@ -41,8 +42,8 @@ class ConcatMultiply(
 
 }
 
-class ConcatMultiplyImpl(private val concatShape: LayerShape, override var name: String) : Layer.MultiInputLayer() {
-	override val nameType: String = ConcatMultiply.defaultNameType
+class AttentionMultiplyImpl(private val concatShape: LayerShape, override var name: String) : Layer.MultiInputLayer() {
+	override val nameType: String = AttentionMultiply.defaultNameType
 	override lateinit var outputBuffer: Matrix
 
 	override fun init() {

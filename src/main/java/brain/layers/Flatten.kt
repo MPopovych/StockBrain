@@ -7,9 +7,11 @@ class Flatten(
 	override var name: String = Layer.DEFAULT_NAME,
 	parentLayerBlock: (() -> LayerBuilder<*>),
 ) : LayerBuilder.SingleInput<FlattenImpl> {
+
 	companion object {
 		const val defaultNameType = "Flatten"
 	}
+
 
 	override val nameType: String = defaultNameType
 	override val parentLayer: LayerBuilder<*> = parentLayerBlock()

@@ -42,6 +42,7 @@ object Activations {
 			Tanh.nameType() -> Tanh
 			FastTanh.nameType() -> FastTanh
 			Sigmoid.nameType() -> Sigmoid
+			HardSigmoid.nameType() -> HardSigmoid
 			ReLuMinMax.nameType() -> ReLuMinMax
 			MirrorReLu.nameType() -> MirrorReLu
 			MirrorReversedReLu.nameType() -> MirrorReversedReLu

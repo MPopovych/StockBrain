@@ -75,7 +75,7 @@ class FeatureDenseImpl(
 		kernels = ArrayList()
 		for (i in 0 until parentShape.width) {
 			val localKernel = WeightData("weight_f$i", Matrix(units, parentShape.height), true)
-			Suppliers.fillFull(localKernel.matrix, Suppliers.RandomHE)
+			Suppliers.fillFull(localKernel.matrix, Suppliers.RandomRangeNP)
 			addWeights(localKernel)
 			kernels.add(localKernel)
 		}

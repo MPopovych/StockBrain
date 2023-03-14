@@ -95,6 +95,16 @@ object ModelReader {
 					buffer[parent] ?: throw IllegalStateException("No parent found in buffer")
 				}
 			}
+			GRUIterative.defaultNameType -> {
+				val meta = (ls.getMetaData() as? LayerMetaData.GRUMeta)
+					?: throw IllegalStateException("No meta for GRU iterative")
+				val activation = Activations.deserialize(ls.activation)
+				val parent = ls.parents?.getOrNull(0)
+					?: throw IllegalStateException("No parent in GRU iterative")
+				GRUIterative(activation = activation, units = ls.width, useBias = meta.useBias, name = ls.name) {
+					buffer[parent] ?: throw IllegalStateException("No parent found in buffer")
+				}
+			}
 			RNN.defaultNameType -> {
 				val meta = (ls.getMetaData() as? LayerMetaData.RNNMeta)
 					?: throw IllegalStateException("No meta for RNN")
@@ -102,6 +112,16 @@ object ModelReader {
 				val parent = ls.parents?.getOrNull(0)
 					?: throw IllegalStateException("No parent in RNN")
 				RNN(activation = activation, units = ls.width, useBias = meta.useBias, name = ls.name) {
+					buffer[parent] ?: throw IllegalStateException("No parent found in buffer")
+				}
+			}
+			RNNIterative.defaultNameType -> {
+				val meta = (ls.getMetaData() as? LayerMetaData.RNNMeta)
+					?: throw IllegalStateException("No meta for RNN iterative")
+				val activation = Activations.deserialize(ls.activation)
+				val parent = ls.parents?.getOrNull(0)
+					?: throw IllegalStateException("No parent in RNN iterative")
+				RNNIterative(activation = activation, units = ls.width, useBias = meta.useBias, name = ls.name) {
 					buffer[parent] ?: throw IllegalStateException("No parent found in buffer")
 				}
 			}
@@ -167,12 +187,12 @@ object ModelReader {
 					parents
 				}
 			}
-			ConcatMultiply.defaultNameType -> {
+			AttentionMultiply.defaultNameType -> {
 				val parents = ls.parents
 					?.map { p -> buffer[p] ?: throw IllegalStateException("No parent found in buffer") }
 					?: throw IllegalStateException("No parent in concat multiply")
 
-				ConcatMultiply(name = ls.name) {
+				AttentionMultiply(name = ls.name) {
 					parents
 				}
 			}
@@ -284,7 +304,17 @@ private class LayerDeserializer : JsonDeserializer<LayerSerialized> {
 				val data = ModelReader.innerGson.fromJson<LayerMetaData.GRUMeta>(element)
 				temp.copy(builderData = data)
 			}
+			GRUIterative.defaultNameType -> {
+				val element = json.asJsonObject[FIELD_BUILDER_DATA]
+				val data = ModelReader.innerGson.fromJson<LayerMetaData.GRUMeta>(element)
+				temp.copy(builderData = data)
+			}
 			RNN.defaultNameType -> {
+				val element = json.asJsonObject[FIELD_BUILDER_DATA]
+				val data = ModelReader.innerGson.fromJson<LayerMetaData.RNNMeta>(element)
+				temp.copy(builderData = data)
+			}
+			RNNIterative.defaultNameType -> {
 				val element = json.asJsonObject[FIELD_BUILDER_DATA]
 				val data = ModelReader.innerGson.fromJson<LayerMetaData.RNNMeta>(element)
 				temp.copy(builderData = data)

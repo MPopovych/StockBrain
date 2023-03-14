@@ -23,7 +23,7 @@ class FeatureConv(
 	val reverse: Boolean = false,
 	private val activation: ActivationFunction? = null,
 	private val useBias: Boolean = true,
-	private val kernelInit: ValueFiller = Suppliers.RandomHE,
+	private val kernelInit: ValueFiller = Suppliers.RandomRangeNP,
 	override var name: String = Layer.DEFAULT_NAME,
 	parentLayerBlock: (() -> LayerBuilder<*>),
 ) : LayerBuilder.SingleInput<FeatureConvImpl> {
@@ -111,7 +111,7 @@ class FeatureConvImpl(
 
 		biases = ArrayList()
 		for (i in 0 until parentShape.width) {
-			val localKernel = WeightData("bias_f$i", Matrix(units, 1), true)
+			val localKernel = WeightData("bias_f$i", Matrix(units, 1), useBias)
 			addWeights(localKernel)
 			biases.add(localKernel)
 		}
@@ -124,7 +124,6 @@ class FeatureConvImpl(
 	override fun call(input: Matrix): Matrix {
 		flushBuffer()
 		MatrixMath.flush(transposeFeatureBuffer)
-//		MatrixMath.flush(transposeOutputBuffer)
 
 		for (x in 0 until input.width) { // per feature
 			for (y in 0 until windowCount) {
