@@ -8,6 +8,8 @@ interface WindowProvider<G> {
 interface FrameWindow<G> {
 	fun to2fArray(): Array<FloatArray>
 	fun to2fArray(filter: ColumnScaleFilter): Array<FloatArray>
+	fun to2fArray(mapper: ColumnScaleFilter.OrdMapper<G>): Array<FloatArray>
 	fun fill2fArray(destination: Array<FloatArray>): Array<FloatArray>
 	fun fill2fArray(destination: Array<FloatArray>, filter: ColumnScaleFilter): Array<FloatArray>
+	fun fill2fArray(destination: Array<FloatArray>, mapper: ColumnScaleFilter.OrdMapper<G>): Array<FloatArray>
 }

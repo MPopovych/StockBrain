@@ -11,6 +11,8 @@ interface FrameAsset {
 	val describeHeader: Array<String>
 
 	fun getValueByKey(key: String): Float?
+	fun getValueByOrdinal(ord: Int): Float?
+	fun getKeyOrdinal(key: String): Int?
 
 	/** Uses an existing allocation */
 	fun fill2FArray(destination: FloatArray)
@@ -18,6 +20,8 @@ interface FrameAsset {
 	 * feature masks should be sorted as features
 	 */
 	fun fill2FArray(destination: FloatArray, featureMasks: ColumnScaleFilter)
+
+	fun fill2FArray(destination: FloatArray, ordinalMapper: ColumnScaleFilter.OrdMapper<*>)
 
 	// endregion
 
@@ -32,6 +36,10 @@ interface FrameAsset {
 
 	fun to2FArray(featureMasks: ColumnScaleFilter): FloatArray {
 		return FloatArray(featureMasks.size).also { fill2FArray(it, featureMasks) }
+	}
+
+	fun to2FArray(ordinalMapper: ColumnScaleFilter.OrdMapper<*>): FloatArray {
+		return FloatArray(ordinalMapper.size).also { fill2FArray(it, ordinalMapper) }
 	}
 
 	fun validateMatching(destination: FloatArray) {

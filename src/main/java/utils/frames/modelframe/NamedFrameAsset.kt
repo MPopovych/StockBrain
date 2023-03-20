@@ -12,6 +12,15 @@ interface NamedFrameAsset<Self : NamedFrameAsset<Self>> : FrameAsset, NamedPropM
 		return prop.get(selfUnsafe()).toFloat()
 	}
 
+	override fun getValueByOrdinal(ord: Int): Float? {
+		val prop = propGetter().propertiesOrdinal[ord] ?: return null
+		return prop.get(selfUnsafe()).toFloat()
+	}
+
+	override fun getKeyOrdinal(key: String): Int? {
+		return propGetter().keyOrdinal[key]
+	}
+
 	override fun fill2FArray(destination: FloatArray) {
 		var i = 0
 		val self = selfUnsafe()
@@ -28,6 +37,18 @@ interface NamedFrameAsset<Self : NamedFrameAsset<Self>> : FrameAsset, NamedPropM
 		for ((key, scale) in featureMasks) {
 			val prop = getter.properties[key] ?: throw IllegalStateException("No $key in ${describeHeader.toList()}")
 			destination[i++] = scale.applyToValue(prop.get(self).toFloat())
+		}
+	}
+
+	override fun fill2FArray(destination: FloatArray, ordinalMapper: ColumnScaleFilter.OrdMapper<*>) {
+		val self = selfUnsafe()
+		val getter = propGetter()
+
+		for (i in destination.indices) {
+			val scale = ordinalMapper.scales[i]
+			val prop = getter.propertiesOrdinal[ordinalMapper.ordinals[i]]
+				?: throw IllegalStateException("No $i ordinal in ${describeHeader.toList()}")
+			destination[i] = scale.applyToValue(prop.get(self).toFloat())
 		}
 	}
 

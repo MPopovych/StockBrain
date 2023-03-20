@@ -108,6 +108,8 @@ class ModelFrame<T : FrameAsset> : ArrayList<T>(), WindowProvider<T> {
 			}
 		}
 
+		fun absoluteIndexList() = (startIndex..endIndex step gapSize).toList()
+
 		fun getHeadString(): String {
 			val first = parent.getOrNull(startIndex) ?: return "[EmptyWindowScope]"
 			var buffer = first.describeHeader.joinToString(",") + "\n"
@@ -127,6 +129,12 @@ class ModelFrame<T : FrameAsset> : ArrayList<T>(), WindowProvider<T> {
 			}
 		}
 
+		override fun to2fArray(mapper: ColumnScaleFilter.OrdMapper<G>): Array<FloatArray> {
+			return Array(windowSize) { FloatArray(mapper.size) }.also {
+				fill2fArray(it, mapper)
+			}
+		}
+
 		override fun fill2fArray(destination: Array<FloatArray>): Array<FloatArray> {
 			iterate { i, modelFrameEntry ->
 				modelFrameEntry.fill2FArray(destination[i])
@@ -137,6 +145,13 @@ class ModelFrame<T : FrameAsset> : ArrayList<T>(), WindowProvider<T> {
 		override fun fill2fArray(destination: Array<FloatArray>, filter: ColumnScaleFilter): Array<FloatArray> {
 			iterate { i, modelFrameEntry ->
 				modelFrameEntry.fill2FArray(destination[i], filter)
+			}
+			return destination
+		}
+
+		override fun fill2fArray(destination: Array<FloatArray>, mapper: ColumnScaleFilter.OrdMapper<G>): Array<FloatArray> {
+			iterate { i, modelFrameEntry ->
+				modelFrameEntry.fill2FArray(destination[i], mapper)
 			}
 			return destination
 		}

@@ -11,10 +11,15 @@ fun <T : NamedPropModel<T>> T.propSelf(): NamedPropGetter<T> {
 
 abstract class NamedPropGetter<Owner> {
 	val properties: LinkedHashMap<String, NamedProperty<Owner>> = LinkedHashMap()
+	val propertiesOrdinal: HashMap<Int, NamedProperty<Owner>> = HashMap()
+	val keyOrdinal: HashMap<String, Int> = HashMap()
 
 	fun addProp(prop: NamedProperty<Owner>) {
 		if (properties.contains(prop.name)) throw IllegalStateException("Model already contains a property ${prop.name}")
 		properties[prop.name] = prop
+		val ordinal = propertiesOrdinal.size
+		propertiesOrdinal[ordinal] = prop
+		keyOrdinal[prop.name] = ordinal
 	}
 }
 

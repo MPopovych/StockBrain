@@ -46,6 +46,15 @@ class ModelFrameTest {
 	}
 
 	@Test
+	fun testWindowIndexList() {
+		val lastIndex = testSamples.size - 1
+		printBlueBr("Last index: $lastIndex")
+		val lastWindow = testSamples.getBackWindow(lastIndex, windowSize = 2, gapSize = 3) ?: throw IllegalStateException()
+		val indList = lastWindow.absoluteIndexList()
+		printRedBr(indList)
+	}
+
+	@Test
 	fun testWindowBack() {
 		val lastIndex = testSamples.size - 1
 		printBlueBr("Last index: $lastIndex")

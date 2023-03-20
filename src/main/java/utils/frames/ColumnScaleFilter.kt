@@ -4,6 +4,7 @@ import utils.CacheFileProvider
 import utils.WorkingDirectoryProvider
 import utils.frames.modelframe.FrameAsset
 import utils.frames.modelframe.ModelFrame
+import utils.frames.modelframe.NamedPropGetter
 
 class ColumnScaleFilter : LinkedHashMap<String, ScaleMeta>() {
 	companion object {
@@ -69,5 +70,26 @@ class ColumnScaleFilter : LinkedHashMap<String, ScaleMeta>() {
 
 	fun save(file: String, wd: WorkingDirectoryProvider) {
 		wd.saveJson(this, file)
+	}
+
+	fun <T> ordMapper(with: NamedPropGetter<T>): OrdMapper<T> {
+		return OrdMapper.build(this, with)
+	}
+
+	class OrdMapper<T>(val ordinals: IntArray, val scales: Array<ScaleMeta>) {
+		val size = ordinals.size
+
+		companion object {
+			fun <T> build(filter: ColumnScaleFilter, getter: NamedPropGetter<T>): OrdMapper<T> {
+				val ordList = ArrayList<Int>()
+				val scaleList = ArrayList<ScaleMeta>()
+				filter.forEach {
+					val ordinal = getter.keyOrdinal[it.key] ?: throw IllegalStateException()
+					ordList.add(ordinal)
+					scaleList.add(it.value)
+				}
+				return OrdMapper(ordList.toIntArray(), scaleList.toTypedArray())
+			}
+		}
 	}
 }
