@@ -4,29 +4,32 @@ import utils.frames.ScaleMeta;
 
 import java.util.Arrays;
 
-public class RobustNorm implements ScaleImpl {
+public class NPStandardizeZeroNorm implements ScaleImpl {
 
 	public float[] performScale(ScaleMeta owner, float[] data) {
 		float[] r = new float[data.length];
 
-		float iqr = owner.getIqr();
-		float median = owner.getMedian();
+		float std = owner.getStd();
 
-		if (iqr == 0f) {
+		if (std == 0f) {
 			Arrays.fill(r, 0f);
 			return r;
 		}
 
 		for (int i = 0; i < data.length; i++) {
-			r[i] = (data[i] - median) / iqr;
+			r[i] = data[i] / std;
 		}
 		return r;
 	}
 
 	@Override
 	public float performScale(ScaleMeta owner, float data) {
-		float iqr = owner.getIqr();
-		if (iqr == 0f) return 0f;
-		return  (data - owner.getMedian()) / iqr;
+		float std = owner.getStd();
+		if (std == 0f) {
+			return 0f;
+		}
+
+		return data / std;
 	}
+
 }

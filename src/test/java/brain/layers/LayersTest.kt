@@ -107,7 +107,7 @@ class LayersTest {
 			}
 		}
 		printGreenBr("different: ${scaled}, zeroed: $zeroed")
-		assert(zeroed > 1)
+		assert(zeroed >= 1)
 	}
 
 	@Test

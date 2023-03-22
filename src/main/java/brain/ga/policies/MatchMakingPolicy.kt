@@ -85,7 +85,7 @@ class AgingMatchMakingPolicy(private val repeatTop: Int, private val lifespan: I
 				buffer.add(FutureMatch.MutateMatch(a))
 			} else {
 				// magic number
-				buffer.add(FutureMatch.CrossMatch(a, b, mutate = Random.nextInt(8) == 0))
+				buffer.add(FutureMatch.CrossMatch(a, b, mutate = Random.nextInt(4) == 0))
 			}
 		}
 		return buffer

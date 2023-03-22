@@ -2,6 +2,7 @@ package brain.ga
 
 import brain.utils.printGreenBr
 import brain.utils.roundUp
+import java.util.TreeSet
 import kotlin.math.pow
 import kotlin.math.sqrt
 
@@ -48,7 +49,8 @@ class GAScoreBoard(private val settings: GASettings) {
 			idSet.clear()
 			scoreList.clear()
 		}
-		scoreList.addAll(batch
+		val list = if (settings.scoreBoardAllowSameResult) batch else batch.distinctBy { it.score }
+		scoreList.addAll(list
 			.onEach {
 				if (it.score.isNaN() || it.score.isInfinite()) {
 					throw IllegalStateException("NaN or Infinite in score : ${it}")
@@ -67,7 +69,9 @@ class GAScoreBoard(private val settings: GASettings) {
 			scoreList.removeFirst()
 		}
 		idSet.clear()
-		scoreList.forEach { idSet.add(it.chromosomeHash) }
+		scoreList.forEach {
+			idSet.add(it.chromosomeHash)
+		}
 	}
 
 	fun printScoreBoard(limit: Int? = null) {

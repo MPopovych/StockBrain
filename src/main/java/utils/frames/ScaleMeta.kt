@@ -4,16 +4,15 @@ import utils.ext.average
 import utils.ext.iqrAndMedian
 import utils.ext.median
 import utils.ext.std
-import utils.math.NPStandardize
-import utils.math.NegativePositiveNorm
-import utils.math.RobustNorm
-import utils.math.ZeroPositiveNorm
+import utils.math.*
 
 enum class ScaleMetaType {
 	NormalizeZP,
 	NormalizeNP,
 	Standardize,
 	Robust,
+	StandardizeOnZero,
+	TanhNorm,
 
 	None;
 
@@ -54,6 +53,8 @@ data class ScaleMeta(
 		private val NPNorm = NegativePositiveNorm()
 		private val NPStandardize = NPStandardize()
 		private val RobustNorm = RobustNorm()
+		private val TanhHorm = TanhNorm()
+		private val StandardizeZeroNorm = NPStandardizeZeroNorm()
 	}
 
 	fun getMeanAndStdString(): String {
@@ -66,6 +67,8 @@ data class ScaleMeta(
 			ScaleMetaType.NormalizeNP -> NPNorm.performScale(this, value)
 			ScaleMetaType.Standardize -> NPStandardize.performScale(this, value)
 			ScaleMetaType.Robust -> RobustNorm.performScale(this, value)
+			ScaleMetaType.StandardizeOnZero -> StandardizeZeroNorm.performScale(this, value)
+			ScaleMetaType.TanhNorm -> TanhHorm.performScale(this, value)
 			ScaleMetaType.None -> value
 		}
 	}
@@ -76,6 +79,8 @@ data class ScaleMeta(
 			ScaleMetaType.NormalizeNP -> NPNorm.performScale(this, array)
 			ScaleMetaType.Standardize -> NPStandardize.performScale(this, array)
 			ScaleMetaType.Robust -> RobustNorm.performScale(this, array)
+			ScaleMetaType.StandardizeOnZero -> StandardizeZeroNorm.performScale(this, array)
+			ScaleMetaType.TanhNorm -> TanhHorm.performScale(this, array)
 			ScaleMetaType.None -> array.copyOf()
 		}
 	}

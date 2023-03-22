@@ -61,13 +61,19 @@ class RNNIterativeImpl(
 		outputBuffer = Matrix(units, parentShape.height)
 	}
 
+	private var cachedIterator: IntArray? = null // micro-optimisation for iterative operations
 	override fun call(input: Matrix): Matrix {
 		flushBuffer()
 		MatrixMath.flush(cellStateBufferPrev) // h_prev
 
-		var rowIterator = (0 until input.height).toList()
-		if (reverse) {
-			rowIterator = rowIterator.asReversed()
+		val rowIterator = cachedIterator ?: (0 until input.height).let {
+			var list = (0 until input.height).toList()
+			if (reverse) {
+				list = list.asReversed()
+			}
+			val array = list.toIntArray()
+			cachedIterator = array
+			return@let array
 		}
 		for ((i, t) in rowIterator.withIndex()) {
 			MatrixMath.transferSingleRow(input, cellStateBufferCurrent, t, 0)
