@@ -21,8 +21,8 @@ public class TanhNorm implements ScaleImpl {
 		}
 
 		for (int i = 0; i < data.length; i++) {
-			float inner = (0.01f * ((data[i] - median) / std));
-			r[i] = 0.5f * (activation.apply(inner) + 1);
+			float inner = (0.1f * ((data[i] - median) / std));
+			r[i] = (activation.apply(inner));
 		}
 		return r;
 	}
@@ -33,7 +33,7 @@ public class TanhNorm implements ScaleImpl {
 		float median = owner.getMedian();
 		if (std == 0f) return 0f;
 
-		float inner = (0.01f * ((data - median) / std));
-		return 0.5f * (activation.apply(inner) + 1);
+		float inner = (0.1f * ((data - median) / std));
+		return (activation.apply(inner));
 	}
 }

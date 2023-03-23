@@ -375,6 +375,10 @@ class LayersTest {
 		r1.print()
 		assert(r1.getShape().width == 4)
 		assert(r1.getShape().height == 1)
+
+		repeat(10) {
+			model.getOutput(inputData).printRedBr()
+		}
 	}
 
 	@Test

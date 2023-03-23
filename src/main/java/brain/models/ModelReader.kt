@@ -190,9 +190,18 @@ object ModelReader {
 			AttentionMultiply.defaultNameType -> {
 				val parents = ls.parents
 					?.map { p -> buffer[p] ?: throw IllegalStateException("No parent found in buffer") }
-					?: throw IllegalStateException("No parent in concat multiply")
+					?: throw IllegalStateException("No parent in attention multiply")
 
 				AttentionMultiply(name = ls.name) {
+					parents
+				}
+			}
+			AttentionAdd.defaultNameType -> {
+				val parents = ls.parents
+					?.map { p -> buffer[p] ?: throw IllegalStateException("No parent found in buffer") }
+					?: throw IllegalStateException("No parent in attention add")
+
+				AttentionAdd(name = ls.name) {
 					parents
 				}
 			}

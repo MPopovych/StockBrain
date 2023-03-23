@@ -43,6 +43,7 @@ class GATest {
 			topParentCount = 5,
 			totalPopulationCount = 10,
 			scoreBoardClearOnGeneration = false,
+			scoreBoardAllowSameResult = true,
 			scoreBoardOrder = GAScoreBoardOrder.Descending,
 			initialMutationPolicy = AdditiveMutationPolicy(1.0),
 			mutationPolicy = CyclicMutationPolicy(0.3),

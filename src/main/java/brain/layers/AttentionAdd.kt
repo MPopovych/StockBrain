@@ -3,14 +3,14 @@ package brain.layers
 import brain.matrix.Matrix
 
 
-class AttentionMultiply(
+class AttentionAdd(
 	override var name: String = Layer.DEFAULT_NAME,
 	parentLayerBlock: (() -> List<LayerBuilder<*>>),
-) : LayerBuilder.MultiInput<AttentionMultiplyImpl> {
+) : LayerBuilder.MultiInput<AttentionAddImpl> {
 	constructor(vararg layer: LayerBuilder<*>, name: String = Layer.DEFAULT_NAME): this(name, { layer.toList() })
 
 	companion object {
-		const val defaultNameType = "AttentionMultiply"
+		const val defaultNameType = "AttentionAdd"
 	}
 
 	override val nameType: String = defaultNameType
@@ -30,8 +30,8 @@ class AttentionMultiply(
 
 	private val concatShape = parentLayers.first().getShape()
 
-	override fun create(): AttentionMultiplyImpl {
-		return AttentionMultiplyImpl(concatShape, name).also {
+	override fun create(): AttentionAddImpl {
+		return AttentionAddImpl(concatShape, name).also {
 			it.init()
 		}
 	}
@@ -42,8 +42,8 @@ class AttentionMultiply(
 
 }
 
-class AttentionMultiplyImpl(private val concatShape: LayerShape, override var name: String) : Layer.MultiInputLayer() {
-	override val nameType: String = AttentionMultiply.defaultNameType
+class AttentionAddImpl(private val concatShape: LayerShape, override var name: String) : Layer.MultiInputLayer() {
+	override val nameType: String = AttentionAdd.defaultNameType
 	override lateinit var outputBuffer: Matrix
 
 	override fun init() {
@@ -55,9 +55,9 @@ class AttentionMultiplyImpl(private val concatShape: LayerShape, override var na
 
 		for (y in 0 until concatShape.height) {
 			for (x in 0 until concatShape.width) {
-				var m = 1f
+				var m = 0f
 				for (input in inputs) {
-					m *= input.values[y][x]
+					m += input.values[y][x]
 				}
 				outputBuffer.values[y][x] = m
 			}

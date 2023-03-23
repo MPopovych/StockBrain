@@ -188,4 +188,27 @@ class ModelTest {
 		r1.print()
 	}
 
+	@Test
+	fun testModelIterative() {
+		val input = InputLayer(3, steps = 8)
+		val rnn1 = RNN(5) { input }
+		val gru1 = GRU(5) { input }
+		val concat = AttentionMultiply { listOf(gru1, rnn1) }
+		val denseA = Dense(2) { concat }
+		val denseB = Dense(2) { concat }
+		val denseAB = Concat { listOf(denseA, denseB) }
+
+		val builder = ModelBuilder(input, denseAB, debug = false)
+		val model = builder.build(debug = true)
+
+		val inputData = Suppliers.createMatrix(LayerShape(3, 8), Suppliers.RandomRangeNP)
+		inputData.printRedBr()
+		val r1 = model.getOutput(inputData).copy()
+		repeat(100) {
+			val r2 = model.getOutput(inputData)
+			assertEqualModel(r1, r2)
+		}
+	}
+
+
 }

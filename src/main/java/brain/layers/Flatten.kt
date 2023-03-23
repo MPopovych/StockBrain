@@ -12,7 +12,6 @@ class Flatten(
 		const val defaultNameType = "Flatten"
 	}
 
-
 	override val nameType: String = defaultNameType
 	override val parentLayer: LayerBuilder<*> = parentLayerBlock()
 
