@@ -86,6 +86,12 @@ class GA(
 				// keep bornOnEpoch the same
 				destination
 			}
+			is FutureMatch.New -> {
+				val destination = originalGenes.copy()
+				destination.bornOnEpoch = generation
+				destination.applyMutationPolicy(settings.initialMutationPolicy, source = destination)
+				destination
+			}
 		}
 	}
 

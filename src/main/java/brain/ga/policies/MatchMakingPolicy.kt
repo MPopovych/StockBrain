@@ -15,6 +15,7 @@ sealed class FutureMatch {
 	class Repeat(val source: GAScoreHolder) : FutureMatch()
 	class CrossMatch(val parentA: GAScoreHolder, val parentB: GAScoreHolder, val mutate: Boolean) : FutureMatch()
 	class MutateMatch(val source: GAScoreHolder) : FutureMatch()
+	object New : FutureMatch()
 }
 
 class DefaultMatchMakingPolicy(private val repeatTop: Int) : MatchMakingPolicy {
@@ -34,8 +35,11 @@ class DefaultMatchMakingPolicy(private val repeatTop: Int) : MatchMakingPolicy {
 			val a = holders.random()
 			val b = holders.random()
 
-			if (a == b) continue
-			buffer.add(FutureMatch.CrossMatch(a, b, mutate = Random.nextBoolean()))
+			if (a.score == b.score) {
+				buffer.add(FutureMatch.New)
+			} else {
+				buffer.add(FutureMatch.CrossMatch(a, b, mutate = Random.nextBoolean()))
+			}
 		}
 		return buffer
 	}
@@ -82,7 +86,7 @@ class AgingMatchMakingPolicy(private val repeatTop: Int, private val lifespan: I
 			val b = youngest.random()
 
 			if (a.score == b.score) {
-				buffer.add(FutureMatch.MutateMatch(a))
+				buffer.add(FutureMatch.New)
 			} else {
 				// magic number
 				buffer.add(FutureMatch.CrossMatch(a, b, mutate = Random.nextInt(4) == 0))

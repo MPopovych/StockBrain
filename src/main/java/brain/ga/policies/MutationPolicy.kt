@@ -24,7 +24,7 @@ interface MutationPolicy {
 }
 
 open class AdditiveMutationPolicy(private val fraction: Double = 0.01) : MutationPolicy {
-	private val randomRangeSupplier = Suppliers.RandomHE
+	private val randomRangeSupplier = Suppliers.RandomRangeNP
 	private fun supplyNext(count: Int) = randomRangeSupplier.supply(count, 0, 0)
 
 	override fun mutateWeight(
@@ -50,7 +50,7 @@ open class AdditiveMutationPolicy(private val fraction: Double = 0.01) : Mutatio
 }
 
 open class ReplaceMutationPolicy(private val fraction: Double = 0.01) : MutationPolicy {
-	private val randomRangeSupplier = Suppliers.RandomHE
+	private val randomRangeSupplier = Suppliers.RandomRangeNP
 	private fun supplyNext(count: Int) = randomRangeSupplier.supply(count, 0, 0)
 
 	override fun mutateWeight(
@@ -152,7 +152,7 @@ class CyclicMutationPolicy(
 	private val upscaleRatio: Int = 1,
 	private val inversionRatio: Int = 1,
 	private val copyRatio: Int = 2,
-	private val replaceRatio: Int = 2,
+	private val replaceRatio: Int = 4,
 ) : MutationPolicy {
 
 	private val sum = additiveRatio + upscaleRatio + inversionRatio + copyRatio + replaceRatio
