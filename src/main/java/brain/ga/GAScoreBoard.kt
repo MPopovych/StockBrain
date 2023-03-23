@@ -13,8 +13,7 @@ enum class GAScoreBoardOrder {
 
 class GAScoreBoard(private val settings: GASettings) {
 
-	private val idSet = HashSet<String>()
-	private val scoreList = ArrayList<GAScoreHolder>()
+	private var scoreList: ArrayList<GAScoreHolder> = ArrayList<GAScoreHolder>()
 
 	val size: Int
 		get() = scoreList.size
@@ -46,7 +45,6 @@ class GAScoreBoard(private val settings: GASettings) {
 
 	fun pushBatch(batch: List<GAScoreHolder>) {
 		if (settings.scoreBoardClearOnGeneration) {
-			idSet.clear()
 			scoreList.clear()
 		}
 		val list = if (settings.scoreBoardAllowSameResult) batch else batch.distinctBy { it.score }
@@ -56,21 +54,15 @@ class GAScoreBoard(private val settings: GASettings) {
 					throw IllegalStateException("NaN or Infinite in score : ${it}")
 				}
 			}
-			.distinctBy { it.id }
-			.filter {
-				it.id !in idSet
-			}
 		)
-		when (settings.scoreBoardOrder) {
-			GAScoreBoardOrder.Ascending -> scoreList.sortBy { it.score } // ascending
-			GAScoreBoardOrder.Descending -> scoreList.sortByDescending { it.score } // descending
+		val sorted = when (settings.scoreBoardOrder) {
+			GAScoreBoardOrder.Ascending -> scoreList.distinctBy { it.id }.sortedBy { it.score } // ascending
+			GAScoreBoardOrder.Descending -> scoreList.distinctBy { it.id }.sortedByDescending { it.score } // descending
 		}
+		scoreList.clear()
+		scoreList.addAll(sorted)
 		while (scoreList.size > settings.totalPopulationCount) {
 			scoreList.removeFirst()
-		}
-		idSet.clear()
-		scoreList.forEach {
-			idSet.add(it.chromosomeHash)
 		}
 	}
 

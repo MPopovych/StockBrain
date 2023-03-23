@@ -13,6 +13,7 @@ interface MutationPolicy {
 		for (weight in source.map) {
 			val sourceW = source.map[weight.key] ?: throw IllegalStateException()
 			val destinationW = destination.map[weight.key] ?: throw IllegalStateException()
+			sourceW.copyTo(destinationW)
 			mutateWeight(source = sourceW, destination = destinationW)
 		}
 	}
@@ -31,9 +32,6 @@ open class AdditiveMutationPolicy(private val fraction: Double = 0.01) : Mutatio
 		source: WeightGenes,
 		destination: WeightGenes,
 	) {
-		if (source != destination) {
-			source.copyTo(destination)
-		}
 		val indices = source.genes.indices
 		val countToMutateDouble = min((source.size.toDouble() * fraction), source.size.toDouble())
 		val countToMutate = countToMutateDouble.roundUpInt()
@@ -57,9 +55,6 @@ open class ReplaceMutationPolicy(private val fraction: Double = 0.01) : Mutation
 		source: WeightGenes,
 		destination: WeightGenes,
 	) {
-		if (source != destination) {
-			source.copyTo(destination)
-		}
 		val indices = source.genes.indices
 		val countToMutateDouble = min((source.size.toDouble() * fraction), source.size.toDouble())
 		val countToMutate = countToMutateDouble.roundUpInt()
@@ -80,9 +75,6 @@ open class CopyMutationPolicy(private val fraction: Double = 0.01) : MutationPol
 		source: WeightGenes,
 		destination: WeightGenes,
 	) {
-		if (source != destination) {
-			source.copyTo(destination)
-		}
 		val indices = source.genes.indices
 		val countToMutateDouble = min((source.size.toDouble() * fraction), source.size.toDouble())
 		val countToMutate = countToMutateDouble.roundUpInt()
@@ -107,9 +99,6 @@ open class UpscaleMutationPolicy(private val fraction: Double = 0.01) : Mutation
 		source: WeightGenes,
 		destination: WeightGenes,
 	) {
-		if (source != destination) {
-			source.copyTo(destination)
-		}
 		val indices = source.genes.indices
 		val countToMutateDouble = min((source.size.toDouble() * fraction), source.size.toDouble())
 		val countToMutate = countToMutateDouble.roundUpInt()
@@ -170,7 +159,7 @@ class CyclicMutationPolicy(
 		for (weight in source.map) {
 			val sourceW = source.map[weight.key] ?: throw IllegalStateException()
 			val destinationW = destination.map[weight.key] ?: throw IllegalStateException()
-
+			sourceW.copyTo(destinationW)
 			mutateWeight(sourceW, destinationW)
 		}
 	}
@@ -188,8 +177,10 @@ class CyclicMutationPolicy(
 			inversion.mutateWeight(source, destination)
 		} else if (r < additiveRatio + upscaleRatio + inversionRatio + copyRatio) {
 			copy.mutateWeight(source, destination)
-		} else {
+		} else if (r < sum) {
 			replace.mutateWeight(source, destination)
+		} else {
+			throw IllegalStateException()
 		}
 	}
 }

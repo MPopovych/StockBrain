@@ -41,7 +41,7 @@ class ModelGenes(var bornOnEpoch: Int, val layers: Map<String, LayerGenes>) {
 
 	fun copy(): ModelGenes {
 		val wCopy = layers.mapValues { it.value.copy() }
-		return ModelGenes(bornOnEpoch, wCopy)
+		return ModelGenes(-1, wCopy)
 	}
 
 	fun applyCrossOverPolicy(crossOverPolicy: CrossOverPolicy, a: ModelGenes, b: ModelGenes): ModelGenes {
@@ -56,7 +56,7 @@ class ModelGenes(var bornOnEpoch: Int, val layers: Map<String, LayerGenes>) {
 	fun applyMutationPolicy(mutationPolicy: MutationPolicy, source: ModelGenes): ModelGenes {
 		layers.forEach { (i, layer) ->
 			val sourceLayer = source.layers[i] ?: throw IllegalStateException("no layer at: $i")
-			mutationPolicy.mutation(sourceLayer, destination = layer)
+			mutationPolicy.mutation(source = sourceLayer, destination = layer)
 		}
 		return this
 	}

@@ -66,7 +66,7 @@ class GA(
 	}
 
 	private fun handleCommand(generation: Int, command: FutureMatch): ModelGenes {
-		return when (command) {
+		when (command) {
 			is FutureMatch.CrossMatch -> {
 				val destination = command.parentA.copyGene()
 				destination.applyCrossOverPolicy(settings.crossOverPolicy, command.parentA.genes, command.parentB.genes)
@@ -74,23 +74,25 @@ class GA(
 					destination.applyMutationPolicy(settings.mutationPolicy, source = destination)
 				}
 				destination.bornOnEpoch = generation
-				destination
+				return destination
 			}
 			is FutureMatch.MutateMatch -> {
 				val destination = command.source.copyGene()
 				destination.bornOnEpoch = generation
 				destination.applyMutationPolicy(settings.mutationPolicy, source = command.source.genes)
+				return destination
 			}
 			is FutureMatch.Repeat -> {
-				val destination = command.source.copyGene()
 				// keep bornOnEpoch the same
-				destination
+				return command.source.copyGene().also {
+					it.bornOnEpoch = command.source.bornOnEpoch
+				}
 			}
 			is FutureMatch.New -> {
 				val destination = originalGenes.copy()
 				destination.bornOnEpoch = generation
 				destination.applyMutationPolicy(settings.initialMutationPolicy, source = destination)
-				destination
+				return destination
 			}
 		}
 	}
