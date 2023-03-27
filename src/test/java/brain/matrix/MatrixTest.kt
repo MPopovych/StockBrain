@@ -6,6 +6,7 @@ import brain.suppliers.Suppliers
 import brain.utils.print
 import brain.utils.printGreenBr
 import brain.utils.printRedBr
+import brain.utils.reshapeToMatrix
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
@@ -43,6 +44,17 @@ class MatrixTest {
 	}
 
 	@Test
+	fun testMultiplyConst2() {
+		val a = Matrix(4, 1) { _, _, y -> 1f }
+		val b = floatArrayOf(1f, 0.5f, 0.3f, 0.1f).reshapeToMatrix(1, 4)
+		b.printRedBr()
+		val d = Matrix(1, 1, Suppliers.Ones)
+		MatrixMath.multiply(a, b, d)
+		d.print()
+		assertEquals(d.values[0][0], 1.9f)
+	}
+
+	@Test
 	fun testMultiplyConst() {
 		val a = Matrix(3, 2) { _, _, y -> y + 1f }
 		a.print()
@@ -70,6 +82,17 @@ class MatrixTest {
 		b.print()
 		val d = Matrix(2, 10, Suppliers.Zero)
 		MatrixMath.multiply(a, b, d)
+		d.print()
+	}
+
+	@Test
+	fun testMultiplyBig() {
+		val a = Matrix(64, 64, Suppliers.Ones)
+//		a.print()
+		val b = Matrix(64, 64, Suppliers.const(2f))
+		val d = Matrix(64, 64, Suppliers.Zero)
+		MatrixMath.multiply(a, b, d)
+		println()
 		d.print()
 	}
 

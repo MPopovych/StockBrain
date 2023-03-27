@@ -30,13 +30,15 @@ class DefaultMatchMakingPolicy(private val repeatTop: Int) : MatchMakingPolicy {
 			buffer.add(FutureMatch.MutateMatch(top))
 		}
 
+		buffer.add(FutureMatch.New)
+
 		val holders = scoreBoard.getAscendingFitnessList().takeLast(settings.topParentCount)
-		while (buffer.size < settings.totalPopulationCount - 1) {
+		while (buffer.size < settings.totalPopulationCount) {
 			val a = holders.random()
 			val b = holders.random()
 
 			if (a.score == b.score) {
-				buffer.add(FutureMatch.New)
+				buffer.add(FutureMatch.MutateMatch(a))
 			} else {
 				buffer.add(FutureMatch.CrossMatch(a, b, mutate = Random.nextBoolean()))
 			}

@@ -2,9 +2,10 @@ package utils.frames.modelframe
 
 import java.io.Serializable
 
-interface NamedPropModel<T: NamedPropModel<T>>  {
+interface NamedPropModel<T : NamedPropModel<T>> {
 	fun propGetter(): NamedPropGetter<T>
 }
+
 fun <T : NamedPropModel<T>> T.propSelf(): NamedPropGetter<T> {
 	return this.propGetter()
 }
@@ -23,7 +24,7 @@ abstract class NamedPropGetter<Owner> {
 	}
 }
 
-interface NamedProperty<Owner>{
+interface NamedProperty<Owner> {
 	val name: String
 	val get: (Owner) -> Number
 }

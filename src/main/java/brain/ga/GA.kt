@@ -26,6 +26,7 @@ class GA(
 		val model = originalBuilder.build()
 		val genes = originalGenes.copy().applyMutationPolicy(settings.initialMutationPolicy, originalGenes)
 		genes.applyToModel(model)
+		genes.bornOnEpoch = 0
 		return@mapTo Pair(model, genes)
 	}
 	val scoreBoard = GAScoreBoard(settings)

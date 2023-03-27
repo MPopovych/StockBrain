@@ -11,6 +11,7 @@ object Activations {
 	val NegZeroPos = NegZeroPosFunction()
 	val BinaryNegPos = BinaryNegPosFunction()
 	val Binary = BinaryStepFunction()
+	val BinaryRange = BinaryRangeFunction()
 	val Zero = ZeroFunction() // test
 	val Tanh = TanhFunction()
 	val FastTanh = FastTanhFunction()
@@ -38,6 +39,7 @@ object Activations {
 			NegZeroPos.nameType() -> NegZeroPos
 			BinaryNegPos.nameType() -> BinaryNegPos
 			Binary.nameType() -> Binary
+			BinaryRange.nameType() -> BinaryRange
 			Zero.nameType() -> Zero
 			Tanh.nameType() -> Tanh
 			FastTanh.nameType() -> FastTanh

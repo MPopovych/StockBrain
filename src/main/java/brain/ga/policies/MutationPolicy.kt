@@ -102,9 +102,24 @@ open class UpscaleMutationPolicy(private val fraction: Double = 0.01) : Mutation
 		val indices = source.genes.indices
 		val countToMutateDouble = min((source.size.toDouble() * fraction), source.size.toDouble())
 		val countToMutate = countToMutateDouble.roundUpInt()
-		for (i in 0 until countToMutate) {
-			val randomIndex = indices.random()
-			destination.genes[randomIndex] = destination.genes[randomIndex].upscale(2)
+		if (countToMutateDouble >= 1) {
+			for (i in 0 until countToMutate) {
+				val randomIndex = indices.random()
+				if (Random.nextBoolean()) {
+					destination.genes[randomIndex] = destination.genes[randomIndex] * 1.1f
+				} else {
+					destination.genes[randomIndex] = destination.genes[randomIndex] / 1.1f
+				}
+			}
+		} else {
+			if (Random.nextFloat() < fraction * (1.0f / source.size)) {
+				val randomIndex = indices.random()
+				if (Random.nextBoolean()) {
+					destination.genes[randomIndex] = destination.genes[randomIndex] * 1.1f
+				} else {
+					destination.genes[randomIndex] = destination.genes[randomIndex] / 1.1f
+				}
+			}
 		}
 	}
 }
