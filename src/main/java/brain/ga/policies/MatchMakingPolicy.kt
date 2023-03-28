@@ -18,7 +18,7 @@ sealed class FutureMatch {
 	object New : FutureMatch()
 }
 
-class DefaultMatchMakingPolicy(private val repeatTop: Int) : MatchMakingPolicy {
+class DefaultMatchMakingPolicy(private val repeatTop: Int, private val cataclysmEvery: Int? = null) : MatchMakingPolicy {
 	override fun select(settings: GASettings, scoreBoard: GAScoreBoard, generation: Int): List<FutureMatch> {
 		val buffer = ArrayList<FutureMatch>()
 		val top = scoreBoard.getTop() ?: throw IllegalStateException()
@@ -31,6 +31,15 @@ class DefaultMatchMakingPolicy(private val repeatTop: Int) : MatchMakingPolicy {
 		}
 
 		buffer.add(FutureMatch.New)
+
+		if (cataclysmEvery != null && (generation + 1) % cataclysmEvery == 0) {
+			while (buffer.size < settings.totalPopulationCount) {
+				buffer.add(FutureMatch.New)
+			}
+			printGreenBr("Executing cataclysm")
+			return buffer
+		}
+
 
 		val holders = scoreBoard.getAscendingFitnessList().takeLast(settings.topParentCount)
 		while (buffer.size < settings.totalPopulationCount) {
