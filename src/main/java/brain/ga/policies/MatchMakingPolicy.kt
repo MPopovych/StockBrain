@@ -40,7 +40,6 @@ class DefaultMatchMakingPolicy(private val repeatTop: Int, private val cataclysm
 			return buffer
 		}
 
-
 		val holders = scoreBoard.getAscendingFitnessList().takeLast(settings.topParentCount)
 		while (buffer.size < settings.totalPopulationCount) {
 			val a = holders.random()

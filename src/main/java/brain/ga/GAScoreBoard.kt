@@ -1,6 +1,7 @@
 package brain.ga
 
 import brain.utils.printGreenBr
+import brain.utils.printRedBr
 import brain.utils.roundUp
 import java.util.TreeSet
 import kotlin.math.pow
@@ -39,26 +40,23 @@ class GAScoreBoard(private val settings: GASettings) {
 		return Pair(std, stdPercent * 100)
 	}
 
-	fun getBottom(): GAScoreHolder? {
-		return scoreList.firstOrNull()
-	}
-
 	fun pushBatch(batch: List<GAScoreHolder>) {
 		if (settings.scoreBoardClearOnGeneration) {
+			printRedBr("Clear all? ${scoreList.map { it.score }}")
 			scoreList.clear()
 		}
-		val list = if (settings.scoreBoardAllowSameResult) batch else batch.distinctBy { it.score }
-		scoreList.addAll(list
-			.onEach {
+		batch.onEach {
 				if (it.score.isNaN() || it.score.isInfinite()) {
-					throw IllegalStateException("NaN or Infinite in score : ${it}")
+					throw IllegalStateException("NaN or Infinite in score : $it")
 				}
 			}
-		)
-		val sorted = when (settings.scoreBoardOrder) {
+		scoreList.addAll(0, batch) // add to 0 for distinct
+		var sorted = when (settings.scoreBoardOrder) {
 			GAScoreBoardOrder.Ascending -> scoreList.distinctBy { it.id }.sortedBy { it.score } // ascending
 			GAScoreBoardOrder.Descending -> scoreList.distinctBy { it.id }.sortedByDescending { it.score } // descending
 		}
+		sorted = if (settings.scoreBoardAllowSameResult) sorted else sorted.distinctBy { it.score }
+
 		scoreList.clear()
 		scoreList.addAll(sorted)
 		while (scoreList.size > settings.totalPopulationCount) {
