@@ -84,28 +84,28 @@ public class MatrixMath {
 		}
 	}
 
-	public static void multiplyMax(Matrix a, Matrix b, Matrix d) {
+	public static void disperseFeature(Matrix a, Matrix b, Matrix d, int units) {
 		// Row major implementation, ijk algorithm
-		if (a.width != b.height) {
-			throw new IllegalArgumentException("Matrix input dimensions are not compatible for multiplication" +
+		if (a.height != d.height || b.height != 1) {
+			throw new IllegalArgumentException("Matrix input dimensions are not compatible for dispersion" +
 					"a: [%s:%s], b[%s:%s]".formatted(a.height, a.width, b.height, b.width));
 		}
 
-		if (a.height != d.height || b.width != d.width) {
+		if (d.width != a.width * units || d.width != b.width) {
 			throw new IllegalArgumentException(("Matrix destination dimensions are not compatible for multiplication" +
 					"has to be: dw[%s vs final %s], dh[%s vs final %s]").formatted(b.width, d.width, a.height, d.height));
 		}
 
-		for (int i = 0; i < a.height; i++) {
-			for (int j = 0; j < b.width; j++) {
-				float sum = 0;
-				for (int k = 0; k < a.width; k++) {
-					float newV = a.values[i][k] * b.values[k][j];
-					if (Math.abs(newV) > Math.abs(sum)) {
-						sum = newV;
-					}
+		final int m = a.height;
+		final int g = a.width;
+		final float[][] aa = a.values;
+		final float[][] bb = b.values;
+		final float[][] dd = d.values;
+		for (int y = 0; y < m; y++) {
+			for (int x = 0; x < g; x++) {
+				for (int u = 0; u < units; u++) {
+					dd[y][x * units + u] = aa[y][x] + bb[0][x * units + u];
 				}
-				d.values[i][j] = sum;
 			}
 		}
 	}

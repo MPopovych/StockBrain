@@ -1,9 +1,7 @@
 package brain.ga
 
 import brain.utils.printGreenBr
-import brain.utils.printRedBr
 import brain.utils.roundUp
-import java.util.TreeSet
 import kotlin.math.pow
 import kotlin.math.sqrt
 
@@ -42,7 +40,6 @@ class GAScoreBoard(private val settings: GASettings) {
 
 	fun pushBatch(batch: List<GAScoreHolder>) {
 		if (settings.scoreBoardClearOnGeneration) {
-			printRedBr("Clear all? ${scoreList.map { it.score }}")
 			scoreList.clear()
 		}
 		batch.onEach {
@@ -55,6 +52,7 @@ class GAScoreBoard(private val settings: GASettings) {
 			GAScoreBoardOrder.Ascending -> scoreList.distinctBy { it.id }.sortedBy { it.score } // ascending
 			GAScoreBoardOrder.Descending -> scoreList.distinctBy { it.id }.sortedByDescending { it.score } // descending
 		}
+		sorted = sorted.filter { !it.isOutDated }
 		sorted = if (settings.scoreBoardAllowSameResult) sorted else sorted.distinctBy { it.score }
 
 		scoreList.clear()

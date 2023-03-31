@@ -15,5 +15,12 @@ data class GAScoreHolder(
 	val chromosomeHash: String
 		get() = genes.chromosome
 
+	var isOutDated = false
+		private set
+
 	fun copyGene() = genes.copy()
+
+	fun markOutdated() {
+		isOutDated = true
+	}
 }

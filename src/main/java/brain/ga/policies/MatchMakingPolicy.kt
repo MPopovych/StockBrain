@@ -30,14 +30,11 @@ class DefaultMatchMakingPolicy(private val repeatTop: Int, private val cataclysm
 			buffer.add(FutureMatch.MutateMatch(top))
 		}
 
-		buffer.add(FutureMatch.New)
-
 		if (cataclysmEvery != null && (generation + 1) % cataclysmEvery == 0) {
-			while (buffer.size < settings.totalPopulationCount) {
-				buffer.add(FutureMatch.New)
+			scoreBoard.getAscendingFitnessList().drop(settings.topParentCount).forEach {
+				it.markOutdated()
+				printGreenBr("Executing cataclysm")
 			}
-			printGreenBr("Executing cataclysm")
-			return buffer
 		}
 
 		val holders = scoreBoard.getAscendingFitnessList().takeLast(settings.topParentCount)
@@ -60,7 +57,7 @@ class DefaultMatchMakingPolicy(private val repeatTop: Int, private val cataclysm
  * Allows the neural network to take a "step back" while training and trial a new path
  * While eliminating the aged out solution instead of over-fitting it
  */
-class AgingMatchMakingPolicy(private val repeatTop: Int, private val lifespan: Int, private val cataclysmEvery: Int? = null) : MatchMakingPolicy {
+class AgingMatchMakingPolicy(private val lifespan: Int, private val cataclysmEvery: Int? = null) : MatchMakingPolicy {
 
 	init {
 		require(lifespan > 0)
@@ -68,38 +65,34 @@ class AgingMatchMakingPolicy(private val repeatTop: Int, private val lifespan: I
 	}
 	override fun select(settings: GASettings, scoreBoard: GAScoreBoard, generation: Int): List<FutureMatch> {
 		val buffer = ArrayList<FutureMatch>()
-		val freshOnes = scoreBoard.getAscendingFitnessList().filter { it.bornOnEpoch >= generation - lifespan }
+		val freshAndOld = scoreBoard.getAscendingFitnessList().partition { it.bornOnEpoch >= generation - lifespan }
+		val freshOnes = freshAndOld.first.distinctBy { it.score }.takeLast(settings.topParentCount)
+		val oldOnes = freshAndOld.second
+
 		if (freshOnes.isNotEmpty()) {
-			if (repeatTop > 0) {
-				freshOnes.takeLast(repeatTop).forEach { best ->
-					buffer.add(FutureMatch.Repeat(best))
-				}
-			} else {
-				buffer.add(FutureMatch.MutateMatch(freshOnes.last()))
-			}
+			oldOnes.forEach { it.markOutdated() }
 		}
-		val youngest = freshOnes.distinctBy { it.score }.takeLast(settings.topParentCount)
-			.ifEmpty { scoreBoard.getAscendingFitnessList() } // fallback if all are expired
 
 		if (cataclysmEvery != null && (generation + 1) % cataclysmEvery == 0) {
-			if (buffer.isEmpty()) {
-				scoreBoard.getAscendingFitnessList().takeLast(max(repeatTop, 3)).forEach {
-					buffer.add(FutureMatch.Repeat(it))
+			if (freshOnes.isNotEmpty()) {
+				scoreBoard.getAscendingFitnessList().drop(settings.topParentCount).forEach {
+					it.markOutdated()
+					printGreenBr("Executing cataclysm")
 				}
 			}
-			printGreenBr("Executing cataclysm")
-			return buffer
 		}
 
+		val youngest = freshOnes.ifEmpty { oldOnes }
 		while (buffer.size < settings.totalPopulationCount) {
 			val a = youngest.random()
 			val b = youngest.random()
 
 			if (a.score == b.score) {
-				buffer.add(FutureMatch.New)
+				buffer.add(FutureMatch.MutateMatch(a))
 			} else {
 				// magic number
-				buffer.add(FutureMatch.CrossMatch(a, b, mutate = Random.nextInt(4) == 0))
+				buffer.add(FutureMatch.CrossMatch(a, b, mutate = Random.nextInt(5) == 0))
+				buffer.add(FutureMatch.CrossMatch(a, b, mutate = Random.nextInt(5) == 0))
 			}
 		}
 		return buffer

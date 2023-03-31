@@ -1,9 +1,6 @@
 package brain.models
 
-import brain.layers.InputLayer
-import brain.layers.Layer
-import brain.layers.LayerBuilder
-import brain.layers.LayerTrainableMode
+import brain.layers.*
 import brain.matrix.Matrix
 import brain.utils.printYellowBr
 
@@ -32,6 +29,14 @@ class Model(
 		for (layer in layersMap.values) {
 			if (layer is LayerTrainableMode) {
 				layer.setTrainable(trainable)
+			}
+		}
+	}
+
+	fun warmup() {
+		for (layer in layersMap.values) {
+			if (layer is LayerWarmupMode) {
+				layer.warmup()
 			}
 		}
 	}

@@ -75,13 +75,21 @@ object ModelReader {
 					buffer[parent] ?: throw IllegalStateException("No parent found in buffer")
 				}
 			}
-			DenseMax.defaultNameType -> {
+			Sparse.defaultNameType -> {
 				val meta = (ls.getMetaData() as? LayerMetaData.OnlyBiasMeta)
-					?: throw IllegalStateException("No meta for dense")
+					?: throw IllegalStateException("No meta for sparse")
 				val activation = Activations.deserialize(ls.activation)
 				val parent = ls.parents?.getOrNull(0)
-					?: throw IllegalStateException("No parent in dense")
-				DenseMax(units = ls.width, activation = activation, useBias = meta.useBias, name = ls.name) {
+					?: throw IllegalStateException("No parent in sparse")
+				Sparse(units = ls.width, activation = activation, useBias = meta.useBias, name = ls.name) {
+					buffer[parent] ?: throw IllegalStateException("No parent found in buffer")
+				}
+			}
+			Disperse.defaultNameType -> {
+				val activation = Activations.deserialize(ls.activation)
+				val parent = ls.parents?.getOrNull(0)
+					?: throw IllegalStateException("No parent in disperse")
+				Disperse(units = ls.width, activation = activation, name = ls.name) {
 					buffer[parent] ?: throw IllegalStateException("No parent found in buffer")
 				}
 			}
@@ -283,7 +291,7 @@ private class LayerDeserializer : JsonDeserializer<LayerSerialized> {
 				val data = ModelReader.innerGson.fromJson<LayerMetaData.OnlyBiasMeta>(element)
 				temp.copy(builderData = data)
 			}
-			DenseMax.defaultNameType -> {
+			Sparse.defaultNameType -> {
 				val element = json.asJsonObject[FIELD_BUILDER_DATA]
 				val data = ModelReader.innerGson.fromJson<LayerMetaData.OnlyBiasMeta>(element)
 				temp.copy(builderData = data)

@@ -2,42 +2,42 @@ package brain.layers
 
 import brain.activation.ActivationFunction
 import brain.activation.Activations
+import brain.activation.applyFromMatrixTo
 import brain.matrix.Matrix
 import brain.matrix.MatrixMath
 import brain.suppliers.Suppliers
 import brain.suppliers.ValueFiller
 import brain.suppliers.ValueSupplier
 
-class DenseMax(
+class Sparse(
 	private val units: Int,
 	private val activation: ActivationFunction? = null,
-	private val kernelInit: ValueFiller = Suppliers.RandomBinZP,
+	private val kernelInit: ValueFiller = Suppliers.RandomHE,
 	private val biasInit: ValueFiller = Suppliers.Zero,
 	private val useBias: Boolean = true,
 	override var name: String = Layer.DEFAULT_NAME,
 	parentLayerBlock: (() -> LayerBuilder<*>),
-) : LayerBuilder.SingleInput<DenseMaxLayerImpl> {
+) : LayerBuilder.SingleInput<SparseLayerImpl> {
 	companion object {
-		const val defaultNameType = "DenseMax"
+		const val defaultNameType = "Sparse"
 	}
 
 	override val nameType: String = defaultNameType
 	override val parentLayer: LayerBuilder<*> = parentLayerBlock()
 	private val shape = LayerShape(units, parentLayer.getShape().height)
 
-	override fun create(): DenseMaxLayerImpl {
-		val weightShape = LayerShape(units, parentLayer.getShape().width)
-
-		return DenseMaxLayerImpl(
+	override fun create(): SparseLayerImpl {
+		return SparseLayerImpl(
+			units = units,
 			activation = activation,
-			weightShape = weightShape,
-			biasShape = shape,
+			parentShape = parentLayer.getShape(),
 			useBias = useBias,
 			name = name
 		)
 			.also {
 				it.init()
 				Suppliers.fillFull(it.kernel.matrix, kernelInit)
+				Suppliers.fillFull(it.gate.matrix, kernelInit)
 				Suppliers.fillFull(it.bias.matrix, biasInit)
 			}
 	}
@@ -51,34 +51,57 @@ class DenseMax(
 	}
 }
 
-class DenseMaxLayerImpl(
+class SparseLayerImpl(
+	val units: Int,
 	override val activation: ActivationFunction? = null,
-	private val weightShape: LayerShape,
-	private val biasShape: LayerShape,
+	private val parentShape: LayerShape,
 	private val useBias: Boolean = true,
 	override var name: String,
-) : Layer.SingleInputLayer() {
-	override val nameType: String = DenseMax.defaultNameType
+) : Layer.SingleInputLayer(), LayerWarmupMode, LayerTrainableMode {
+	override val nameType: String = Sparse.defaultNameType
 	override lateinit var outputBuffer: Matrix
 	lateinit var kernel: WeightData
+	lateinit var gateBuffer: Matrix
+	lateinit var gate: WeightData
 	lateinit var bias: WeightData
 
+	private var warm = false
+	private var trainable = false
+
 	override fun init() {
-		kernel = WeightData("weight", Matrix(weightShape.width, weightShape.height), true)
+		kernel = WeightData("weight", Matrix(units, parentShape.width), true)
 		addWeights(kernel)
-		bias = WeightData("bias", Matrix(biasShape.width, biasShape.height), trainable = useBias)
+		gate = WeightData("gate", Matrix(units, parentShape.width), true)
+		addWeights(gate)
+		bias = WeightData("bias", Matrix(units, 1), trainable = useBias)
 		addWeights(bias)
-		outputBuffer = Matrix(biasShape.width, biasShape.height)
+		gateBuffer = Matrix(units, parentShape.width)
+		outputBuffer = Matrix(units, parentShape.height)
+	}
+
+	override fun warmup() {
+		Activations.BinaryNegPos.applyFromMatrixTo(gate.matrix, gateBuffer)
+		MatrixMath.hadamard(kernel.matrix, gateBuffer, gateBuffer)
+		warm = true
 	}
 
 	override fun call(input: Matrix): Matrix {
 		flushBuffer()
-		MatrixMath.multiplyMax(input, kernel.matrix, outputBuffer)
-		if (useBias) MatrixMath.add(outputBuffer, bias.matrix, outputBuffer)
+		if (trainable && !warm) {
+			throw IllegalStateException("Warmup not called")
+		} else {
+			warmup()
+		}
+		MatrixMath.multiply(input, gateBuffer, outputBuffer)
+		if (useBias) MatrixMath.addSingleToEveryRow(outputBuffer, bias.matrix, outputBuffer)
 		activation?.also {
 			Activations.activate(outputBuffer, outputBuffer, it)
 		}
 		return outputBuffer
+	}
+
+	override fun setTrainable(trainable: Boolean) {
+		this.trainable = trainable
 	}
 
 }

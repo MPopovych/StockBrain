@@ -75,7 +75,7 @@ class FeatureDenseImpl(
 		kernels = ArrayList()
 		for (i in 0 until parentShape.width) {
 			val localKernel = WeightData("weight_f$i", Matrix(units, parentShape.height), true)
-			Suppliers.fillFull(localKernel.matrix, Suppliers.RandomRangeNP)
+			Suppliers.fillFull(localKernel.matrix, Suppliers.RandomHE)
 			addWeights(localKernel)
 			kernels.add(localKernel)
 		}
@@ -100,7 +100,6 @@ class FeatureDenseImpl(
 				transposeFeatureBuffer.values[0][y] = input.values[y][x]
 			}
 			val kernel = kernels[x]
-//			MatrixMath.flush(transposeOutputBuffer) no need
 			MatrixMath.multiply(transposeFeatureBuffer, kernel.matrix, transposeOutputBuffer)
 
 			for (y in 0 until units) {

@@ -1,5 +1,6 @@
 package brain.layers
 
+import brain.activation.Activations
 import brain.matrix.Matrix
 import brain.models.ModelBuilder
 import brain.suppliers.Suppliers
@@ -11,6 +12,24 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
 class LayersTest {
+
+	@Test
+	fun testDisperse() {
+		val input = InputLayer(2, steps = 2)
+		val d1 = Disperse(2, activation = Activations.ReLu) { input }
+
+		val builder = ModelBuilder(input, d1, debug = false)
+		val model = builder.build(debug = true)
+
+		val inputData = Matrix(2, 2) { c, x, y ->
+			return@Matrix (x + y).toFloat()
+		}
+		inputData.printRedBr()
+		val r1 = model.getOutput(inputData).copy()
+		r1.print()
+		assert(r1.getShape().width == 2 * input.getShape().width)
+		assert(r1.getShape().height == input.getShape().height)
+	}
 
 	@Test
 	fun testDense() {
@@ -33,24 +52,6 @@ class LayersTest {
 		assertEquals(2.5f, r1.values[0][1])
 		assertEquals(4f, r1.values[1][0])
 		assertEquals(4f, r1.values[1][1])
-	}
-
-	@Test
-	fun testDenseMax() {
-		val input = InputLayer(3, steps = 2)
-		val d1 = DenseMax(2, kernelInit = Suppliers.RandomHE, biasInit = Suppliers.Ones) { input }
-
-		val builder = ModelBuilder(input, d1, debug = false)
-		val model = builder.build(debug = true)
-
-		val inputData = Matrix(3, 2) { c, x, y ->
-			return@Matrix (x + y).toFloat()
-		}
-		inputData.printRedBr()
-		val r1 = model.getOutput(inputData).copy()
-		r1.print()
-		assert(r1.getShape().width == 2)
-		assert(r1.getShape().height == 2)
 	}
 
 	@Test
