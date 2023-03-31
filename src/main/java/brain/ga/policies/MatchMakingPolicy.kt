@@ -77,8 +77,8 @@ class AgingMatchMakingPolicy(private val lifespan: Int, private val cataclysmEve
 			if (freshOnes.isNotEmpty()) {
 				scoreBoard.getAscendingFitnessList().drop(settings.topParentCount).forEach {
 					it.markOutdated()
-					printGreenBr("Executing cataclysm")
 				}
+				printGreenBr("Executing cataclysm")
 			}
 		}
 

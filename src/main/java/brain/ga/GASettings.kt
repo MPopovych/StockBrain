@@ -3,6 +3,8 @@ package brain.ga
 import brain.ga.policies.*
 
 data class GASettings(
+	val rooms: Int = 1,
+	val leakRoomEvery: Int = Int.MAX_VALUE,
 	val topParentCount: Int, // take X for crossover
 	val totalPopulationCount: Int, // generate X samples from crossover
 	val scoreBoardOrder: GAScoreBoardOrder, // ordering of result, ASC - higher = better, DSC - lower = better

@@ -10,9 +10,9 @@ enum class GAScoreBoardOrder {
 	Descending
 }
 
-class GAScoreBoard(private val settings: GASettings) {
+class GAScoreBoard(val order: Int, private val settings: GASettings) {
 
-	private var scoreList: ArrayList<GAScoreHolder> = ArrayList<GAScoreHolder>()
+	private var scoreList: ArrayList<GAScoreHolder> = ArrayList()
 
 	val size: Int
 		get() = scoreList.size
@@ -65,8 +65,8 @@ class GAScoreBoard(private val settings: GASettings) {
 	fun printScoreBoard(limit: Int? = null) {
 		val sb = StringBuilder()
 		val stdAndPercent = getStdAndPercent()
+		sb.append("Room: $order").appendLine()
 		sb.append("Score deviation: ${stdAndPercent.first} : ${stdAndPercent.second.roundUp(2)}%").appendLine()
-
 		scoreList.takeLast(limit ?: scoreList.size).forEach { t ->
 			sb.append("score: ${t.score} -- ${t.id.hashCode()} -- g:${t.bornOnEpoch}" ).appendLine()
 		}

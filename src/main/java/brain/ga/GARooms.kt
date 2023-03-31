@@ -5,31 +5,23 @@ import brain.ga.weights.ModelGenes
 import brain.models.Model
 import brain.models.revertToBuilder
 import brain.utils.printCyanBr
+import brain.utils.printRedBr
 import brain.utils.printYellowBr
 
 
-class GA(
+class GARooms(
 	private val settings: GASettings,
 	val initialModel: Model,
-	private val onGeneration: (Int, GA) -> Unit = { _, _ -> },
-	private val earlyStopCallback: (Int, GA) -> Boolean = { _, _ -> false },
+	private val onGeneration: (Int, GARooms) -> Unit = { _, _ -> },
+	private val earlyStopCallback: (Int, GARooms) -> Boolean = { _, _ -> false },
 ) {
 
 	private val originalBuilder = initialModel.revertToBuilder()
 	private val originalGenes = ModelGenes(0, initialModel)
-	private val modelBuffer = (0..settings.totalPopulationCount).mapTo(ArrayList()) { index ->
-		if (index == 0) { // keep origin
-			val model = originalBuilder.build()
-			originalGenes.applyToModel(model)
-			return@mapTo Pair(model, originalGenes.copy())
-		}
-		val model = originalBuilder.build()
-		val genes = originalGenes.copy().applyMutationPolicy(settings.initialMutationPolicy, originalGenes)
-		genes.applyToModel(model)
-		genes.bornOnEpoch = 0
-		return@mapTo Pair(model, genes)
+	private val modelBuffer = (0 until settings.rooms).map {
+		allocBuffer()
 	}
-	val scoreBoard = GAScoreBoard(0, settings)
+	val scoreBoardWithRooms = GAScoreBoardWrapRooms(settings)
 
 	fun runFor(generations: Int, silent: Boolean = false, action: ((GAScoreContext) -> Double)): ModelGenes {
 		var genCount = 0
@@ -37,19 +29,35 @@ class GA(
 			genCount = i
 
 			val time = System.currentTimeMillis()
-			val commands = runGeneration(genCount, action)
+			val commands = scoreBoardWithRooms.rooms
+				.map { board ->
+					runGeneration(board, genCount, action).take(settings.totalPopulationCount)
+				}
 			val elapsed = (System.currentTimeMillis() - time) / 1000
-			val newGenes = commands.map { command ->
-				handleCommand(i, command)
+			val newGenesByRooms = commands.map { roomCommand ->
+				roomCommand.map { command -> handleCommand(i, command) }
 			}
 
-			newGenes.forEachIndexed { index, modelGenes ->
-				val model = modelBuffer[index].first
-				modelGenes.applyToModel(model)
-				modelBuffer[index] = Pair(model, modelGenes)
+			newGenesByRooms.forEachIndexed { indexRoom, room ->
+				room.forEachIndexed { indexGene, modelGenes ->
+					val model = modelBuffer[indexRoom][indexGene].first
+					modelGenes.applyToModel(model)
+					modelBuffer[indexRoom][indexGene] = Pair(model, modelGenes)
+				}
 			}
 
-			val topScore = scoreBoard.getTop()?.score ?: throw IllegalStateException("No top score")
+			if (genCount % settings.leakRoomEvery == 0) {
+				repeat(settings.rooms) {
+					val from = modelBuffer.random()
+					val to = modelBuffer.random()
+					if (from != to) {
+						printYellowBr("Leak from ${modelBuffer.indexOf(from)} to ${modelBuffer.indexOf(to)}")
+						to[to.indices.random()] = from.random()
+					}
+				}
+			}
+
+			val topScore = scoreBoardWithRooms.getTop()?.score ?: throw IllegalStateException("No top score")
 			if (!silent) printYellowBr(
 				"Generation: ${i}, " +
 						"topScore: $topScore, " +
@@ -63,7 +71,7 @@ class GA(
 		}
 
 		printYellowBr("Ran $genCount generations in total")
-		return scoreBoard.getTop()?.genes ?: throw IllegalStateException("No top score")
+		return scoreBoardWithRooms.getTop()?.genes ?: throw IllegalStateException("No top score")
 	}
 
 	private fun handleCommand(generation: Int, command: FutureMatch): ModelGenes {
@@ -77,18 +85,21 @@ class GA(
 				destination.bornOnEpoch = generation
 				return destination
 			}
+
 			is FutureMatch.MutateMatch -> {
 				val destination = command.source.copyGene()
 				destination.bornOnEpoch = generation
 				destination.applyMutationPolicy(settings.mutationPolicy, source = command.source.genes)
 				return destination
 			}
+
 			is FutureMatch.Repeat -> {
 				// keep bornOnEpoch the same
 				return command.source.copyGene().also {
 					it.bornOnEpoch = command.source.bornOnEpoch
 				}
 			}
+
 			is FutureMatch.New -> {
 				val destination = originalGenes.copy()
 				destination.bornOnEpoch = generation
@@ -98,14 +109,19 @@ class GA(
 		}
 	}
 
-	private fun runGeneration(generation: Int, action: ((GAScoreContext) -> Double)): List<FutureMatch> {
-		val contexts = modelBuffer.map { model ->
-			GAScoreContext(
-				generation = generation,
-				model = model.first,
-				genes = model.second
-			)
-		}
+	private fun runGeneration(
+		room: GAScoreBoard,
+		generation: Int,
+		action: ((GAScoreContext) -> Double)
+	): List<FutureMatch> {
+		val contexts = modelBuffer[room.order]
+			.map { model ->
+				GAScoreContext(
+					generation = generation,
+					model = model.first,
+					genes = model.second
+				)
+			}
 		val scores = contexts.map { context ->
 			val score = action(context)
 			return@map GAScoreHolder(id = context.genes.chromosome, score = score, genes = context.genes)
@@ -116,9 +132,24 @@ class GA(
 			printCyanBr("Avg challenge record: ${records.average()}")
 		}
 
-		scoreBoard.pushBatch(scores)
+		room.pushBatch(scores)
 
-		return settings.matchMakingPolicy.select(settings, scoreBoard, generation)
+		return settings.matchMakingPolicy.select(settings, room, generation)
+	}
+
+	private fun allocBuffer(): ArrayList<Pair<Model, ModelGenes>> {
+		return (0..settings.totalPopulationCount).mapTo(ArrayList()) { index ->
+			if (index == 0) { // keep origin
+				val model = originalBuilder.build()
+				originalGenes.applyToModel(model)
+				return@mapTo Pair(model, originalGenes.copy())
+			}
+			val model = originalBuilder.build()
+			val genes = originalGenes.copy().applyMutationPolicy(settings.initialMutationPolicy, originalGenes)
+			genes.applyToModel(model)
+			genes.bornOnEpoch = 0
+			return@mapTo Pair(model, genes)
+		}
 	}
 
 }
