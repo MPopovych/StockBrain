@@ -65,7 +65,7 @@ class GAScoreBoard(val order: Int, private val settings: GASettings) {
 	fun printScoreBoard(limit: Int? = null) {
 		val sb = StringBuilder()
 		val stdAndPercent = getStdAndPercent()
-		sb.append("Room: $order").appendLine()
+		sb.append("Room: $order - ")
 		sb.append("Score deviation: ${stdAndPercent.first} : ${stdAndPercent.second.roundUp(2)}%").appendLine()
 		scoreList.takeLast(limit ?: scoreList.size).forEach { t ->
 			sb.append("score: ${t.score} -- ${t.id.hashCode()} -- g:${t.bornOnEpoch}" ).appendLine()

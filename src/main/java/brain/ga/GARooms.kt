@@ -5,7 +5,6 @@ import brain.ga.weights.ModelGenes
 import brain.models.Model
 import brain.models.revertToBuilder
 import brain.utils.printCyanBr
-import brain.utils.printRedBr
 import brain.utils.printYellowBr
 
 
@@ -47,12 +46,15 @@ class GARooms(
 			}
 
 			if (genCount % settings.leakRoomEvery == 0) {
-				repeat(settings.rooms) {
-					val from = modelBuffer.random()
-					val to = modelBuffer.random()
-					if (from != to) {
-						printYellowBr("Leak from ${modelBuffer.indexOf(from)} to ${modelBuffer.indexOf(to)}")
-						to[to.indices.random()] = from.random()
+				repeat(settings.rooms) { repeatIndex ->
+					val toI = (repeatIndex + 1) % settings.rooms // next room
+					if (repeatIndex != toI) {
+						val randomToI = modelBuffer[toI].indices.random()
+						val randomModel = modelBuffer[toI][randomToI]
+						val bestFrom = scoreBoardWithRooms.rooms[repeatIndex].getTop() ?: return@repeat
+						bestFrom.genes.applyToModel(randomModel.first)
+						modelBuffer[toI][randomToI] = Pair(randomModel.first, bestFrom.genes.copy())
+						printYellowBr("Leak from $repeatIndex to $toI with score: ${bestFrom.score}: ${bestFrom.id.hashCode()}")
 					}
 				}
 			}
@@ -129,7 +131,7 @@ class GARooms(
 
 		val records = contexts.map { it.records }.flatten()
 		if (records.isNotEmpty()) {
-			printCyanBr("Avg challenge record: ${records.average()}")
+			printCyanBr("Room ${room.order} - avg challenge record: ${records.average()}")
 		}
 
 		room.pushBatch(scores)

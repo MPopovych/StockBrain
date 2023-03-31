@@ -7,13 +7,9 @@ data class GAScoreHolder(
 	val score: Double,
 	val genes: ModelGenes,
 ) {
-	val idHashcode = id.hashCode()
 
 	val bornOnEpoch: Int
 		get() = genes.bornOnEpoch
-
-	val chromosomeHash: String
-		get() = genes.chromosome
 
 	var isOutDated = false
 		private set
