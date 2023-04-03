@@ -49,8 +49,10 @@ class GAScoreBoard(val order: Int, private val settings: GASettings) {
 			}
 		scoreList.addAll(0, batch) // add to 0 for distinct
 		var sorted = when (settings.scoreBoardOrder) {
-			GAScoreBoardOrder.Ascending -> scoreList.distinctBy { it.id }.sortedBy { it.score } // ascending
-			GAScoreBoardOrder.Descending -> scoreList.distinctBy { it.id }.sortedByDescending { it.score } // descending
+			GAScoreBoardOrder.Ascending -> scoreList.distinctBy { it.id }
+				.sortedBy { it.bornOnEpoch }.sortedBy { it.score } // ascending
+			GAScoreBoardOrder.Descending -> scoreList.distinctBy { it.id }
+				.sortedBy { it.bornOnEpoch }.sortedByDescending { it.score } // descending
 		}
 		sorted = sorted.filter { !it.isOutDated }
 		sorted = if (settings.scoreBoardAllowSameResult) sorted else sorted.distinctBy { it.score }
