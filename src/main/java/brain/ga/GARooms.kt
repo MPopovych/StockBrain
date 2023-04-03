@@ -53,7 +53,9 @@ class GARooms(
 						val randomModel = modelBuffer[toI][randomToI]
 						val bestFrom = scoreBoardWithRooms.rooms[repeatIndex].getTop() ?: return@repeat
 						bestFrom.genes.applyToModel(randomModel.first)
-						modelBuffer[toI][randomToI] = Pair(randomModel.first, bestFrom.genes.copy())
+						modelBuffer[toI][randomToI] = Pair(randomModel.first, bestFrom.genes.copy().also {
+							it.bornOnEpoch = genCount
+						})
 						printYellowBr("Leak from $repeatIndex to $toI with score: ${bestFrom.score}: ${bestFrom.id.hashCode()}")
 					}
 				}
