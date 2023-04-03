@@ -45,7 +45,7 @@ class DefaultMatchMakingPolicy(private val repeatTop: Int, private val cataclysm
 			if (a.score == b.score) {
 				buffer.add(FutureMatch.MutateMatch(a))
 			} else {
-				buffer.add(FutureMatch.CrossMatch(a, b, mutate = Random.nextBoolean()))
+				buffer.add(FutureMatch.CrossMatch(a, b, mutate = Random.nextInt(10) == 0))
 			}
 		}
 		return buffer
