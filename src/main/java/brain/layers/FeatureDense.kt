@@ -18,6 +18,7 @@ class FeatureDense(
 	val units: Int,
 	private val activation: ActivationFunction? = null,
 	private val useBias: Boolean = true,
+	private val pivotAvg: Boolean = false,
 	override var name: String = Layer.DEFAULT_NAME,
 	parentLayerBlock: (() -> LayerBuilder<*>),
 ) : LayerBuilder.SingleInput<FeatureDenseImpl> {
@@ -51,8 +52,8 @@ class FeatureDense(
 		return shape
 	}
 
-	override fun getSerializedBuilderData(): LayerMetaData.OnlyBiasMeta {
-		return LayerMetaData.OnlyBiasMeta(useBias = useBias)
+	override fun getSerializedBuilderData(): LayerMetaData.FeatureDenseMeta {
+		return LayerMetaData.FeatureDenseMeta(useBias = useBias, pivotAvg = pivotAvg)
 	}
 }
 
@@ -60,6 +61,7 @@ class FeatureDenseImpl(
 	val units: Int,
 	val parentShape: LayerShape,
 	val useBias: Boolean,
+	val pivotAvg: Boolean = false,
 	override val activation: ActivationFunction? = null,
 	override var name: String,
 ) : Layer.SingleInputLayer() {
@@ -98,6 +100,14 @@ class FeatureDenseImpl(
 			for (y in 0 until input.height) {
 				// fill horizontally
 				transposeFeatureBuffer.values[0][y] = input.values[y][x]
+			}
+			if (pivotAvg) {
+//				val avg = transposeFeatureBuffer.values[0].average().toFloat()
+				val avg = transposeFeatureBuffer.values[0][0]
+				for (y in 0 until input.height) {
+					// fill horizontally
+					transposeFeatureBuffer.values[0][y] -= avg
+				}
 			}
 			val kernel = kernels[x]
 			MatrixMath.multiply(transposeFeatureBuffer, kernel.matrix, transposeOutputBuffer)

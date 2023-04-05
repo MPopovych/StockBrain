@@ -12,7 +12,7 @@ class GARooms(
 	private val settings: GASettings,
 	val initialModel: Model,
 	private val onGeneration: (Int, GARooms) -> Unit = { _, _ -> },
-	private val earlyStopCallback: (Int, GARooms) -> Boolean = { _, _ -> false },
+	private var earlyStopCallback: (Int, GARooms) -> Boolean = { _, _ -> false },
 ) {
 
 	private val originalBuilder = initialModel.revertToBuilder()
@@ -45,7 +45,7 @@ class GARooms(
 				}
 			}
 
-			if (genCount % settings.leakRoomEvery == 0) {
+			if (scoreBoardWithRooms.rooms.size > 1 && genCount % settings.leakRoomEvery == 0) {
 				repeat(settings.rooms) { repeatIndex ->
 					val toI = (repeatIndex + 1) % settings.rooms // next room
 					if (repeatIndex != toI) {
@@ -66,7 +66,7 @@ class GARooms(
 				"Generation: ${i}, " +
 						"topScore: $topScore, " +
 						"time: ${elapsed}s, " +
-						"time challenge: ${elapsed / modelBuffer.size}s"
+						"time challenge: ${elapsed / modelBuffer.sumOf { it.size }}s"
 			)
 			onGeneration(i, this)
 			if (earlyStopCallback(i, this)) {
@@ -83,7 +83,11 @@ class GARooms(
 			is FutureMatch.CrossMatch -> {
 				val destination = command.parentA.copyGene()
 				destination.applyCrossOverPolicy(settings.crossOverPolicy, command.parentA.genes, command.parentB.genes)
-				if (command.mutate) {
+				val chromosome = destination.chromosome.hashCode()
+				if (command.mutate
+					|| chromosome == command.parentA.genes.chromosome.hashCode()
+					|| chromosome == command.parentB.genes.chromosome.hashCode()) {
+
 					destination.applyMutationPolicy(settings.mutationPolicy, source = destination)
 				}
 				destination.bornOnEpoch = generation
@@ -128,7 +132,8 @@ class GARooms(
 			}
 		val scores = contexts.map { context ->
 			val score = action(context)
-			return@map GAScoreHolder(id = context.genes.chromosome, score = score, genes = context.genes)
+			val appliedScore = settings.scoringPolicy.applyScore(settings, room, score, generation)
+			return@map GAScoreHolder(id = context.genes.chromosome, score = appliedScore, genes = context.genes)
 		}
 
 		val records = contexts.map { it.records }.flatten()
@@ -154,6 +159,10 @@ class GARooms(
 			genes.bornOnEpoch = 0
 			return@mapTo Pair(model, genes)
 		}
+	}
+
+	fun changeEarlyStop(earlyStopCallback: (Int, GARooms) -> Boolean = { _, _ -> false }) {
+		this.earlyStopCallback = earlyStopCallback
 	}
 
 }

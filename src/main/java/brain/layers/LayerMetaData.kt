@@ -2,12 +2,11 @@ package brain.layers
 
 sealed interface LayerMetaData {
 	data class OnlyBiasMeta(val useBias: Boolean) : LayerMetaData
-
 //	data class DenseMeta(val useBias: Boolean) : LayerMetaData
 //	data class DirectMeta(val useBias: Boolean) : LayerMetaData
 	data class DropoutMeta(val rate: Float) : LayerMetaData
 
-	//	data class FeatureDenseMeta(val useBias: Boolean) : LayerMetaData
+	data class FeatureDenseMeta(val useBias: Boolean, val pivotAvg: Boolean) : LayerMetaData
 	data class FeatureConvMeta(
 		val useBias: Boolean,
 		val units: Int,

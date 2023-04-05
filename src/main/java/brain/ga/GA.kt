@@ -108,7 +108,8 @@ class GA(
 		}
 		val scores = contexts.map { context ->
 			val score = action(context)
-			return@map GAScoreHolder(id = context.genes.chromosome, score = score, genes = context.genes)
+			val appliedScore = settings.scoringPolicy.applyScore(settings, scoreBoard, score, generation)
+			return@map GAScoreHolder(id = context.genes.chromosome, score = appliedScore, genes = context.genes)
 		}
 
 		val records = contexts.map { it.records }.flatten()

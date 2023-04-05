@@ -13,7 +13,6 @@ class ModelGenes(var bornOnEpoch: Int, val layers: Map<String, LayerGenes>) {
 				.map {
 					val map = it.weights.values
 						.mapNotNull { w ->
-							if (!w.trainable) return@mapNotNull null
 							return@mapNotNull WeightGenes(w.name,
 								w.matrix.readFloatData())
 						}

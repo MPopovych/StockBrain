@@ -21,20 +21,17 @@ sealed class FutureMatch {
 class DefaultMatchMakingPolicy(private val repeatTop: Int, private val cataclysmEvery: Int? = null) : MatchMakingPolicy {
 	override fun select(settings: GASettings, scoreBoard: GAScoreBoard, generation: Int): List<FutureMatch> {
 		val buffer = ArrayList<FutureMatch>()
-		val top = scoreBoard.getTop() ?: throw IllegalStateException()
 		if (repeatTop > 0) {
 			scoreBoard.getAscendingFitnessList().takeLast(repeatTop).forEach { best ->
 				buffer.add(FutureMatch.Repeat(best))
 			}
-		} else {
-			buffer.add(FutureMatch.MutateMatch(top))
 		}
 
 		if (cataclysmEvery != null && (generation + 1) % cataclysmEvery == 0) {
 			scoreBoard.getAscendingFitnessList().drop(settings.topParentCount).forEach {
 				it.markOutdated()
-				printGreenBr("Executing cataclysm")
 			}
+			printGreenBr("Executing cataclysm")
 		}
 
 		val holders = scoreBoard.getAscendingFitnessList().takeLast(settings.topParentCount)
@@ -42,10 +39,10 @@ class DefaultMatchMakingPolicy(private val repeatTop: Int, private val cataclysm
 			val a = holders.random()
 			val b = holders.random()
 
-			if (a.score == b.score) {
+			if (a.id == b.id || a.score == b.score) {
 				buffer.add(FutureMatch.MutateMatch(a))
 			} else {
-				buffer.add(FutureMatch.CrossMatch(a, b, mutate = Random.nextInt(10) == 0))
+				buffer.add(FutureMatch.CrossMatch(a, b, mutate = Random.nextInt(8) == 0))
 			}
 		}
 		return buffer

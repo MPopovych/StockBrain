@@ -46,7 +46,7 @@ class GATest {
 			scoreBoardAllowSameResult = true,
 			scoreBoardOrder = GAScoreBoardOrder.Descending,
 			initialMutationPolicy = AdditiveMutationPolicy(1.0),
-			mutationPolicy = CyclicMutationPolicy(0.3),
+			mutationPolicy = CyclicMutationPolicy(0.3, 1, 1, 0, 0, 0),
 		)
 
 		val ga = GA(settings, model, earlyStopCallback = { i, ga ->
