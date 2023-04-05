@@ -15,5 +15,6 @@ data class GASettings(
 	// repeat top is valuable for semi-random instances, it is re-evaluated and given a new score
 	val matchMakingPolicy: MatchMakingPolicy = DefaultMatchMakingPolicy(repeatTop = if (scoreBoardClearOnGeneration) 3 else 0),
 	val crossOverPolicy: CrossOverPolicy = SinglePointCrossOver(),
-	val scoringPolicy: ScoringPolicy = SteadyScoringPolicy(0.01)
+	val scoringPolicy: ScoringPolicy = SteadyScoringPolicy(0.01),
+	val weightOptPolicy: WeightOptPolicy = NoneOptPolicy(),
 )

@@ -4,7 +4,6 @@ import brain.ga.GAScoreBoard
 import brain.ga.GAScoreHolder
 import brain.ga.GASettings
 import brain.utils.printGreenBr
-import java.lang.Integer.max
 import kotlin.random.Random
 
 interface MatchMakingPolicy {
@@ -43,6 +42,7 @@ class DefaultMatchMakingPolicy(private val repeatTop: Int, private val cataclysm
 				buffer.add(FutureMatch.MutateMatch(a))
 			} else {
 				buffer.add(FutureMatch.CrossMatch(a, b, mutate = Random.nextInt(8) == 0))
+				buffer.add(FutureMatch.CrossMatch(a, b, mutate = Random.nextInt(8) == 0))
 			}
 		}
 		return buffer
@@ -79,17 +79,16 @@ class AgingMatchMakingPolicy(private val lifespan: Int, private val cataclysmEve
 			}
 		}
 
-		val youngest = freshOnes.ifEmpty { oldOnes }
+		val ensureSome = freshOnes.ifEmpty { oldOnes }
 		while (buffer.size < settings.totalPopulationCount) {
-			val a = youngest.random()
-			val b = youngest.random()
+			val a = ensureSome.random()
+			val b = ensureSome.random()
 
-			if (a.score == b.score) {
+			if (a.id == b.id || a.score == b.score) {
 				buffer.add(FutureMatch.MutateMatch(a))
 			} else {
-				// magic number
-				buffer.add(FutureMatch.CrossMatch(a, b, mutate = Random.nextInt(5) == 0))
-				buffer.add(FutureMatch.CrossMatch(a, b, mutate = Random.nextInt(5) == 0))
+				buffer.add(FutureMatch.CrossMatch(a, b, mutate = Random.nextInt(8) == 0))
+				buffer.add(FutureMatch.CrossMatch(b, a, mutate = Random.nextInt(8) == 0))
 			}
 		}
 		return buffer

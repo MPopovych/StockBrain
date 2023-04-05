@@ -91,6 +91,7 @@ class GARooms(
 					destination.applyMutationPolicy(settings.mutationPolicy, source = destination)
 				}
 				destination.bornOnEpoch = generation
+				settings.weightOptPolicy.optimise(destination)
 				return destination
 			}
 
@@ -98,6 +99,7 @@ class GARooms(
 				val destination = command.source.copyGene()
 				destination.bornOnEpoch = generation
 				destination.applyMutationPolicy(settings.mutationPolicy, source = command.source.genes)
+				settings.weightOptPolicy.optimise(destination)
 				return destination
 			}
 

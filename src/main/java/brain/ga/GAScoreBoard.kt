@@ -47,7 +47,7 @@ class GAScoreBoard(val order: Int, private val settings: GASettings) {
 					throw IllegalStateException("NaN or Infinite in score : $it")
 				}
 			}
-		val idSet = scoreList.map { it.id }.toSet()
+		val idSet = scoreList.filter { !it.isOutDated }.map { it.id }.toSet()
 		scoreList.addAll(0, batch.filter { it.id !in idSet  }.sortedBy { it.bornOnEpoch }) // add to 0 for distinct
 		var sorted = when (settings.scoreBoardOrder) {
 			GAScoreBoardOrder.Ascending -> scoreList
