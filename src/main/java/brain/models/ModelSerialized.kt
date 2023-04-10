@@ -14,7 +14,7 @@ data class LayerSerialized(
 	val width: Int, // LayerShape.width
 	val height: Int, // LayerShape.height
 	val activation: String?,
-	val weights: List<WeightSerialized>?,
+	val weights: List<WeightSerialized>,
 	val parents: List<String>?,
 	private val builderData: Any? = null,
 ) {

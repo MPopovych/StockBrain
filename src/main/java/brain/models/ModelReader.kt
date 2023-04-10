@@ -35,14 +35,14 @@ object ModelReader {
 		val outputMap = serialized.outputs.mapValues {
 			buffer[it.value] ?: throw IllegalStateException("Output ${it.value} can't be parsed")
 		}
-		val model = Model(inputMap, outputMap, debug = debug)
+		val builder = ModelBuilder(inputMap, outputMap)
+		val model = builder.build(debug)
 
 		serialized.layers.forEach { ls ->
-			val layer = model.layersMap[ls.name] ?: throw IllegalStateException("No layer found with name ${ls.name}")
-			ls.weights?.forEach { w ->
-				val matrix = layer.weights[w.name]?.matrix
-					?: throw IllegalStateException("No weight found with name ${w.name} in ${ls.name}")
-				matrix.writeStringData(w.value)
+			val modelLayer = model.graphMap[ls.name] ?: throw IllegalStateException("No layer found with name ${ls.name}")
+			(ls.weights ?: emptyList()).forEach { w ->
+				val modelWeight = modelLayer.layer.weights[w.name] ?: throw IllegalStateException("No weight found with name ${w.name}")
+				modelWeight.matrix.writeStringData(w.value)
 			}
 		}
 

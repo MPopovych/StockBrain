@@ -3,7 +3,6 @@ package brain.ga
 import brain.ga.policies.FutureMatch
 import brain.ga.weights.ModelGenes
 import brain.models.Model
-import brain.models.revertToBuilder
 import brain.utils.printCyanBr
 import brain.utils.printYellowBr
 

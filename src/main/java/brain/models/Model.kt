@@ -6,27 +6,18 @@ import brain.utils.printYellowBr
 
 
 class Model(
-	internal val originInputs: Map<String, InputLayer>,
-	internal val originOutputs: Map<String, LayerBuilder<*>>,
+	private val builder: ModelBuilder,
+	internal var inputByKey: Map<String, GraphLayerNode.Input>,
+	internal var outputByKey: Map<String, GraphLayerNode>,
+	var graphMap: Map<String, GraphLayerNode>,
 	internal val debug: Boolean = false,
 ) {
 	companion object {
 		const val SINGLE_IO = "Default"
 	}
 
-	var input: Map<String, GraphBuffer.DeadEnd>
-	var output: Map<String, GraphBuffer>
-
-	val nodeGraph = buildBufferNodes(originOutputs.values, debug)
-	val layersMap = nodeGraph.values.map { it.layer }.associateBy { it.name }
-
-	init {
-		input = originInputs.mapValues { nodeGraph[it.value] as? GraphBuffer.DeadEnd ?: throw IllegalStateException() }
-		output = originOutputs.mapValues { nodeGraph[it.value] ?: throw IllegalStateException() }
-	}
-
 	fun setTrainable(trainable: Boolean) {
-		for (layer in layersMap.values) {
+		for (layer in graphMap.values) {
 			if (layer is LayerTrainableMode) {
 				layer.setTrainable(trainable)
 			}
@@ -34,7 +25,7 @@ class Model(
 	}
 
 	fun warmup() {
-		for (layer in layersMap.values) {
+		for (layer in graphMap.values) {
 			if (layer is LayerWarmupMode) {
 				layer.warmup()
 			}
@@ -55,56 +46,43 @@ class Model(
 	}
 
 	// map
-	fun getOutputMap(inputMatrix: Map<String, Matrix>): Map<String, Matrix> {
-		val buffer = LinkedHashMap<Layer, Matrix>()
+	fun getOutputMap(inputMatrixMap: Map<String, Matrix>): Map<String, Matrix> {
+		val outputBuffer = LinkedHashMap<String, Matrix>()
 
-		for (matrix in inputMatrix) {
-			val inputLayer = input[matrix.key] ?: throw IllegalStateException()
-			buffer[inputLayer.layer] = inputLayer.layer.call(matrix.value)
+		for (entry in inputMatrixMap) {
+			val inputLayer = inputByKey[entry.key] ?: throw IllegalStateException()
+			outputBuffer[inputLayer.layer.name] = inputLayer.layer.call(entry.value)
 		}
 
-		return originOutputs.mapValues {
-			val outputGraph = output[it.key] ?: throw IllegalStateException()
-			iterateOutput(outputGraph, buffer)
-			return@mapValues buffer[outputGraph.layer] ?: throw IllegalStateException()
-		}
-	}
-
-	private fun iterateOutput(bufferNode: GraphBuffer, queue: HashMap<Layer, Matrix>): GraphBuffer {
-		if (queue.containsKey(bufferNode.layer)) {
-			if (debug) printYellowBr("already found ${bufferNode.layer}")
-			return bufferNode
-		}
-
-		when (bufferNode) {
-			is GraphBuffer.MultiParent -> {
-				val matrices = bufferNode.parents.map { parent ->
-					queue[parent.layer]
-						?: queue[iterateOutput(parent, queue).layer]
-						?: throw IllegalStateException()
+		for (node in graphMap.values) {
+			when (node) {
+				is GraphLayerNode.Input -> {
+					if (node.layer is InputLayerImpl) continue
+					else throw IllegalStateException("Invalid node type: $node")
 				}
-
-				val currentOutput = bufferNode.layer.call(matrices)
-				return bufferNode.also { queue[bufferNode.layer] = currentOutput }
-			}
-			is GraphBuffer.SingleParent -> {
-				// at the stage of implementation this is a single parent
-				val parentMatrix = queue[bufferNode.parent.layer]
-					?: queue[iterateOutput(bufferNode.parent, queue).layer]
-					?: throw IllegalStateException()
-
-				val currentOutput = bufferNode.layer.call(parentMatrix)
-				return bufferNode.also { queue[bufferNode.layer] = currentOutput }
-			}
-			is GraphBuffer.DeadEnd -> {
-				if (!queue.contains(bufferNode.layer)) throw IllegalStateException()
-				return bufferNode
-			}
-			else -> {
-				throw IllegalStateException("Bad graph structure")
+				is GraphLayerNode.MultiParent -> {
+					val mList = node.parentIds.map { id ->
+						outputBuffer[id]
+							?: throw IllegalStateException("missing: $id for ${node.layer.name}")
+					}
+					val outM = node.layer.call(mList)
+					outputBuffer[node.layer.name] = outM
+				}
+				is GraphLayerNode.SingleParent -> {
+					val m = outputBuffer[node.parentId] ?: throw IllegalStateException("missing: ${node.parentId} for ${node.layer.name}")
+					val outM = node.layer.call(m)
+					outputBuffer[node.layer.name] = outM
+				}
 			}
 		}
+
+		return outputByKey.mapValues {
+			val outputGraph = outputByKey[it.key] ?: throw IllegalStateException()
+			return@mapValues outputBuffer[outputGraph.layer.name] ?: throw IllegalStateException()
+		}
 	}
+
+	fun revertToBuilder() = builder
 }
 
-fun Model.revertToBuilder() = ModelBuilder(originInputs, originOutputs, debug)
+

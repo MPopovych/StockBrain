@@ -21,16 +21,17 @@ object ModelWriter {
 	}
 
 	fun serialize(model: Model): ModelSerialized {
-		val inputs = model.originInputs.mapValues { it.value.name }
-		val outputs = model.originOutputs.mapValues { it.value.name }
+		val inputs = model.inputByKey.mapValues { it.value.layer.name }
+		val outputs = model.outputByKey.mapValues { it.value.layer.name }
 
-		val layers = model.nodeGraph.map { entry ->
+		val modelLayers = model.graphMap.map { entry ->
 			val layer = entry.value.layer
 			val parents = when (val g = entry.value) {
-				is GraphBuffer.DeadEnd -> null
-				is GraphBuffer.MultiParent -> g.parents.map { p -> p.layer.name }
-				is GraphBuffer.SingleParent -> listOf(g.parent.layer.name)
+				is GraphLayerNode.Input -> null
+				is GraphLayerNode.MultiParent -> g.parentIds
+				is GraphLayerNode.SingleParent -> listOf(g.parentId)
 			}
+
 			return@map LayerSerialized(
 				name = layer.name,
 				nameType = layer.nameType,
@@ -39,13 +40,13 @@ object ModelWriter {
 				activation = layer.activation?.let { Activations.serialize(it) },
 				weights = layer.weights.values.filter { it.trainable }.map { w ->
 					WeightSerialized(name = w.name, w.matrix.readStringData())
-				}.let { wl -> wl.ifEmpty { null } },
+				}.let { wl -> wl.ifEmpty { emptyList() } },
 				parents = parents,
-				builderData = entry.key.getSerializedBuilderData()
+				builderData = entry.value.builder.getSerializedBuilderData()
 			)
 		}
 
-		return ModelSerialized(inputs, outputs, layers)
+		return ModelSerialized(inputs, outputs, modelLayers)
 	}
 
 }

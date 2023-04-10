@@ -23,7 +23,7 @@ class ModelBuilder(
 	constructor(input: InputLayer, outputs: Map<String, LayerBuilder<*>>, debug: Boolean = false)
 			: this(mapOf(Model.SINGLE_IO to input), outputs, debug)
 
-	private val graph = LinkedHashMap<LayerBuilder<*>, EmptyGraphNode>()
+	private val graph = LinkedHashMap<LayerBuilder<*>, GraphBuilderNode>()
 	internal val reverseQueue = LinkedHashMap<LayerBuilder<*>, Connection>()
 	internal val sortedConnections = LinkedHashSet<Connection>()
 
@@ -33,7 +33,7 @@ class ModelBuilder(
 		// used on init, as a check for structure
 		for (input in inputs.values) {
 			val root = graph[input] ?: throw IllegalStateException("input layer disconnected")
-			if (root !is EmptyGraphNode.DeadEnd) {
+			if (root !is GraphBuilderNode.DeadEnd) {
 				throw IllegalStateException("input layer should be dead end")
 			}
 		}
@@ -47,7 +47,21 @@ class ModelBuilder(
 	}
 
 	fun build(debug: Boolean = this.debug): Model {
-		return Model(inputs, outputs, debug = debug)
+		val graphMap = buildLayerNodes(graph.keys, debug).mapKeys { it.value.layer.name }
+
+		val inputMapByKey = inputs
+			.mapValues {
+				val node = graphMap[it.value.name]
+				node as? GraphLayerNode.Input
+					?: throw IllegalStateException("Expected ${GraphLayerNode.Input::class.simpleName} at key ${it.value.name}, got: $node")
+			}
+		val outputMapByKey = outputs
+			.mapValues {
+				val node = graphMap[it.value.name]
+				node ?: throw IllegalStateException("Expected ${GraphLayerNode::class.simpleName} at key ${it.value.name}, got: null")
+			}
+
+		return Model(this, inputMapByKey, outputMapByKey, graphMap, debug = debug)
 	}
 
 	private fun buildNodes() {
@@ -58,7 +72,7 @@ class ModelBuilder(
 
 	private fun iterateNodes(
 		currentLayer: LayerBuilder<*>,
-	): EmptyGraphNode {
+	): GraphBuilderNode {
 		val existing = graph[currentLayer]
 		if (existing != null) {
 			return existing.ifAlsoBr(debug) {
@@ -74,7 +88,7 @@ class ModelBuilder(
 					parentCon.children.add(connection)
 					iterateNodes(builder)
 				}
-				val currentNode = EmptyGraphNode.MultiParent(currentLayer)
+				val currentNode = GraphBuilderNode.MultiParent(currentLayer)
 				return currentNode
 					.also {
 						graph[currentLayer] = it
@@ -87,13 +101,13 @@ class ModelBuilder(
 				iterateNodes(currentLayer.parentLayer)
 				val parentCon = reverseQueue.getOrPut(currentLayer.parentLayer) { Connection(currentLayer.parentLayer) }
 				parentCon.children.add(connection)
-				return EmptyGraphNode.SingleParent(currentLayer).also {
+				return GraphBuilderNode.SingleParent(currentLayer).also {
 					graph[currentLayer] = it
 					sortedConnections.add(connection)
 				}.ifAlsoBr(debug) { printYellowBr(it) }
 			}
 			is InputLayer -> {
-				return EmptyGraphNode.DeadEnd(currentLayer).also {
+				return GraphBuilderNode.DeadEnd(currentLayer).also {
 					graph[currentLayer] = it
 					sortedConnections.add(connection)
 				}.ifAlsoBr(debug) { printYellowBr(it) }

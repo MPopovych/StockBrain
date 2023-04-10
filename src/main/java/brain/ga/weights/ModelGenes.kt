@@ -14,17 +14,17 @@ class ModelGenes(
 ) {
 	companion object {
 		operator fun invoke(bornOnEpoch: Int, model: Model, parentAId: String, parentBId: String): ModelGenes {
-			val weights: Map<String, LayerGenes> = model.layersMap.values
+			val weights: Map<String, LayerGenes> = model.graphMap.values
 				.map {
-					val map = it.weights.values
-						.mapNotNull { w ->
-							return@mapNotNull WeightGenes(
+					val map = it.layer.weights.values
+						.map { w ->
+							WeightGenes(
 								w.name,
 								w.matrix.readFloatData()
 							)
 						}
 						.associateBy { w -> w.weightName }
-					return@map LayerGenes(it.name, map)
+					return@map LayerGenes(it.layer.name, map)
 				}.associateBy { it.layerId }
 
 			return ModelGenes(bornOnEpoch, weights, parentAId, parentBId)
@@ -36,10 +36,10 @@ class ModelGenes(
 
 	// used for cleared up destinations
 	fun applyToModel(model: Model) {
-		model.layersMap.forEach { (id, layer) ->
+		model.graphMap.forEach { (id, layer) ->
 			val layerGenes = layers[id] ?: throw IllegalStateException("No layer $id in genes")
 			layerGenes.map.forEach { (wId, wGene) ->
-				val weight = layer.weights[wId] ?: throw IllegalStateException("No layer $id in weights")
+				val weight = layer.layer.weights[wId] ?: throw IllegalStateException("No layer $id in weights")
 				weight.matrix.writeFloatData(wGene.genes)
 			}
 		}
