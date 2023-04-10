@@ -2,7 +2,6 @@ package utils.frames
 
 import utils.ext.average
 import utils.ext.iqrAndMedian
-import utils.ext.median
 import utils.ext.std
 import utils.math.*
 
