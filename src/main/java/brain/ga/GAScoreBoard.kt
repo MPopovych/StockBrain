@@ -42,17 +42,31 @@ class GAScoreBoard(val order: Int, private val settings: GASettings) {
 		if (settings.scoreBoardClearOnGeneration) {
 			scoreList.clear()
 		}
+		val idSet = scoreList.filter { !it.isOutDated }.map { it.id }.toSet()
+
 		batch.onEach {
 				if (it.score.isNaN() || it.score.isInfinite()) {
 					throw IllegalStateException("NaN or Infinite in score : $it")
 				}
+				if (it.genes.parentAId in idSet) {
+					scoreList.removeIf { parent ->
+						parent.id == it.genes.parentAId && parent.score <= it.score
+					}
+				}
+				if (it.genes.parentBId in idSet) {
+					scoreList.removeIf { parent ->
+						parent.id == it.genes.parentBId && parent.score <= it.score
+					}
+				}
 			}
-		val idSet = scoreList.filter { !it.isOutDated }.map { it.id }.toSet()
-		scoreList.addAll(0, batch.filter { it.id !in idSet  }.sortedBy { it.bornOnEpoch }) // add to 0 for distinct
+
+		scoreList.addAll(0, batch.filter { it.id !in idSet  }) // add to 0 for distinct
 		var sorted = when (settings.scoreBoardOrder) {
 			GAScoreBoardOrder.Ascending -> scoreList
+				.sortedBy { it.bornOnEpoch }
 				.sortedBy { it.score } // ascending
 			GAScoreBoardOrder.Descending -> scoreList
+				.sortedBy { it.bornOnEpoch }
 				.sortedByDescending { it.score } // descending
 		}
 		sorted = sorted.filter { !it.isOutDated }

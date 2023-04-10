@@ -6,6 +6,7 @@ import brain.suppliers.Suppliers
 import brain.utils.roundUpInt
 import brain.utils.upscale
 import kotlin.math.min
+import kotlin.math.roundToInt
 import kotlin.random.Random
 
 interface MutationPolicy {
@@ -34,13 +35,13 @@ open class AdditiveMutationPolicy(private val fraction: Double = 0.01) : Mutatio
 	) {
 		val indices = source.genes.indices
 		val countToMutateDouble = min((source.size.toDouble() * fraction), source.size.toDouble())
-		val countToMutate = countToMutateDouble.roundUpInt()
+		val countToMutate = countToMutateDouble.roundToInt()
 		if (countToMutateDouble >= 1) {
 			for (i in 0 until countToMutate) {
 				destination.genes[indices.random()] += supplyNext(destination.size)
 			}
 		} else {
-			if (Random.nextFloat() < fraction * (1.0f / source.size)) {
+			if (Random.nextFloat() < countToMutateDouble) {
 				destination.genes[indices.random()] += supplyNext(destination.size)
 			}
 		}
@@ -57,13 +58,13 @@ open class ReplaceMutationPolicy(private val fraction: Double = 0.01) : Mutation
 	) {
 		val indices = source.genes.indices
 		val countToMutateDouble = min((source.size.toDouble() * fraction), source.size.toDouble())
-		val countToMutate = countToMutateDouble.roundUpInt()
+		val countToMutate = countToMutateDouble.roundToInt()
 		if (countToMutateDouble >= 1) {
 			for (i in 0 until countToMutate) {
 				destination.genes[indices.random()] = supplyNext(destination.size)
 			}
 		} else {
-			if (Random.nextFloat() < fraction * (1.0f / source.size)) {
+			if (Random.nextFloat() < countToMutateDouble) {
 				destination.genes[indices.random()] = supplyNext(destination.size)
 			}
 		}
@@ -77,7 +78,7 @@ open class CopyMutationPolicy(private val fraction: Double = 0.01) : MutationPol
 	) {
 		val indices = source.genes.indices
 		val countToMutateDouble = min((source.size.toDouble() * fraction), source.size.toDouble())
-		val countToMutate = countToMutateDouble.roundUpInt()
+		val countToMutate = countToMutateDouble.roundToInt()
 		if (countToMutateDouble >= 1) {
 			for (i in 0 until countToMutate) {
 				val randomPosA = indices.random()
@@ -85,7 +86,7 @@ open class CopyMutationPolicy(private val fraction: Double = 0.01) : MutationPol
 				destination.genes[randomPosA] = source.genes[randomPosB]
 			}
 		} else {
-			if (Random.nextFloat() < fraction * (1.0f / source.size)) {
+			if (Random.nextFloat() < countToMutateDouble) {
 				val randomPosA = indices.random()
 				val randomPosB = indices.random()
 				destination.genes[randomPosA] = source.genes[randomPosB]
@@ -101,23 +102,23 @@ open class UpscaleMutationPolicy(private val fraction: Double = 0.01) : Mutation
 	) {
 		val indices = source.genes.indices
 		val countToMutateDouble = min((source.size.toDouble() * fraction), source.size.toDouble())
-		val countToMutate = countToMutateDouble.roundUpInt()
+		val countToMutate = countToMutateDouble.roundToInt()
 		if (countToMutateDouble >= 1) {
 			for (i in 0 until countToMutate) {
 				val randomIndex = indices.random()
 				if (Random.nextBoolean()) {
-					destination.genes[randomIndex] = destination.genes[randomIndex] * 1.1f
+					destination.genes[randomIndex] = source.genes[randomIndex] * 1.1f
 				} else {
-					destination.genes[randomIndex] = destination.genes[randomIndex] / 1.1f
+					destination.genes[randomIndex] = source.genes[randomIndex] / 1.1f
 				}
 			}
 		} else {
-			if (Random.nextFloat() < fraction * (1.0f / source.size)) {
+			if (Random.nextFloat() < countToMutateDouble) {
 				val randomIndex = indices.random()
 				if (Random.nextBoolean()) {
-					destination.genes[randomIndex] = destination.genes[randomIndex] * 1.1f
+					destination.genes[randomIndex] = source.genes[randomIndex] * 1.1f
 				} else {
-					destination.genes[randomIndex] = destination.genes[randomIndex] / 1.1f
+					destination.genes[randomIndex] = source.genes[randomIndex] / 1.1f
 				}
 			}
 		}
@@ -135,16 +136,16 @@ open class InversionMutationPolicy(private val fraction: Double = 0.01) : Mutati
 		}
 		val indices = source.genes.indices
 		val countToMutateDouble = min((source.size.toDouble() * fraction), source.size.toDouble())
-		val countToMutate = countToMutateDouble.roundUpInt()
+		val countToMutate = countToMutateDouble.roundToInt()
 		if (countToMutateDouble >= 1) {
 			for (i in 0 until countToMutate) {
 				val randomIndex = indices.random()
-				destination.genes[randomIndex] = -destination.genes[randomIndex]
+				destination.genes[randomIndex] = -source.genes[randomIndex]
 			}
 		} else {
-			if (Random.nextFloat() < fraction * (1.0f / source.size)) {
+			if (Random.nextFloat() < countToMutateDouble) {
 				val randomIndex = indices.random()
-				destination.genes[randomIndex] = -destination.genes[randomIndex]
+				destination.genes[randomIndex] = -source.genes[randomIndex]
 			}
 		}
 	}

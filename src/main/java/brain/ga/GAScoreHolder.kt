@@ -15,6 +15,7 @@ data class GAScoreHolder(
 		private set
 
 	fun copyGene() = genes.copy()
+	fun copyWithParent(parentAId: String, parentBId: String) = genes.copyWithParents(parentAId, parentBId)
 
 	fun markOutdated() {
 		isOutDated = true

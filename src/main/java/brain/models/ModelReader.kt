@@ -55,6 +55,19 @@ object ModelReader {
 				InputLayer(features = ls.width, steps = ls.height, name = ls.name)
 			}
 
+			Transpose.defaultNameType -> {
+				val parent = ls.parents?.getOrNull(0) ?: throw IllegalStateException("No parent in transpose")
+				Transpose(name = ls.name) {
+					buffer[parent] ?: throw IllegalStateException("No parent found in buffer")
+				}
+			}
+			Pivot.defaultNameType -> {
+				val parent = ls.parents?.getOrNull(0) ?: throw IllegalStateException("No parent in Pivot")
+				Pivot(name = ls.name) {
+					buffer[parent] ?: throw IllegalStateException("No parent found in buffer")
+				}
+			}
+
 			Activation.defaultNameType -> {
 				val activation = Activations.deserialize(ls.activation) ?: throw IllegalStateException("No activation")
 				val parent = ls.parents?.getOrNull(0) ?: throw IllegalStateException("No parent in activation")

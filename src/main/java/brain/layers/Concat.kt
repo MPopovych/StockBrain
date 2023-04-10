@@ -55,9 +55,7 @@ class ConcatImpl(private val concatShape: LayerShape, override var name: String)
 		for (input in inputs) {
 			val localWidth = input.getShape().width
 			for (y in 0 until input.height) {
-				for (x in 0 until localWidth) {
-					outputBuffer.values[y][i + x] = input.values[y][x]
-				}
+				input.values[y].copyInto(outputBuffer.values[y], destinationOffset = i)
 			}
 			i += localWidth
 		}
