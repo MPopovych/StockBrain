@@ -5,6 +5,7 @@ import brain.ga.weights.ModelGenes
 import brain.models.Model
 import brain.utils.printCyanBr
 import brain.utils.printYellowBr
+import kotlin.random.Random
 
 
 class GA(
@@ -85,7 +86,8 @@ class GA(
 				val chromosome = destination.chromosome.hashCode()
 				if (command.mutate
 					|| chromosome == command.parentA.genes.chromosome.hashCode()
-					|| chromosome == command.parentB.genes.chromosome.hashCode()) {
+					|| chromosome == command.parentB.genes.chromosome.hashCode()
+				) {
 
 					destination.applyMutationPolicy(settings.mutationPolicy, source = destination)
 				}
@@ -110,7 +112,10 @@ class GA(
 			}
 
 			is FutureMatch.New -> {
-				val destination = originalGenes.copy()
+				val destination = originalGenes.copyWithParents(
+					Random.nextInt(-900, 900).toString(),
+					Random.nextInt(-900, 900).toString()
+				)
 				destination.bornOnEpoch = generation
 				destination.applyMutationPolicy(settings.initialMutationPolicy, source = destination)
 				return destination
@@ -152,10 +157,16 @@ class GA(
 			if (index == 0) { // keep origin
 				val model = originalBuilder.build()
 				originalGenes.applyToModel(model)
-				return@mapTo Pair(model, originalGenes.copy())
+				return@mapTo Pair(model, originalGenes.copyWithParents(
+					Random.nextInt(-900, 900).toString(),
+					Random.nextInt(-900, 900).toString()
+				))
 			}
 			val model = originalBuilder.build()
-			val genes = originalGenes.copy().applyMutationPolicy(settings.initialMutationPolicy, originalGenes)
+			val genes = originalGenes.copyWithParents(
+				Random.nextInt(-900, 900).toString(),
+				Random.nextInt(-900, 900).toString()
+			).applyMutationPolicy(settings.initialMutationPolicy, originalGenes)
 			genes.applyToModel(model)
 			genes.bornOnEpoch = 0
 			return@mapTo Pair(model, genes)

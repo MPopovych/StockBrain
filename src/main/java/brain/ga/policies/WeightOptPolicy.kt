@@ -11,6 +11,11 @@ import kotlin.random.Random
 
 interface WeightOptPolicy {
 
+	companion object {
+		val NONE = NoneOptPolicy()
+		val NOISE = NoiseOptPolicy(0.01f)
+	}
+
 	fun optimise(destination: ModelGenes) {
 		for (layer in destination.layers.values) {
 			optimise(layer)

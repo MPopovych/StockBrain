@@ -173,14 +173,14 @@ public class MatrixMath {
 		}
 	}
 
-	public static void subtract(Matrix a, Matrix b, Matrix destination) {
+	public static void divBy(Matrix a, Matrix destination, int times) {
 		int thisX = a.width; // right, number of columns
 		int thisY = a.height; // down, number of rows
 
-		checkSameDimensions(a, b, destination);
+		checkSameDimensions(a, destination);
 		for (int y = 0; y < thisY; y++) {
 			for (int x = 0; x < thisX; x++) {
-				destination.values[y][x] = a.values[y][x] - b.values[y][x];
+				destination.values[y][x] = a.values[y][x] / times;
 			}
 		}
 	}

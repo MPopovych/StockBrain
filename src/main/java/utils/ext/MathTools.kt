@@ -90,14 +90,16 @@ fun DoubleArray.std(): Double {
 	val squared = this.map { it.pow(2) }
 	val sumSquared = squared.sum()
 	val sum = this.sum()
-	return sqrt((sumSquared - (sum.pow(2) / size)) / size)
+	val main = (sumSquared - (sum.pow(2) / size)) / size
+	return sqrt(abs(main))
 }
 
 fun FloatArray.std(): Float {
 	val squared = this.map { it.pow(2) }
 	val sumSquared = squared.sum()
 	val sum = this.sum()
-	return sqrt((sumSquared - (sum.pow(2) / size)) / size)
+	val main = (sumSquared - (sum.pow(2) / size)) / size
+	return sqrt(abs(main))
 }
 
 fun FloatArray.median(): Float {
@@ -131,7 +133,8 @@ fun Iterable<Number>.std(): Float {
 	val squared = this.map { it.toDouble().pow(2) }
 	val sumSquared = squared.sum()
 	val sum = this.sumOf { it.toDouble() }
-	return sqrt((sumSquared - (sum.pow(2) / squared.size)) / squared.size).toFloat()
+	val main = (sumSquared - (sum.pow(2) / squared.size)) / squared.size
+	return sqrt(abs(main)).toFloat()
 }
 
 fun Iterable<Number>.median(): Float {

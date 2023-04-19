@@ -11,7 +11,7 @@ import brain.suppliers.ValueSupplier
 class Dense(
 	private val units: Int,
 	private val activation: ActivationFunction? = null,
-	private val kernelInit: ValueFiller = Suppliers.RandomRangeNP,
+	private val kernelInit: ValueFiller = Suppliers.RandomHE,
 	private val biasInit: ValueFiller = Suppliers.Zero,
 	private val useBias: Boolean = true,
 	override var name: String = Layer.DEFAULT_NAME,

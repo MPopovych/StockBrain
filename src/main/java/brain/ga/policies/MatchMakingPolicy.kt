@@ -34,6 +34,7 @@ class DefaultMatchMakingPolicy(private val repeatTop: Int, private val cataclysm
 		}
 
 		val holders = scoreBoard.getAscendingFitnessList().takeLast(settings.topParentCount)
+		buffer.add(FutureMatch.New)
 		while (buffer.size < settings.totalPopulationCount) {
 			val a = holders.random()
 			val b = holders.random()
@@ -41,8 +42,8 @@ class DefaultMatchMakingPolicy(private val repeatTop: Int, private val cataclysm
 			if (a.id == b.id || a.score == b.score) {
 				buffer.add(FutureMatch.MutateMatch(a))
 			} else {
-				buffer.add(FutureMatch.CrossMatch(a, b, mutate = Random.nextInt(8) == 0))
-				buffer.add(FutureMatch.CrossMatch(a, b, mutate = Random.nextInt(8) == 0))
+				buffer.add(FutureMatch.CrossMatch(a, b, mutate = Random.nextInt(2) == 0))
+				buffer.add(FutureMatch.CrossMatch(a, b, mutate = Random.nextInt(2) == 0))
 			}
 		}
 		return buffer
@@ -87,8 +88,8 @@ class AgingMatchMakingPolicy(private val lifespan: Int, private val cataclysmEve
 			if (a.id == b.id || a.score == b.score) {
 				buffer.add(FutureMatch.MutateMatch(a))
 			} else {
-				buffer.add(FutureMatch.CrossMatch(a, b, mutate = Random.nextInt(8) == 0))
-				buffer.add(FutureMatch.CrossMatch(b, a, mutate = Random.nextInt(8) == 0))
+				buffer.add(FutureMatch.CrossMatch(a, b, mutate = Random.nextInt(2) == 0))
+				buffer.add(FutureMatch.CrossMatch(b, a, mutate = Random.nextInt(2) == 0))
 			}
 		}
 		return buffer

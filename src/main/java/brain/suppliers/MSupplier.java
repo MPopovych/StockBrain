@@ -2,24 +2,24 @@ package brain.suppliers;
 
 import java.util.Random;
 
-public class HESupplier implements ValueFiller {
+public class MSupplier implements ValueFiller {
 
-	public static final HESupplier INSTANCE = new HESupplier(new Random(System.currentTimeMillis()));
+	public static final MSupplier INSTANCE = new MSupplier(new Random(System.currentTimeMillis()));
 
 	private final Random random;
 
-	public HESupplier(Random random) {
+	public MSupplier(Random random) {
 		this.random = random;
 	}
 
 	@Override
 	public float supply(int count, int x, int y) {
-		return ((random.nextFloat() * 2f) - 1f) / (float) Math.sqrt(count) ;
+		return ((random.nextFloat() * 2f) - 1f) / (count / (float) Math.sqrt(count)) ;
 	}
 
 	@Override
 	public void fill(float[] array) {
-		float m = (float) Math.sqrt(array.length);
+		float m = array.length / (float) Math.sqrt(array.length);
 		for (int i = 0; i < array.length; i++) {
 			array[i] = ((random.nextFloat() * 2f) - 1f) / m;
 		}

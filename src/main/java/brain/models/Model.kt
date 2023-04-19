@@ -12,6 +12,9 @@ class Model(
 	var graphMap: Map<String, GraphLayerNode>,
 	internal val debug: Boolean = false,
 ) {
+
+	var propCallback: ((LinkedHashMap<String, Matrix>) -> Unit)? = null
+
 	companion object {
 		const val SINGLE_IO = "Default"
 	}
@@ -74,6 +77,10 @@ class Model(
 					outputBuffer[node.layer.name] = outM
 				}
 			}
+		}
+
+		propCallback?.also {
+			it.invoke(outputBuffer)
 		}
 
 		return outputByKey.mapValues {

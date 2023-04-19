@@ -50,7 +50,7 @@ class GATest {
 		)
 
 		val ga = GA(settings, model, earlyStopCallback = { i, ga ->
-			val top = ga.scoreBoard.getTop()?.score ?: return@GA false
+			val top = ga.scoreBoardWithRooms.getTop()?.score ?: return@GA false
 			if (top == 0.0) {
 				printRedBr("Stop on gen $i with $top")
 				return@GA true
@@ -74,13 +74,12 @@ class GATest {
 			}
 		}
 
-		val top = ga.scoreBoard.getTop() ?: throw IllegalStateException()
+		val top = ga.scoreBoardWithRooms.getTop() ?: throw IllegalStateException()
 		top.genes.applyToModel(model)
 		val output = model.getOutput(inputArray)
 
 		printRedBr("Final array:\t ${output.describe()}")
 		printGreenBr("Expected array:\t ${targetArray.describe()}")
-		ga.scoreBoard.printScoreBoard()
 	}
 
 }

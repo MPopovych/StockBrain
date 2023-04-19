@@ -20,5 +20,10 @@ class ActivationsTest {
 		testArray.map { Activations.Tanh.apply(it) }.also { printBlueBr("Tanh: ${it}") }
 	}
 
+	@Test
+	fun testFastTanh() {
+		testArray.map { Activations.FastTanh.apply(it) }.also { printBlueBr("FastTanh: ${it}") }
+	}
+
 
 }

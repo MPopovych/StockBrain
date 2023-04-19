@@ -73,13 +73,13 @@ open class RNNImpl(
 	override lateinit var outputBuffer: Matrix
 
 	override fun init() {
-		iKernel = WeightData("iKernel", Matrix(units, parentShape.width), trainable = true)
+		iKernel = WeightData("iKernel", Matrix(units, parentShape.width, Suppliers.RandomHE), trainable = true)
 		addWeights(iKernel)
-		hKernel = WeightData("hKernel", Matrix(units, units), trainable = true)
+		hKernel = WeightData("hKernel", Matrix(units, units, Suppliers.RandomHE), trainable = true)
 		addWeights(hKernel)
 
 		for (w in weights.values) {
-			Suppliers.fillFull(w.matrix, Suppliers.RandomRangeNP)
+			Suppliers.fillFull(w.matrix, Suppliers.RandomHE)
 		}
 
 		hBias = WeightData("hBias", Matrix(units, 1), trainable = useBias)
