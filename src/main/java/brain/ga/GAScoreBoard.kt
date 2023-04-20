@@ -85,7 +85,9 @@ class GAScoreBoard(val order: Int, private val settings: GASettings) {
 		sb.append("Room: $order - ")
 		sb.append("Score deviation: ${stdAndPercent.first} : ${stdAndPercent.second.roundUp(2)}%").appendLine()
 		scoreList.takeLast(limit ?: scoreList.size).forEach { t ->
-			sb.append("score: ${t.score} -- ${t.id.hashCode()} -- g:${t.bornOnEpoch}" ).appendLine()
+			sb.append("score: ${t.score} \t" +
+					"-- ${t.id.hashCode()} \t" +
+					"-- g:${t.bornOnEpoch}" ).appendLine()
 		}
 		printGreenBr(sb.toString().trimIndent())
 	}
