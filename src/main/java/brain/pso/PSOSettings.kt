@@ -7,7 +7,7 @@ data class PSOSettings(
 	val swarms: Int = 1,
 	val order: PSOScoreBoardOrder,
 	val population: Int,
-	val velocityPolicy: VelocityPolicy = VelocityPolicy.STD,
+	val velocityPolicy: VelocityPolicy = VelocityPolicy.SQRT_NOISE,
 	val approachPersonalPolicy: ApproachPolicy = ApproachPolicy.OneThird,
 	val approachTopPolicy: ApproachPolicy = ApproachPolicy.OneThird,
 	val initialMutationPolicy: MutationPolicy = ReplaceMutationPolicy(1.0),

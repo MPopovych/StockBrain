@@ -35,9 +35,10 @@ open class AdditiveMutationPolicy(private val fraction: Double = 0.01) : Mutatio
 		destination: WeightGenes,
 		totalGeneCount: Int,
 	) {
+		val toMutate = (fraction * totalGeneCount).roundUpInt()
 		val indices = source.genes.indices
 		for (i in indices) {
-			if (Random.nextInt(totalGeneCount) == 0) {
+			if (Random.nextInt(totalGeneCount) <= toMutate) {
 				destination.genes[indices.random()] += supplyNext(destination.size)
 			}
 		}

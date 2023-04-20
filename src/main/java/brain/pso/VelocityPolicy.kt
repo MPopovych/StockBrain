@@ -9,7 +9,7 @@ import kotlin.random.Random
 interface VelocityPolicy {
 
 	companion object {
-		val STD = DeviationVelocityPolicy()
+		val SQRT_NOISE = SqrtNoiseVelocityPolicy()
 	}
 
 	fun move(mod: LayerGenes, totalGeneCount: Int) {
@@ -25,17 +25,14 @@ interface VelocityPolicy {
 	)
 }
 
-class DeviationVelocityPolicy : VelocityPolicy {
+class SqrtNoiseVelocityPolicy : VelocityPolicy {
 	override fun moveWeight(mod: WeightGenes, totalGeneCount: Int) {
-//		val sqrt = sqrt(mod.size.toFloat())
-//		val velArray = FloatArray(mod.size) { (Random.nextFloat() * 2 - 1f) * sqrt / (Random.nextInt(totalGeneCount) + 1) }
-
 		val sqrtR = sqrt(totalGeneCount.toFloat()).roundToInt()
 		val velArray = FloatArray(mod.size) {
 			if (Random.nextInt(sqrtR + 2) == 0) {
 				(Random.nextFloat() * 2 - 1f) * (mod.size.toFloat() / totalGeneCount)
 			} else {
-				0f
+				(Random.nextFloat() * 2 - 1f) / totalGeneCount
 			}
 		}
 

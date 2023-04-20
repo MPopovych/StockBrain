@@ -2,6 +2,7 @@ package brain.ga
 
 import brain.utils.printGreenBr
 import brain.utils.roundUp
+import kotlin.math.abs
 import kotlin.math.pow
 import kotlin.math.sqrt
 
@@ -33,8 +34,10 @@ class GAScoreBoard(val order: Int, private val settings: GASettings) {
 
 	fun getStdAndPercent(): Pair<Double, Double> {
 		val best = scoreList.last().score
+		val worst = scoreList.first().score
 		val std = getStandardDeviation()
-		val stdPercent = if (best == 0.0) 0.0 else std / best
+		val range = abs(best - worst)
+		val stdPercent = if (range == 0.0) 0.0 else std / range
 		return Pair(std, stdPercent * 100)
 	}
 
@@ -85,9 +88,9 @@ class GAScoreBoard(val order: Int, private val settings: GASettings) {
 		sb.append("Room: $order - ")
 		sb.append("Score deviation: ${stdAndPercent.first} : ${stdAndPercent.second.roundUp(2)}%").appendLine()
 		scoreList.takeLast(limit ?: scoreList.size).forEach { t ->
-			sb.append("score: ${t.score} \t" +
-					"-- ${t.id.hashCode()} \t" +
-					"-- g:${t.bornOnEpoch}" ).appendLine()
+			sb.append("score: ${t.score.roundUp(6).toString().padEnd(8)} \t" +
+					"- ${t.id.hashCode().toString().padEnd(12)} \t" +
+					"- g:${t.bornOnEpoch}" ).appendLine()
 		}
 		printGreenBr(sb.toString().trimIndent())
 	}
