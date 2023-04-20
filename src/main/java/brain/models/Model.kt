@@ -1,8 +1,9 @@
 package brain.models
 
-import brain.layers.*
+import brain.layers.InputLayerImpl
+import brain.layers.LayerTrainableMode
+import brain.layers.LayerWarmupMode
 import brain.matrix.Matrix
-import brain.utils.printYellowBr
 
 
 class Model(
@@ -54,6 +55,14 @@ class Model(
 
 		for (entry in inputMatrixMap) {
 			val inputLayer = inputByKey[entry.key] ?: throw IllegalStateException()
+			if (inputLayer.layer.getShape().width != entry.value.width
+				|| inputLayer.layer.getShape().height != entry.value.height
+			) {
+				throw IllegalStateException(
+					"shape for: ${entry.key} mismatch ${inputLayer.layer.getShape().width} vs ${entry.value.width}" +
+							", ${inputLayer.layer.getShape().height} vs ${entry.value.height}"
+				)
+			}
 			outputBuffer[inputLayer.layer.name] = inputLayer.layer.call(entry.value)
 		}
 
@@ -63,6 +72,7 @@ class Model(
 					if (node.layer is InputLayerImpl) continue
 					else throw IllegalStateException("Invalid node type: $node")
 				}
+
 				is GraphLayerNode.MultiParent -> {
 					val mList = node.parentIds.map { id ->
 						outputBuffer[id]
@@ -71,8 +81,10 @@ class Model(
 					val outM = node.layer.call(mList)
 					outputBuffer[node.layer.name] = outM
 				}
+
 				is GraphLayerNode.SingleParent -> {
-					val m = outputBuffer[node.parentId] ?: throw IllegalStateException("missing: ${node.parentId} for ${node.layer.name}")
+					val m = outputBuffer[node.parentId]
+						?: throw IllegalStateException("missing: ${node.parentId} for ${node.layer.name}")
 					val outM = node.layer.call(m)
 					outputBuffer[node.layer.name] = outM
 				}

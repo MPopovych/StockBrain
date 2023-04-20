@@ -10,18 +10,19 @@ import kotlin.math.roundToInt
 import kotlin.random.Random
 
 interface MutationPolicy {
-	fun mutation(source: LayerGenes, destination: LayerGenes) {
+	fun mutation(source: LayerGenes, destination: LayerGenes, totalGeneCount: Int) {
 		for (weight in source.map) {
 			val sourceW = source.map[weight.key] ?: throw IllegalStateException()
 			val destinationW = destination.map[weight.key] ?: throw IllegalStateException()
 			sourceW.copyTo(destinationW)
-			mutateWeight(source = sourceW, destination = destinationW)
+			mutateWeight(source = sourceW, destination = destinationW, totalGeneCount = totalGeneCount)
 		}
 	}
 
 	fun mutateWeight(
 		source: WeightGenes,
 		destination: WeightGenes,
+		totalGeneCount: Int,
 	)
 }
 
@@ -32,16 +33,11 @@ open class AdditiveMutationPolicy(private val fraction: Double = 0.01) : Mutatio
 	override fun mutateWeight(
 		source: WeightGenes,
 		destination: WeightGenes,
+		totalGeneCount: Int,
 	) {
 		val indices = source.genes.indices
-		val countToMutateDouble = min((source.size.toDouble() * fraction), source.size.toDouble())
-		val countToMutate = countToMutateDouble.roundToInt()
-		if (countToMutateDouble >= 1) {
-			for (i in 0 until countToMutate) {
-				destination.genes[indices.random()] += supplyNext(destination.size)
-			}
-		} else {
-			if (Random.nextFloat() < countToMutateDouble) {
+		for (i in indices) {
+			if (Random.nextInt(totalGeneCount) == 0) {
 				destination.genes[indices.random()] += supplyNext(destination.size)
 			}
 		}
@@ -55,16 +51,12 @@ open class ReplaceMutationPolicy(private val fraction: Double = 0.01) : Mutation
 	override fun mutateWeight(
 		source: WeightGenes,
 		destination: WeightGenes,
+		totalGeneCount: Int,
 	) {
+		val toMutate = (fraction * totalGeneCount).roundUpInt()
 		val indices = source.genes.indices
-		val countToMutateDouble = min((source.size.toDouble() * fraction), source.size.toDouble())
-		val countToMutate = countToMutateDouble.roundToInt()
-		if (countToMutateDouble >= 1) {
-			for (i in 0 until countToMutate) {
-				destination.genes[indices.random()] = supplyNext(destination.size)
-			}
-		} else {
-			if (Random.nextFloat() < countToMutateDouble) {
+		for (i in indices) {
+			if (Random.nextInt(totalGeneCount) <= toMutate) {
 				destination.genes[indices.random()] = supplyNext(destination.size)
 			}
 		}
@@ -75,18 +67,12 @@ open class CopyMutationPolicy(private val fraction: Double = 0.01) : MutationPol
 	override fun mutateWeight(
 		source: WeightGenes,
 		destination: WeightGenes,
+		totalGeneCount: Int,
 	) {
+		val toMutate = (fraction * totalGeneCount).roundUpInt()
 		val indices = source.genes.indices
-		val countToMutateDouble = min((source.size.toDouble() * fraction), source.size.toDouble())
-		val countToMutate = countToMutateDouble.roundToInt()
-		if (countToMutateDouble >= 1) {
-			for (i in 0 until countToMutate) {
-				val randomPosA = indices.random()
-				val randomPosB = indices.random()
-				destination.genes[randomPosA] = source.genes[randomPosB]
-			}
-		} else {
-			if (Random.nextFloat() < countToMutateDouble) {
+		for (i in indices) {
+			if (Random.nextInt(totalGeneCount) <= toMutate) {
 				val randomPosA = indices.random()
 				val randomPosB = indices.random()
 				destination.genes[randomPosA] = source.genes[randomPosB]
@@ -99,21 +85,12 @@ open class UpscaleMutationPolicy(private val fraction: Double = 0.01) : Mutation
 	override fun mutateWeight(
 		source: WeightGenes,
 		destination: WeightGenes,
+		totalGeneCount: Int,
 	) {
+		val toMutate = (fraction * totalGeneCount).roundUpInt()
 		val indices = source.genes.indices
-		val countToMutateDouble = min((source.size.toDouble() * fraction), source.size.toDouble())
-		val countToMutate = countToMutateDouble.roundToInt()
-		if (countToMutateDouble >= 1) {
-			for (i in 0 until countToMutate) {
-				val randomIndex = indices.random()
-				if (Random.nextBoolean()) {
-					destination.genes[randomIndex] = source.genes[randomIndex] * 1.1f
-				} else {
-					destination.genes[randomIndex] = source.genes[randomIndex] / 1.1f
-				}
-			}
-		} else {
-			if (Random.nextFloat() < countToMutateDouble) {
+		for (i in indices) {
+			if (Random.nextInt(totalGeneCount) <= toMutate) {
 				val randomIndex = indices.random()
 				if (Random.nextBoolean()) {
 					destination.genes[randomIndex] = source.genes[randomIndex] * 1.1f
@@ -130,21 +107,13 @@ open class InversionMutationPolicy(private val fraction: Double = 0.01) : Mutati
 	override fun mutateWeight(
 		source: WeightGenes,
 		destination: WeightGenes,
+		totalGeneCount: Int,
 	) {
-		if (source != destination) {
-			source.copyTo(destination)
-		}
+		val toMutate = (fraction * totalGeneCount).roundUpInt()
 		val indices = source.genes.indices
-		val countToMutateDouble = min((source.size.toDouble() * fraction), source.size.toDouble())
-		val countToMutate = countToMutateDouble.roundToInt()
-		if (countToMutateDouble >= 1) {
-			for (i in 0 until countToMutate) {
-				val randomIndex = indices.random()
-				destination.genes[randomIndex] = -source.genes[randomIndex]
-			}
-		} else {
-			if (Random.nextFloat() < countToMutateDouble) {
-				val randomIndex = indices.random()
+		for (i in indices) {
+			val randomIndex = indices.random()
+			if (Random.nextInt(totalGeneCount) <= toMutate) {
 				destination.genes[randomIndex] = -source.genes[randomIndex]
 			}
 		}
@@ -171,30 +140,31 @@ class CyclicMutationPolicy(
 		if (sum <= 0) throw IllegalStateException("Sum of rations should bot be zero or less")
 	}
 
-	override fun mutation(source: LayerGenes, destination: LayerGenes) {
+	override fun mutation(source: LayerGenes, destination: LayerGenes, totalGeneCount: Int) {
 		for (weight in source.map) {
 			val sourceW = source.map[weight.key] ?: throw IllegalStateException()
 			val destinationW = destination.map[weight.key] ?: throw IllegalStateException()
 			sourceW.copyTo(destinationW)
-			mutateWeight(sourceW, destinationW)
+			mutateWeight(sourceW, destinationW, totalGeneCount)
 		}
 	}
 
 	override fun mutateWeight(
 		source: WeightGenes,
 		destination: WeightGenes,
+		totalGeneCount: Int,
 	) {
 		val r = (0 until sum).random()
 		if (r < additiveRatio) {
-			additive.mutateWeight(source, destination)
+			additive.mutateWeight(source, destination, totalGeneCount)
 		} else if (r < additiveRatio + upscaleRatio) {
-			upscale.mutateWeight(source, destination)
+			upscale.mutateWeight(source, destination, totalGeneCount)
 		} else if (r < additiveRatio + upscaleRatio + inversionRatio){
-			inversion.mutateWeight(source, destination)
+			inversion.mutateWeight(source, destination, totalGeneCount)
 		} else if (r < additiveRatio + upscaleRatio + inversionRatio + copyRatio) {
-			copy.mutateWeight(source, destination)
+			copy.mutateWeight(source, destination, totalGeneCount)
 		} else if (r < sum) {
-			replace.mutateWeight(source, destination)
+			replace.mutateWeight(source, destination, totalGeneCount)
 		} else {
 			throw IllegalStateException()
 		}

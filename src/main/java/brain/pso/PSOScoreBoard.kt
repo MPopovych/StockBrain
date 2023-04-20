@@ -67,7 +67,9 @@ class PSOScoreBoard(val order: Int, private val settings: PSOSettings) {
 		sb.append("Room: $order - ")
 		sb.append("Score deviation: ${std.roundUp(6)}").appendLine()
 		getAscendingFitnessList().takeLast(limit ?: scoreList.size).forEach { t ->
-			sb.append("score: ${t.current.score} -- ${t.current.genes.hashCode()} : ${t.ordinal}" ).appendLine()
+			sb.append("current: ${t.current.score.roundUp(4)} \t" +
+					"-- best: ${t.best.score.roundUp(4)} \t" +
+					"-- ${t.current.genes.hashCode()} \t: ${t.ordinal}" ).appendLine()
 		}
 		printGreenBr(sb.toString().trimIndent())
 	}

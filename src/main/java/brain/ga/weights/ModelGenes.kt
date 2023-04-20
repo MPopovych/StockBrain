@@ -36,6 +36,8 @@ class ModelGenes(
 	val chromosome: String
 		get() = layers.values.joinToString(" ") { it.chromosome }
 
+	val geneCount = layers.values.sumOf { l -> l.map.values.sumOf { w -> w.size } }
+
 	// used for cleared up destinations
 	fun applyToModel(model: Model) {
 		model.graphMap.forEach { (id, layer) ->
@@ -69,14 +71,14 @@ class ModelGenes(
 	fun applyMutationPolicy(mutationPolicy: MutationPolicy, source: ModelGenes): ModelGenes {
 		layers.forEach { (i, layer) ->
 			val sourceLayer = source.layers[i] ?: throw IllegalStateException("no layer at: $i")
-			mutationPolicy.mutation(source = sourceLayer, destination = layer)
+			mutationPolicy.mutation(source = sourceLayer, destination = layer, totalGeneCount = geneCount)
 		}
 		return this
 	}
 
 	fun applyVelocityPolicy(velocityPolicy: VelocityPolicy): ModelGenes {
 		layers.forEach { (s, layer) ->
-			velocityPolicy.move(mod = layer)
+			velocityPolicy.move(mod = layer, totalGeneCount = geneCount)
 		}
 		return this
 	}

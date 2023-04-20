@@ -356,12 +356,6 @@ private class LayerDeserializer : JsonDeserializer<LayerSerialized> {
 				temp.copy(builderData = data)
 			}
 
-			PivotNorm.defaultNameType -> {
-				val element = json.asJsonObject[FIELD_BUILDER_DATA]
-				val data = ModelReader.innerGson.fromJson<LayerMetaData.OnlyBiasMeta>(element)
-				temp.copy(builderData = data)
-			}
-
 			Dropout.defaultNameType -> {
 				val element = json.asJsonObject[FIELD_BUILDER_DATA]
 				val data = ModelReader.innerGson.fromJson<LayerMetaData.DropoutMeta>(element)
