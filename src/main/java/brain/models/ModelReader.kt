@@ -3,6 +3,7 @@ package brain.models
 import brain.activation.Activations
 import brain.layers.*
 import brain.utils.fromJson
+import brain.utils.printRedBr
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonDeserializationContext
 import com.google.gson.JsonDeserializer
@@ -42,7 +43,12 @@ object ModelReader {
 			val modelLayer = model.graphMap[ls.name] ?: throw IllegalStateException("No layer found with name ${ls.name}")
 			(ls.weights ?: emptyList()).forEach { w ->
 				val modelWeight = modelLayer.layer.weights[w.name] ?: throw IllegalStateException("No weight found with name ${w.name}")
-				modelWeight.matrix.writeStringData(w.value)
+				try {
+					modelWeight.matrix.writeStringData(w.value)
+				} catch (e: Exception) {
+					printRedBr("Error while parsing layer: ${ls.name} of type: ${ls.nameType}")
+					throw e
+				}
 			}
 		}
 
@@ -98,8 +104,10 @@ object ModelReader {
 
 			Disperse.defaultNameType -> {
 				val activation = Activations.deserialize(ls.activation)
+				val meta = (ls.getMetaData() as? LayerMetaData.DisperseMeta)
+					?: throw IllegalStateException("No meta for disperse")
 				val parent = ls.parents?.getOrNull(0) ?: throw IllegalStateException("No parent in disperse")
-				Disperse(units = ls.width, activation = activation, name = ls.name) {
+				Disperse(units = meta.units, activation = activation, name = ls.name) {
 					buffer[parent] ?: throw IllegalStateException("No parent found in buffer")
 				}
 			}
@@ -321,6 +329,12 @@ private class LayerDeserializer : JsonDeserializer<LayerSerialized> {
 			Dense.defaultNameType -> {
 				val element = json.asJsonObject[FIELD_BUILDER_DATA]
 				val data = ModelReader.innerGson.fromJson<LayerMetaData.OnlyBiasMeta>(element)
+				temp.copy(builderData = data)
+			}
+
+			Disperse.defaultNameType -> {
+				val element = json.asJsonObject[FIELD_BUILDER_DATA]
+				val data = ModelReader.innerGson.fromJson<LayerMetaData.DisperseMeta>(element)
 				temp.copy(builderData = data)
 			}
 

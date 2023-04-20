@@ -142,11 +142,6 @@ class GA(
 			return@map GAScoreHolder(id = context.genes.chromosome, score = appliedScore, genes = context.genes)
 		}
 
-		val records = contexts.map { it.records }.flatten()
-		if (records.isNotEmpty()) {
-			printCyanBr("Room ${room.order} - avg challenge record: ${records.average()}")
-		}
-
 		room.pushBatch(scores)
 
 		return settings.matchMakingPolicy.select(settings, room, generation)

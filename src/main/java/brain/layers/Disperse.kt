@@ -41,6 +41,10 @@ class Disperse(
 	override fun getShape(): LayerShape {
 		return shape
 	}
+
+	override fun getSerializedBuilderData(): LayerMetaData {
+		return LayerMetaData.DisperseMeta(units)
+	}
 }
 
 class DisperseLayerImpl(

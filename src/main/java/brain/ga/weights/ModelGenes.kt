@@ -3,6 +3,8 @@ package brain.ga.weights
 import brain.ga.policies.CrossOverPolicy
 import brain.ga.policies.MutationPolicy
 import brain.models.Model
+import brain.pso.ApproachPolicy
+import brain.pso.VelocityPolicy
 import brain.utils.encodeGenes
 
 // a hard copy of weights
@@ -68,6 +70,33 @@ class ModelGenes(
 		layers.forEach { (i, layer) ->
 			val sourceLayer = source.layers[i] ?: throw IllegalStateException("no layer at: $i")
 			mutationPolicy.mutation(source = sourceLayer, destination = layer)
+		}
+		return this
+	}
+
+	fun applyVelocityPolicy(velocityPolicy: VelocityPolicy): ModelGenes {
+		layers.forEach { (s, layer) ->
+			velocityPolicy.move(mod = layer)
+		}
+		return this
+	}
+
+	fun applyApproachPolicy(
+		approachPolicy: ApproachPolicy,
+		ownScore: Float,
+		destination: ModelGenes,
+		destinationScore: Float,
+		globalDeviation: Float,
+	): ModelGenes {
+		layers.forEach { (s, layer) ->
+			val destinationLayer = destination.layers[s] ?: throw IllegalStateException("no layer at: $s")
+			approachPolicy.approach(
+				fromMod = layer,
+				fromScore = ownScore,
+				toRef = destinationLayer,
+				toScore = destinationScore,
+				globalDeviation = globalDeviation
+			)
 		}
 		return this
 	}

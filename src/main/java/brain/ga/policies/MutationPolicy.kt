@@ -26,7 +26,7 @@ interface MutationPolicy {
 }
 
 open class AdditiveMutationPolicy(private val fraction: Double = 0.01) : MutationPolicy {
-	private val randomRangeSupplier = Suppliers.RandomHE
+	private val randomRangeSupplier = Suppliers.RandomRangeNP
 	private fun supplyNext(count: Int) = randomRangeSupplier.supply(count, 0, 0)
 
 	override fun mutateWeight(

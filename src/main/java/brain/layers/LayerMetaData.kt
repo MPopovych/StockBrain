@@ -6,6 +6,8 @@ sealed interface LayerMetaData {
 //	data class DirectMeta(val useBias: Boolean) : LayerMetaData
 	data class DropoutMeta(val rate: Float) : LayerMetaData
 
+	data class DisperseMeta(val units: Int) : LayerMetaData
+
 	data class FeatureDenseMeta(val useBias: Boolean, val pivotAvg: Boolean) : LayerMetaData
 	data class FeatureConvMeta(
 		val useBias: Boolean,

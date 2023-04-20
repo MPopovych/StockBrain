@@ -86,7 +86,7 @@ public class Matrix {
 
 		int expectedCount = width * height;
 		if (bytes.length != expectedCount * 4) {
-			throw new IllegalStateException("Mismatch of %s vs %s".formatted(bytes.length, expectedCount * 4));
+			throw new IllegalStateException("Mismatch of %s vs %s, w:%s, h:%s".formatted(bytes.length, expectedCount * 4, width, height));
 		}
 
 		for (int y = 0; y < height; y++) {
