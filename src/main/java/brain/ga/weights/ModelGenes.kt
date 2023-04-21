@@ -19,6 +19,7 @@ class ModelGenes(
 			val weights: Map<String, LayerGenes> = model.graphMap.values
 				.map {
 					val map = it.layer.weights.values
+						.filter { w -> w.trainable }
 						.map { w ->
 							WeightGenes(
 								w.name,
@@ -42,9 +43,9 @@ class ModelGenes(
 	fun applyToModel(model: Model) {
 		model.graphMap.forEach { (id, layer) ->
 			val layerGenes = layers[id] ?: throw IllegalStateException("No layer $id in genes")
-			layerGenes.map.forEach { (wId, wGene) ->
-				val weight = layer.layer.weights[wId] ?: throw IllegalStateException("No layer $id in weights")
-				weight.matrix.writeFloatData(wGene.genes)
+			layer.layer.weights.filter { it.value.trainable }.forEach { (key, weight) ->
+				val weightGenes = layerGenes.map[key] ?: throw IllegalStateException("No layer $id in weights")
+				weight.matrix.writeFloatData(weightGenes.genes)
 			}
 		}
 	}
@@ -77,27 +78,22 @@ class ModelGenes(
 	}
 
 	fun applyVelocityPolicy(velocityPolicy: VelocityPolicy): ModelGenes {
-		layers.forEach { (s, layer) ->
-			velocityPolicy.move(mod = layer, totalGeneCount = geneCount)
-		}
+		velocityPolicy.move(this)
+//		layers.forEach { (s, layer) ->
+//			velocityPolicy.move(mod = layer, totalGeneCount = geneCount)
+//		}
 		return this
 	}
 
 	fun applyApproachPolicy(
 		approachPolicy: ApproachPolicy,
-		ownScore: Float,
 		destination: ModelGenes,
-		destinationScore: Float,
-		globalDeviation: Float,
 	): ModelGenes {
 		layers.forEach { (s, layer) ->
 			val destinationLayer = destination.layers[s] ?: throw IllegalStateException("no layer at: $s")
 			approachPolicy.approach(
 				fromMod = layer,
-				fromScore = ownScore,
 				toRef = destinationLayer,
-				toScore = destinationScore,
-				globalDeviation = globalDeviation
 			)
 		}
 		return this

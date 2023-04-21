@@ -32,7 +32,7 @@ class PSO(
 					if (i == 0) {
 						runInitGeneration(board, genCount, block)
 					} else {
-						runGeneration(board, genCount, block)
+						runGenerationFast(board, genCount, block)
 					}
 				}
 			val elapsed = (System.currentTimeMillis() - time) / 1000
@@ -72,6 +72,35 @@ class PSO(
 		}
 	}
 
+	private fun runGenerationFast(
+		room: PSOScoreBoard,
+		generation: Int,
+		action: ((PSOScoreContext) -> Double)
+	) {
+		room.getAscendingFitnessList().forEach { model ->
+			val top = room.getTop() ?: throw IllegalStateException()
+			val movedBuffer = model.current.genes.copy().applyVelocityPolicy(settings.velocityPolicy)
+			movedBuffer.applyToModel(model.modelBuffer)
+			movedBuffer.applyApproachPolicy(
+				settings.approachPersonalPolicy,
+				destination = model.best.genes,
+			)
+			movedBuffer.applyApproachPolicy(
+					settings.approachTopPolicy,
+					destination = top.genes,
+				)
+			val moveContext = PSOScoreContext(generation, PSOAction.MOVE, model.modelBuffer, movedBuffer)
+			val moveScore = action(moveContext)
+			val moveHolder = PSOHolder(
+				model.ordinal,
+				current = PSOScore(moveScore, movedBuffer),
+				best = model.best,
+				model.modelBuffer
+			)
+			room.push(moveHolder)
+		}
+	}
+
 	private fun runGeneration(
 		room: PSOScoreBoard,
 		generation: Int,
@@ -91,17 +120,12 @@ class PSO(
 			room.push(moveHolder)
 		}
 
-		val std = room.getStandardDeviation().toFloat()
-
 		room.getAscendingFitnessList().forEach { model ->
 			if (model.current.genes == model.best.genes) return@forEach // will produce same result
 
 			val appToBestBuffer = model.current.genes.copy().applyApproachPolicy(
 				settings.approachPersonalPolicy,
-				ownScore = model.current.score.toFloat(),
 				destination = model.best.genes,
-				destinationScore = model.best.score.toFloat(),
-				globalDeviation = std
 			)
 			appToBestBuffer.applyToModel(model.modelBuffer)
 			val appBestContext =
@@ -122,10 +146,7 @@ class PSO(
 
 			val appToTopBuffer = model.current.genes.copy().applyApproachPolicy(
 				settings.approachTopPolicy,
-				ownScore = model.current.score.toFloat(),
 				destination = top.genes,
-				destinationScore = top.score.toFloat(),
-				globalDeviation = std
 			)
 			appToTopBuffer.applyToModel(model.modelBuffer)
 			val appTopContext = PSOScoreContext(generation, PSOAction.APPROACH_TOP, model.modelBuffer, appToTopBuffer)

@@ -1,21 +1,16 @@
 # StockBrain
 Lightweight Java-Kotlin based library for neural networks
-I am using this for my personal project. 
+I am using this for my personal project for stock trading. Comes with risks and frequent changes.
+Feel free to fork or to explore the project
 
 #### Why in Kotlin + Java? 
-Because I am able to prototype experimental layers and use the end result in the project which is running on Kotlin
+To focus on a CPU based use case for reinforcement learning.
+Two algorithms are supported for optimisation:
+Genetic algorithm - mostly done and stable
+PSO - in development
 
 ### Supported layers
 *InputLayer* - defines entry for a set of data, multiple inputs can be used in the same model
-
-*Direct* - layer in a *Hadamard* multiplication style, can have an activation function, bias
-Direct applies weights and biases of the same size as input
-
-*ScaleSeries* - layer in a *Hadamard* multiplication style, can have an activation function, bias
-ScaleSeries applies (X_i • W) + B values on every individual row
-
-*PivotPoint*  - layer in a *Hadamard* multiplication style, used for changing the data center by element wise adding, multiplying and adding
-PivotPoint applies ((X_i + B_1) • W) + B_2 values on every individual row
 
 *Dense* - the most basic layer, can have an activation function, bias
 
@@ -33,6 +28,7 @@ Uses a sliding window of *kernelSize* to produce rows of height *units* and same
 *FeatureDense* - applies a convolution feature wise (by {X} indicies)
 Uses a fully connected weight to produce rows of height *units* and same width as input
 
+... and others
 
 This a set of components developed for genetic algorithms coupled with a deep neural network.
 As a reference for declaration style tensorflow-keras was used
