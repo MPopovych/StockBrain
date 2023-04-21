@@ -9,6 +9,13 @@ data class PSOSettings(
 	val population: Int,
 	val velocityPolicy: VelocityPolicy = VelocityPolicy.Distance,
 	val approachPersonalPolicy: ApproachPolicy = ApproachPolicy.Distance,
-	val approachTopPolicy: ApproachPolicy = ApproachPolicy.TwoThird,
+	val approachTopPolicy: ApproachPolicy = ApproachPolicy.OneThird,
 	val initialMutationPolicy: MutationPolicy = ReplaceMutationPolicy(1.0),
 )
+
+/**
+ *  Has resistance to overfitting (Maybe due to distributed param growth)
+ *  val velocityPolicy: VelocityPolicy = VelocityPolicy.Distance,
+ * 	val approachPersonalPolicy: ApproachPolicy = ApproachPolicy.Distance,
+ * 	val approachTopPolicy: ApproachPolicy = ApproachPolicy.OneThird,
+ */

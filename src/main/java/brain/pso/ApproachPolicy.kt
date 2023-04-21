@@ -57,7 +57,7 @@ class DistanceApproachPolicy(private val maxDistance: Float = 10f): ApproachPoli
 			getDistanceSquared(it.value, toW)
 		}.sum()
 
-		val progress = (maxDistance / (sqrt(sumD) + maxDistance)) + 0.1f // shift by 10% to overshoot and ensure movement
+		val progress = (maxDistance / (sqrt(sumD) + maxDistance)) // shift by 10% to overshoot and ensure movement
 
 //		printCyanBr("total distance is: ${sqrt(sumD)}, progress: $progress")
 
@@ -76,7 +76,7 @@ class DistanceApproachPolicy(private val maxDistance: Float = 10f): ApproachPoli
 
 	override fun approachWeight(fromMod: WeightGenes, toRef: WeightGenes, progress: Float) {
 		fromMod.genes.indices.forEach {
-			val newValue = fromMod.genes[it] * (1 - progress) + toRef.genes[it] * progress
+			val newValue = fromMod.genes[it] * (1 - progress) + toRef.genes[it] * (progress + Random.nextFloat() / 10)
 			fromMod.genes[it] = newValue
 			if (!newValue.isFinite()) throw IllegalStateException()
 		}

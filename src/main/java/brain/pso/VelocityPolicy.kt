@@ -2,14 +2,12 @@ package brain.pso
 
 import brain.ga.weights.ModelGenes
 import brain.utils.roundUpInt
-import kotlin.math.roundToInt
-import kotlin.math.sqrt
 import kotlin.random.Random
 
 interface VelocityPolicy {
 
 	companion object {
-		val SQRT_NOISE = SqrtNoiseVelocityPolicy()
+		val CONST_NOISE = ConstNoiseVelocityPolicy()
 		val Distance = NoiseVelocityPolicy()
 	}
 
@@ -17,7 +15,7 @@ interface VelocityPolicy {
 
 }
 
-class SqrtNoiseVelocityPolicy : VelocityPolicy {
+class ConstNoiseVelocityPolicy : VelocityPolicy {
 
 	override fun move(mod: ModelGenes) {
 		val totalGeneCount = mod.layers.values.sumOf { it.map.values.sumOf { it.size } }
@@ -38,10 +36,9 @@ class SqrtNoiseVelocityPolicy : VelocityPolicy {
 	}
 
 	private fun produceMoveVector(totalGeneCount: Int): List<Float> {
-		val sqrtR = sqrt(totalGeneCount.toFloat()).roundToInt()
 		return (0 until totalGeneCount).map {
-			if (Random.nextInt(sqrtR + 2) == 0) {
-				(Random.nextFloat() * 2 - 1f) * (sqrtR / totalGeneCount)
+			if (Random.nextInt(10) == 0) {
+				(Random.nextFloat() * 2 - 1f)
 			} else {
 				(Random.nextFloat() * 2 - 1f) / totalGeneCount
 			}
