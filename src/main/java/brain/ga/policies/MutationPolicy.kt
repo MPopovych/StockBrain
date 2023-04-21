@@ -45,9 +45,9 @@ open class AdditiveMutationPolicy(private val fraction: Double = 0.01) : Mutatio
 	}
 }
 
-open class ReplaceMutationPolicy(private val fraction: Double = 0.01) : MutationPolicy {
+open class ReplaceMutationPolicy(private val fraction: Double = 0.01, private val mod: Float = 1f) : MutationPolicy {
 	private val randomRangeSupplier = Suppliers.RandomRangeNP
-	private fun supplyNext(count: Int) = randomRangeSupplier.supply(count, 0, 0)
+	private fun supplyNext(count: Int) = randomRangeSupplier.supply(count, 0, 0) * mod
 
 	override fun mutateWeight(
 		source: WeightGenes,

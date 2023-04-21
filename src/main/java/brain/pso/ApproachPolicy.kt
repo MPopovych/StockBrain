@@ -1,11 +1,11 @@
 package brain.pso
 
 import brain.ga.weights.LayerGenes
+import brain.ga.weights.ModelGenes
 import brain.ga.weights.WeightGenes
-import brain.utils.printCyanBr
-import brain.utils.printYellowBr
-import brain.utils.roundToDec
-import kotlin.math.*
+import kotlin.math.min
+import kotlin.math.pow
+import kotlin.math.sqrt
 import kotlin.random.Random
 
 interface ApproachPolicy {
@@ -15,11 +15,27 @@ interface ApproachPolicy {
 		val OneFifth = ConstApproachPolicy(0.2f)
 		val OneThird = ConstApproachPolicy(0.3f)
 		val TwoThird = ConstApproachPolicy(0.6f)
-		val Distance = DistanceApproachPolicy()
+		val KeepDistance = DistanceApproachPolicy()
+		val FastApproach = ProximityApproachPolicy()
 	}
 
-	fun approach(fromMod: LayerGenes,
-	             toRef: LayerGenes,) {
+	fun approach(
+		fromMod: ModelGenes,
+		toRef: ModelGenes,
+	) {
+		fromMod.layers.forEach { (s, layer) ->
+			val destinationLayer = toRef.layers[s] ?: throw IllegalStateException("no layer at: $s")
+			approach(
+				fromMod = layer,
+				toRef = destinationLayer,
+			)
+		}
+	}
+
+	fun approach(
+		fromMod: LayerGenes,
+		toRef: LayerGenes,
+	) {
 		if (fromMod.map.isEmpty()) return
 
 		for (weight in fromMod.map) {
@@ -36,7 +52,7 @@ interface ApproachPolicy {
 	)
 }
 
-class ConstApproachPolicy(val const: Float): ApproachPolicy {
+class ConstApproachPolicy(val const: Float) : ApproachPolicy {
 	override fun approachWeight(fromMod: WeightGenes, toRef: WeightGenes, progress: Float) {
 		fromMod.genes.indices.forEach {
 			val newValue = fromMod.genes[it] * (1 - const) + toRef.genes[it] * const
@@ -47,9 +63,11 @@ class ConstApproachPolicy(val const: Float): ApproachPolicy {
 }
 
 
-class DistanceApproachPolicy(private val maxDistance: Float = 10f): ApproachPolicy {
-	override fun approach(fromMod: LayerGenes,
-	                      toRef: LayerGenes,) {
+class DistanceApproachPolicy(private val maxDistance: Float = 10f) : ApproachPolicy {
+	override fun approach(
+		fromMod: LayerGenes,
+		toRef: LayerGenes,
+	) {
 		if (fromMod.map.isEmpty()) return
 
 		val sumD = fromMod.map.map {
@@ -72,6 +90,41 @@ class DistanceApproachPolicy(private val maxDistance: Float = 10f): ApproachPoli
 		return fromMod.genes.mapIndexed { index, fl ->
 			(toRef.genes[index] - fl).pow(2)
 		}.sum()
+	}
+
+	override fun approachWeight(fromMod: WeightGenes, toRef: WeightGenes, progress: Float) {
+		fromMod.genes.indices.forEach {
+			val newValue = fromMod.genes[it] * (1 - progress) + toRef.genes[it] * (progress + Random.nextFloat() / 10)
+			fromMod.genes[it] = newValue
+			if (!newValue.isFinite()) throw IllegalStateException()
+		}
+	}
+}
+
+
+class ProximityApproachPolicy(private val const: Float = 3f, private val cap: Float = 10f) : ApproachPolicy {
+
+	override fun approach(fromMod: ModelGenes, toRef: ModelGenes) {
+		val distance = min(PSOUtils.modelDistance(fromMod, toRef), cap)
+		val progress = (1 + distance) / (const + distance)
+		fromMod.layers.forEach { (s, layer) ->
+			val destinationLayer = toRef.layers[s] ?: throw IllegalStateException("no layer at: $s")
+
+			if (layer.map.isEmpty()) return@forEach
+
+			for (weight in layer.map) {
+				val wFromMod = layer.map[weight.key] ?: throw IllegalStateException()
+				val wToRef = destinationLayer.map[weight.key] ?: throw IllegalStateException()
+				approachWeight(fromMod = wFromMod, toRef = wToRef, progress)
+			}
+		}
+	}
+
+	override fun approach(
+		fromMod: LayerGenes,
+		toRef: LayerGenes,
+	) {
+		throw IllegalStateException()
 	}
 
 	override fun approachWeight(fromMod: WeightGenes, toRef: WeightGenes, progress: Float) {

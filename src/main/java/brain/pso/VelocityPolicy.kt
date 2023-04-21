@@ -18,7 +18,7 @@ interface VelocityPolicy {
 class ConstNoiseVelocityPolicy : VelocityPolicy {
 
 	override fun move(mod: ModelGenes) {
-		val totalGeneCount = mod.layers.values.sumOf { it.map.values.sumOf { it.size } }
+		val totalGeneCount = PSOUtils.countModelGenes(mod)
 		val moveVector = produceMoveVector(totalGeneCount)
 
 		var processed = 0
@@ -51,7 +51,7 @@ class NoiseVelocityPolicy(private val distance: Float = 10f) : VelocityPolicy {
 	private val fraction = 0.20
 
 	override fun move(mod: ModelGenes) {
-		val totalGeneCount = mod.layers.values.sumOf { it.map.values.sumOf { it.size } }
+		val totalGeneCount = PSOUtils.countModelGenes(mod)
 		val moveVector = produceMoveVector(totalGeneCount)
 
 		var processed = 0

@@ -8,9 +8,9 @@ data class PSOSettings(
 	val order: PSOScoreBoardOrder,
 	val population: Int,
 	val velocityPolicy: VelocityPolicy = VelocityPolicy.Distance,
-	val approachPersonalPolicy: ApproachPolicy = ApproachPolicy.Distance,
+	val approachPersonalPolicy: ApproachPolicy = ApproachPolicy.KeepDistance, // explore
 	val approachTopPolicy: ApproachPolicy = ApproachPolicy.OneThird,
-	val initialMutationPolicy: MutationPolicy = ReplaceMutationPolicy(1.0),
+	val initialMutationPolicy: MutationPolicy = ReplaceMutationPolicy(1.0, mod = 0.1f),
 )
 
 /**

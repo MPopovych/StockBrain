@@ -2,6 +2,7 @@ package brain.pso
 
 import brain.utils.printGreenBr
 import brain.utils.roundUp
+import kotlin.math.abs
 import kotlin.math.pow
 import kotlin.math.sqrt
 
@@ -31,11 +32,19 @@ class PSOScoreBoard(val order: Int, private val settings: PSOSettings) {
 		return best?.best
 	}
 
+	fun getDeviation(): Double {
+		return scoreList.values.map { it.current.score }.let {
+			val mean = it.average()
+			val stdSum = it.sumOf { score -> abs(score - mean) }
+			return@let stdSum / size
+		}
+	}
+
 	fun getStandardDeviation(): Double {
 		return scoreList.values.map { it.current.score }.let {
 			val mean = it.average()
-			val stdSum = it.sumOf { score -> (score - mean).pow(2) }
-			return@let sqrt(stdSum / size)
+			val powAvg = it.sumOf { score -> (score - mean).pow(2) } / size
+			return@let sqrt(powAvg)
 		}
 	}
 
@@ -62,13 +71,18 @@ class PSOScoreBoard(val order: Int, private val settings: PSOSettings) {
 	}
 
 	fun printScoreBoard(limit: Int? = null) {
+		val top = best ?: return
+
 		val sb = StringBuilder()
 		val std = getStandardDeviation()
+		val dev = getDeviation()
 		sb.append("Room: $order - ")
-		sb.append("Score deviation: ${std.roundUp(6)}").appendLine()
+		sb.append("Std: ${std.roundUp(6)}, Dev: ${dev.roundUp(6)}").appendLine()
 		getAscendingFitnessList().takeLast(limit ?: scoreList.size).forEach { t ->
-			sb.append("current: ${t.current.score.roundUp(6)} \t" +
-					"- best: ${t.best.score.roundUp(6)} \t" +
+			val distanceToTop = PSOUtils.modelDistance(t.current.genes, top.best.genes)
+			sb.append("current: ${t.current.score.roundUp(6).toString().padEnd(8)} \t" +
+					"- best: ${t.best.score.roundUp(6).toString().padEnd(8)} \t" +
+					"- d: ${distanceToTop.roundUp(3).toString().padEnd(5)} \t" +
 					"- h: ${t.current.genes.hashCode().toString().padEnd(15)} \t: ${t.ordinal}" ).appendLine()
 		}
 		printGreenBr(sb.toString().trimIndent())

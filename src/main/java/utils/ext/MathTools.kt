@@ -87,19 +87,15 @@ fun <T> standardDeviation(inputEntries: List<T>, count: Int, block: (T) -> Doubl
 }
 
 fun DoubleArray.std(): Double {
-	val squared = this.map { it.pow(2) }
-	val sumSquared = squared.sum()
-	val sum = this.sum()
-	val main = (sumSquared - (sum.pow(2) / size)) / size
-	return sqrt(abs(main))
+	val mean = this.average()
+	val deltaSquared = this.map { (mean - it).pow(2) }
+	return sqrt(deltaSquared.sum() / deltaSquared.size)
 }
 
 fun FloatArray.std(): Float {
-	val squared = this.map { it.pow(2) }
-	val sumSquared = squared.sum()
-	val sum = this.sum()
-	val main = (sumSquared - (sum.pow(2) / size)) / size
-	return sqrt(abs(main))
+	val mean = this.average()
+	val deltaSquared = this.map { (mean - it.toDouble()).pow(2) }
+	return sqrt(deltaSquared.sum() / deltaSquared.size).toFloat()
 }
 
 fun FloatArray.median(): Float {
@@ -130,11 +126,9 @@ fun Iterable<Number>.average(): Float {
 }
 
 fun Iterable<Number>.std(): Float {
-	val squared = this.map { it.toDouble().pow(2) }
-	val sumSquared = squared.sum()
-	val sum = this.sumOf { it.toDouble() }
-	val main = (sumSquared - (sum.pow(2) / squared.size)) / squared.size
-	return sqrt(abs(main)).toFloat()
+	val mean = this.average()
+	val deltaSquared = this.map { (mean - it.toDouble()).pow(2) }
+	return sqrt(deltaSquared.sum() / deltaSquared.size).toFloat()
 }
 
 fun Iterable<Number>.median(): Float {

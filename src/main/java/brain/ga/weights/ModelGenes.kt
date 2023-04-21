@@ -89,13 +89,7 @@ class ModelGenes(
 		approachPolicy: ApproachPolicy,
 		destination: ModelGenes,
 	): ModelGenes {
-		layers.forEach { (s, layer) ->
-			val destinationLayer = destination.layers[s] ?: throw IllegalStateException("no layer at: $s")
-			approachPolicy.approach(
-				fromMod = layer,
-				toRef = destinationLayer,
-			)
-		}
+		approachPolicy.approach(this, destination)
 		return this
 	}
 
