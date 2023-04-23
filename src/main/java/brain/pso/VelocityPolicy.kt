@@ -5,18 +5,15 @@ import brain.utils.roundUpInt
 import kotlin.random.Random
 
 interface VelocityPolicy {
-
 	companion object {
-		val CONST_NOISE = ConstNoiseVelocityPolicy()
-		val Distance = NoiseVelocityPolicy()
+		val ConstNoise = ConstNoiseVelocityPolicy()
+		val Distance = CappedDistanceVelocityPolicy()
 	}
 
 	fun move(mod: ModelGenes)
-
 }
 
 class ConstNoiseVelocityPolicy : VelocityPolicy {
-
 	override fun move(mod: ModelGenes) {
 		val totalGeneCount = PSOUtils.countModelGenes(mod)
 		val moveVector = produceMoveVector(totalGeneCount)
@@ -36,18 +33,18 @@ class ConstNoiseVelocityPolicy : VelocityPolicy {
 	}
 
 	private fun produceMoveVector(totalGeneCount: Int): List<Float> {
-		return (0 until totalGeneCount).map {
-			if (Random.nextInt(10) == 0) {
-				(Random.nextFloat() * 2 - 1f)
-			} else {
-				(Random.nextFloat() * 2 - 1f) / totalGeneCount
-			}
+		val randomPeaks = (0 until 10).map {
+			(Random.nextFloat() * 2 - 1f)
 		}
+		val randomFlats = (10 until totalGeneCount).map {
+			(Random.nextFloat() * 2 - 1f) / totalGeneCount
+		}
+		return (randomPeaks + randomFlats).shuffled()
 	}
 }
 
 
-class NoiseVelocityPolicy(private val distance: Float = 10f) : VelocityPolicy {
+class CappedDistanceVelocityPolicy(private val distance: Float = 10f) : VelocityPolicy {
 	private val fraction = 0.20
 
 	override fun move(mod: ModelGenes) {
@@ -74,7 +71,7 @@ class NoiseVelocityPolicy(private val distance: Float = 10f) : VelocityPolicy {
 		val randomPeaks = (0 until sqrtR).map {
 			(Random.nextFloat() * 2 - 1f)
 		}
-		val randomFlats = (sqrtR until  totalGeneCount).map {
+		val randomFlats = (sqrtR until totalGeneCount).map {
 			(Random.nextFloat() * 2 - 1f) / totalGeneCount
 		}
 		val distributionArray = (randomPeaks + randomFlats).shuffled()

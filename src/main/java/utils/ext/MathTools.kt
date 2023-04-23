@@ -131,6 +131,12 @@ fun Iterable<Number>.std(): Float {
 	return sqrt(deltaSquared.sum() / deltaSquared.size).toFloat()
 }
 
+fun Iterable<Number>.dev(): Float {
+	val mean = this.average()
+	val deltaSquared = this.map { abs(mean - it.toFloat()) }
+	return deltaSquared.sum() / deltaSquared.size
+}
+
 fun Iterable<Number>.median(): Float {
 	val sorted = this.map { it.toFloat() }.sorted()
 	return if (sorted.size % 2 == 0)

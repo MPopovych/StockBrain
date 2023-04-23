@@ -11,6 +11,7 @@ import kotlin.random.Random
 interface ApproachPolicy {
 
 	companion object {
+		val Classic = ClassicApproachPolicy(0.6f)
 		val OneTenth = ConstApproachPolicy(0.1f)
 		val OneFifth = ConstApproachPolicy(0.2f)
 		val OneThird = ConstApproachPolicy(0.3f)
@@ -77,8 +78,6 @@ class DistanceApproachPolicy(private val maxDistance: Float = 10f) : ApproachPol
 
 		val progress = (maxDistance / (sqrt(sumD) + maxDistance)) // shift by 10% to overshoot and ensure movement
 
-//		printCyanBr("total distance is: ${sqrt(sumD)}, progress: $progress")
-
 		for (weight in fromMod.map) {
 			val wFromMod = fromMod.map[weight.key] ?: throw IllegalStateException()
 			val wToRef = toRef.map[weight.key] ?: throw IllegalStateException()
@@ -106,7 +105,8 @@ class ProximityApproachPolicy(private val const: Float = 3f, private val cap: Fl
 
 	override fun approach(fromMod: ModelGenes, toRef: ModelGenes) {
 		val distance = min(PSOUtils.modelDistance(fromMod, toRef), cap)
-		val progress = (1 + distance) / (const + distance)
+		val progress = (Random.nextFloat() / 2 + 0.25f) * (1 + distance) / (const + distance)
+//		val progress = (1 + distance) / (const + distance)
 		fromMod.layers.forEach { (s, layer) ->
 			val destinationLayer = toRef.layers[s] ?: throw IllegalStateException("no layer at: $s")
 
@@ -130,6 +130,18 @@ class ProximityApproachPolicy(private val const: Float = 3f, private val cap: Fl
 	override fun approachWeight(fromMod: WeightGenes, toRef: WeightGenes, progress: Float) {
 		fromMod.genes.indices.forEach {
 			val newValue = fromMod.genes[it] * (1 - progress) + toRef.genes[it] * (progress + Random.nextFloat() / 10)
+			fromMod.genes[it] = newValue
+			if (!newValue.isFinite()) throw IllegalStateException()
+		}
+	}
+}
+
+class ClassicApproachPolicy(private val const: Float = 0.6f) : ApproachPolicy {
+
+	override fun approachWeight(fromMod: WeightGenes, toRef: WeightGenes, progress: Float) {
+		fromMod.genes.indices.forEach {
+			val progressR = Random.nextFloat() * const
+			val newValue = fromMod.genes[it] * (1 - progressR) + toRef.genes[it] * progressR
 			fromMod.genes[it] = newValue
 			if (!newValue.isFinite()) throw IllegalStateException()
 		}
