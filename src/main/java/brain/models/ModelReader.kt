@@ -127,6 +127,7 @@ object ModelReader {
 					updateActivation = updateActivation,
 					resetActivation = resetActivation,
 					units = ls.width,
+					reverse = meta.reverse,
 					useBias = meta.useBias,
 					name = ls.name
 				) {
