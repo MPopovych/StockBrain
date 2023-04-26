@@ -126,9 +126,9 @@ object ModelReader {
 					activation = activation,
 					updateActivation = updateActivation,
 					resetActivation = resetActivation,
-					units = ls.width,
 					reverse = meta.reverse,
 					useBias = meta.useBias,
+					units = ls.width,
 					name = ls.name
 				) {
 					buffer[parent] ?: throw IllegalStateException("No parent found in buffer")
@@ -148,8 +148,9 @@ object ModelReader {
 					activation = activation,
 					updateActivation = updateActivation,
 					resetActivation = resetActivation,
-					units = ls.width,
+					reverse = meta.reverse,
 					useBias = meta.useBias,
+					units = ls.width,
 					name = ls.name
 				) {
 					buffer[parent] ?: throw IllegalStateException("No parent found in buffer")
@@ -161,7 +162,13 @@ object ModelReader {
 					(ls.getMetaData() as? LayerMetaData.RNNMeta) ?: throw IllegalStateException("No meta for RNN")
 				val activation = Activations.deserialize(ls.activation)
 				val parent = ls.parents?.getOrNull(0) ?: throw IllegalStateException("No parent in RNN")
-				RNN(activation = activation, units = ls.width, useBias = meta.useBias, name = ls.name) {
+				RNN(
+					activation = activation,
+					reverse = meta.reverse,
+					useBias = meta.useBias,
+					units = ls.width,
+					name = ls.name
+				) {
 					buffer[parent] ?: throw IllegalStateException("No parent found in buffer")
 				}
 			}
@@ -171,7 +178,13 @@ object ModelReader {
 					?: throw IllegalStateException("No meta for RNN iterative")
 				val activation = Activations.deserialize(ls.activation)
 				val parent = ls.parents?.getOrNull(0) ?: throw IllegalStateException("No parent in RNN iterative")
-				RNNIterative(activation = activation, units = ls.width, useBias = meta.useBias, name = ls.name) {
+				RNNIterative(
+					activation = activation,
+					reverse = meta.reverse,
+					useBias = meta.useBias,
+					units = ls.width,
+					name = ls.name
+				) {
 					buffer[parent] ?: throw IllegalStateException("No parent found in buffer")
 				}
 			}
