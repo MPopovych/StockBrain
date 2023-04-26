@@ -40,9 +40,11 @@ object ModelReader {
 		val model = builder.build(debug)
 
 		serialized.layers.forEach { ls ->
-			val modelLayer = model.graphMap[ls.name] ?: throw IllegalStateException("No layer found with name ${ls.name}")
+			val modelLayer =
+				model.graphMap[ls.name] ?: throw IllegalStateException("No layer found with name ${ls.name}")
 			(ls.weights ?: emptyList()).forEach { w ->
-				val modelWeight = modelLayer.layer.weights[w.name] ?: throw IllegalStateException("No weight found with name ${w.name}")
+				val modelWeight = modelLayer.layer.weights[w.name]
+					?: throw IllegalStateException("No weight found with name ${w.name}")
 				try {
 					modelWeight.matrix.writeStringData(w.value)
 				} catch (e: Exception) {
@@ -67,6 +69,7 @@ object ModelReader {
 					buffer[parent] ?: throw IllegalStateException("No parent found in buffer")
 				}
 			}
+
 			Pivot.defaultNameType -> {
 				val parent = ls.parents?.getOrNull(0) ?: throw IllegalStateException("No parent in Pivot")
 				Pivot(name = ls.name) {
@@ -116,8 +119,17 @@ object ModelReader {
 				val meta =
 					(ls.getMetaData() as? LayerMetaData.GRUMeta) ?: throw IllegalStateException("No meta for GRU")
 				val activation = Activations.deserialize(ls.activation)
+				val updateActivation = Activations.deserialize(meta.updateActivation)
+				val resetActivation = Activations.deserialize(meta.resetActivation)
 				val parent = ls.parents?.getOrNull(0) ?: throw IllegalStateException("No parent in GRU")
-				GRU(activation = activation, units = ls.width, useBias = meta.useBias, name = ls.name) {
+				GRU(
+					activation = activation,
+					updateActivation = updateActivation,
+					resetActivation = resetActivation,
+					units = ls.width,
+					useBias = meta.useBias,
+					name = ls.name
+				) {
 					buffer[parent] ?: throw IllegalStateException("No parent found in buffer")
 				}
 			}
@@ -125,9 +137,20 @@ object ModelReader {
 			GRUIterative.defaultNameType -> {
 				val meta = (ls.getMetaData() as? LayerMetaData.GRUMeta)
 					?: throw IllegalStateException("No meta for GRU iterative")
+
 				val activation = Activations.deserialize(ls.activation)
+				val updateActivation = Activations.deserialize(meta.updateActivation)
+				val resetActivation = Activations.deserialize(meta.resetActivation)
+
 				val parent = ls.parents?.getOrNull(0) ?: throw IllegalStateException("No parent in GRU iterative")
-				GRUIterative(activation = activation, units = ls.width, useBias = meta.useBias, name = ls.name) {
+				GRUIterative(
+					activation = activation,
+					updateActivation = updateActivation,
+					resetActivation = resetActivation,
+					units = ls.width,
+					useBias = meta.useBias,
+					name = ls.name
+				) {
 					buffer[parent] ?: throw IllegalStateException("No parent found in buffer")
 				}
 			}

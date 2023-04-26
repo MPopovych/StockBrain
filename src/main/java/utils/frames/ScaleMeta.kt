@@ -14,6 +14,7 @@ enum class ScaleMetaType {
 	TanhNorm,
 	Scale20,
 	SplitScale20,
+	SplitScale50,
 
 	None;
 
@@ -57,6 +58,7 @@ data class ScaleMeta(
 		private val TanhHorm = TanhNorm()
 		private val Scale20 = Scale20()
 		private val SplitScale20 = SplitScale20()
+		private val SplitScale50 = SplitScale50()
 		private val StandardizeZeroNorm = NPStandardizeZeroNorm()
 	}
 
@@ -74,6 +76,7 @@ data class ScaleMeta(
 			ScaleMetaType.TanhNorm -> TanhHorm.performScale(this, value)
 			ScaleMetaType.Scale20 -> Scale20.performScale(this, value)
 			ScaleMetaType.SplitScale20 -> SplitScale20.performScale(this, value)
+			ScaleMetaType.SplitScale50 -> SplitScale50.performScale(this, value)
 			ScaleMetaType.None -> value
 		}
 	}
@@ -88,6 +91,7 @@ data class ScaleMeta(
 			ScaleMetaType.TanhNorm -> TanhHorm.performScale(this, array)
 			ScaleMetaType.Scale20 -> Scale20.performScale(this, array)
 			ScaleMetaType.SplitScale20 -> SplitScale20.performScale(this, array)
+			ScaleMetaType.SplitScale50 -> SplitScale50.performScale(this, array)
 			ScaleMetaType.None -> array.copyOf()
 		}
 	}

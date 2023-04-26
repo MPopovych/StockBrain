@@ -79,13 +79,13 @@ class PSO(
 	) {
 		room.getAscendingFitnessList().forEach { model ->
 			val top = room.getTop() ?: throw IllegalStateException()
-			val movedBuffer = if (generation % 2 == 0) {
-				model.current.genes.copy().applyVelocityPolicy(settings.velocityPolicy)
-			} else {
-				ScoredVelocityPolicy.move(room, model.current.genes.copy())
-			}
-//			val movedBuffer = ScoredVelocityPolicy.move(room, model.current.genes.copy())
-//			val movedBuffer = model.current.genes.copy().applyVelocityPolicy(settings.velocityPolicy)
+//			val movedBuffer = if (generation % 2 == 0) {
+//				model.current.genes.copy().applyVelocityPolicy(settings.velocityPolicy)
+//			} else {
+//				ScoredVelocityPolicy.move(room, model.current.genes.copy())
+//			}
+////			val movedBuffer = ScoredVelocityPolicy.move(room, model.current.genes.copy())
+			val movedBuffer = model.current.genes.copy().applyVelocityPolicy(settings.velocityPolicy)
 			movedBuffer.applyToModel(model.modelBuffer)
 			movedBuffer.applyApproachPolicy(
 				settings.approachPersonalPolicy,

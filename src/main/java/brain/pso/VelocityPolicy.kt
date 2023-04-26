@@ -2,6 +2,8 @@ package brain.pso
 
 import brain.ga.weights.ModelGenes
 import brain.utils.roundUpInt
+import kotlin.math.max
+import kotlin.math.min
 import kotlin.random.Random
 
 interface VelocityPolicy {
@@ -23,7 +25,7 @@ class ConstNoiseVelocityPolicy : VelocityPolicy {
 			for (weightGenes in layerGenes.map.values) {
 				val subVector = moveVector.subList(processed, processed + weightGenes.size)
 				weightGenes.genes.indices.forEach {
-					weightGenes.genes[it] += subVector[it]
+					weightGenes.genes[it] = (weightGenes.genes[it] + subVector[it]) * 0.995f
 				}
 				processed += weightGenes.size
 
@@ -56,7 +58,7 @@ class CappedDistanceVelocityPolicy(private val distance: Float = 10f) : Velocity
 			for (weightGenes in layerGenes.map.values) {
 				val subVector = moveVector.subList(processed, processed + weightGenes.size)
 				weightGenes.genes.indices.forEach {
-					weightGenes.genes[it] += subVector[it]
+					weightGenes.genes[it] = (weightGenes.genes[it] + subVector[it]) * 0.99f
 				}
 				processed += weightGenes.size
 
@@ -77,7 +79,7 @@ class CappedDistanceVelocityPolicy(private val distance: Float = 10f) : Velocity
 		val distributionArray = (randomPeaks + randomFlats).shuffled()
 		val distSum = distributionArray.sum()
 		val positionDeltaArray = distributionArray.map {
-			distance * (it / distSum)
+			max(min(distance * (it / distSum), 1f), -1f)
 		}
 		return positionDeltaArray
 	}

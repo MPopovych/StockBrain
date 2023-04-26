@@ -2,13 +2,15 @@ package brain.layers
 
 import brain.activation.ActivationFunction
 import brain.activation.Activations
+import brain.activation.nameType
 import brain.matrix.Matrix
 import brain.matrix.MatrixMath
-import brain.suppliers.Suppliers
 
 class GRUIterative(
 	val units: Int,
 	val activation: ActivationFunction? = Activations.FastTanh,
+	val updateActivation: ActivationFunction? = Activations.Sigmoid,
+	val resetActivation: ActivationFunction? = Activations.Sigmoid,
 	val reverse: Boolean = false,
 	val useBias: Boolean = true,
 	override var name: String = Layer.DEFAULT_NAME,
@@ -26,6 +28,8 @@ class GRUIterative(
 	override fun create(): GRUIterativeImpl {
 		return GRUIterativeImpl(
 			activation = activation,
+			updateActivation = updateActivation,
+			resetActivation = resetActivation,
 			units = units,
 			reverse = reverse,
 			useBias = useBias,
@@ -42,18 +46,25 @@ class GRUIterative(
 	}
 
 	override fun getSerializedBuilderData(): LayerMetaData.GRUMeta {
-		return LayerMetaData.GRUMeta(useBias = useBias, reverse = reverse)
+		return LayerMetaData.GRUMeta(
+			useBias = useBias,
+			reverse = reverse,
+			updateActivation = updateActivation?.nameType(),
+			resetActivation = resetActivation?.nameType()
+		)
 	}
 }
 
 class GRUIterativeImpl(
 	activation: ActivationFunction?,
+	updateActivation: ActivationFunction?,
+	resetActivation: ActivationFunction?,
 	units: Int,
 	reverse: Boolean,
 	useBias: Boolean,
 	parentShape: LayerShape,
 	name: String,
-) : GRUImpl(activation, units, reverse, useBias, parentShape, name) {
+) : GRUImpl(activation, updateActivation, resetActivation, units, reverse, useBias, parentShape, name) {
 	override val nameType: String = GRUIterative.defaultNameType
 
 	override fun init() {

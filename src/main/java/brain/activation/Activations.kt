@@ -8,7 +8,8 @@ object Activations {
 	val ReverseReLu = ReverseReLuFunction()
 	val LeReLu = LeakyReLuFunction()
 	val ReLuMinMax = ReLuMinMaxFunction()
-	val NegZeroPos = NegZeroPosFunction()
+	val ReLuTanh = ReLuTanhFunction()
+	val NegPosRange = NegPosRangeFunction()
 	val BinaryNegPos = BinaryNegPosFunction()
 	val Binary = BinaryStepFunction()
 	val BinaryRange = BinaryRangeFunction()
@@ -36,7 +37,7 @@ object Activations {
 			ReLu.nameType() -> ReLu
 			ReverseReLu.nameType() -> ReverseReLu
 			LeReLu.nameType() -> LeReLu
-			NegZeroPos.nameType() -> NegZeroPos
+			NegPosRange.nameType() -> NegPosRange
 			BinaryNegPos.nameType() -> BinaryNegPos
 			Binary.nameType() -> Binary
 			BinaryRange.nameType() -> BinaryRange
@@ -46,8 +47,7 @@ object Activations {
 			Sigmoid.nameType() -> Sigmoid
 			HardSigmoid.nameType() -> HardSigmoid
 			ReLuMinMax.nameType() -> ReLuMinMax
-			MirrorReLu.nameType() -> MirrorReLu
-			MirrorReversedReLu.nameType() -> MirrorReversedReLu
+			ReLuTanh.nameType() -> ReLuTanh
 			else -> throw IllegalArgumentException("unsupported type: $name")
 		}
 	}

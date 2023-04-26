@@ -2,6 +2,7 @@ package brain.layers
 
 import brain.activation.ActivationFunction
 import brain.activation.Activations
+import brain.activation.nameType
 import brain.matrix.Matrix
 import brain.matrix.MatrixMath
 import brain.suppliers.Suppliers
@@ -9,6 +10,8 @@ import brain.suppliers.Suppliers
 class GRU(
 	val units: Int,
 	val activation: ActivationFunction? = Activations.FastTanh,
+	val updateActivation: ActivationFunction? = Activations.Sigmoid,
+	val resetActivation: ActivationFunction? = Activations.Sigmoid,
 	val reverse: Boolean = false,
 	val useBias: Boolean = true,
 	override var name: String = Layer.DEFAULT_NAME,
@@ -30,6 +33,8 @@ class GRU(
 	override fun create(): GRUImpl {
 		return GRUImpl(
 			activation = activation,
+			updateActivation = updateActivation,
+			resetActivation = resetActivation,
 			units = units,
 			reverse = reverse,
 			useBias = useBias,
@@ -46,12 +51,17 @@ class GRU(
 	}
 
 	override fun getSerializedBuilderData(): LayerMetaData.GRUMeta {
-		return LayerMetaData.GRUMeta(useBias = useBias, reverse = reverse)
+		return LayerMetaData.GRUMeta(useBias = useBias,
+			reverse = reverse,
+			updateActivation = updateActivation?.nameType(),
+			resetActivation = resetActivation?.nameType())
 	}
 }
 
 open class GRUImpl(
 	override val activation: ActivationFunction?,
+	val updateActivation: ActivationFunction?,
+	val resetActivation: ActivationFunction?,
 	val units: Int,
 	val reverse: Boolean,
 	val useBias: Boolean,
@@ -153,14 +163,18 @@ open class GRUImpl(
 		MatrixMath.multiply(cellStateBufferPrev, zRecGate.matrix, zGateBufferM2)
 		MatrixMath.add(zGateBufferM1, zGateBufferM2, zGateBufferA1)
 		if (useBias) MatrixMath.add(zGateBufferA1, zBias.matrix, zGateBufferA1)
-		Activations.activate(zGateBufferA1, zGateBufferA1, Activations.Sigmoid)
+		resetActivation?.also {
+			Activations.activate(zGateBufferA1, zGateBufferA1, it)
+		}
 
 		// r
 		MatrixMath.multiply(cellStateBufferCurrent, rGate.matrix, rGateBufferM1)
 		MatrixMath.multiply(cellStateBufferPrev, rRecGate.matrix, rGateBufferM2)
 		MatrixMath.add(rGateBufferM1, rGateBufferM2, rGateBufferA1)
 		if (useBias) MatrixMath.add(rGateBufferA1, rBias.matrix, rGateBufferA1)
-		Activations.activate(rGateBufferA1, rGateBufferA1, Activations.Sigmoid)
+		updateActivation?.also {
+			Activations.activate(rGateBufferA1, rGateBufferA1, it)
+		}
 
 		// n
 		MatrixMath.multiply(cellStateBufferCurrent, hGate.matrix, nGateBufferM1)
