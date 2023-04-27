@@ -119,7 +119,7 @@ open class GRUImpl(
 		addWeights(hRecGate)
 
 		for (w in weights.values) {
-			Suppliers.fillFull(w.matrix, Suppliers.RandomRangeNP)
+			Suppliers.fillFull(w.matrix, Suppliers.RandomHE)
 		}
 
 		zBias = WeightData("zBias", Matrix(units, 1), trainable = useBias)
