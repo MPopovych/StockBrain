@@ -41,6 +41,7 @@ fun Float.upscale(delta: Int = 1): Float {
 }
 
 fun Float.roundDisplay(): String {
+	if (!this.isFinite()) return this.toString()
 	return this.toBigDecimal().setScale(3, RoundingMode.HALF_EVEN).toPlainString().removeTrailingZeroes()
 }
 
