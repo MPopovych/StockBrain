@@ -45,6 +45,19 @@ open class AdditiveMutationPolicy(private val fraction: Double = 0.01) : Mutatio
 	}
 }
 
+open class ZeroAllMutationPolicy(private val fraction: Float = 0.99f) : MutationPolicy {
+	override fun mutateWeight(
+		source: WeightGenes,
+		destination: WeightGenes,
+		totalGeneCount: Int,
+	) {
+		val indices = source.genes.indices
+		for (i in indices) {
+			destination.genes[i] *= fraction
+		}
+	}
+}
+
 open class ReplaceMutationPolicy(private val fraction: Double = 0.01, private val mod: Float = 1f) : MutationPolicy {
 	private val randomRangeSupplier = Suppliers.RandomRangeNP
 	private fun supplyNext(count: Int) = randomRangeSupplier.supply(count, 0, 0) * mod

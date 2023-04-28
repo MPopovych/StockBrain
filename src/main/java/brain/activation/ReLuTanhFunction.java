@@ -15,7 +15,7 @@ public class ReLuTanhFunction implements ActivationFunction  {
 
 	@Override
 	public float apply(float value) {
-		return Math.max(fastTanH(value / 2f) * 2f, 0f);
+		return Math.max(fastTanH(value * 2.5f), 0f);
 	}
 
 	private static float fastTanH(float x) {

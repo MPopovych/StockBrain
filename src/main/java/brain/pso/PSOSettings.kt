@@ -9,7 +9,7 @@ data class PSOSettings(
 	val population: Int,
 	val velocityPolicy: VelocityPolicy = VelocityPolicy.Distance,
 	val approachPersonalPolicy: ApproachPolicy = ApproachPolicy.Classic, // explore
-	val approachTopPolicy: ApproachPolicy = ApproachPolicy.Classic,
+	val approachTopPolicy: ApproachPolicy = ApproachPolicy.OneFifth,
 	val initialMutationPolicy: MutationPolicy = ReplaceMutationPolicy(1.0, mod = 0.1f),
 )
 

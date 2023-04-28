@@ -5,20 +5,24 @@ import brain.matrix.Matrix
 object Activations {
 	val Abs = AbsFunction()
 	val ReLu = ReLuFunction()
-	val ReverseReLu = ReverseReLuFunction()
 	val LeReLu = LeakyReLuFunction()
+	val ReLu6 = ReLu6Function()
+
+	val Zero = ZeroFunction() // test
+	val Tanh = TanhFunction()
+	val FastTanh = FastTanhFunction()
+	val Sigmoid = SigmoidFunction()
+	val HardSigmoid = HardSigmoidFunction()
+
+	val ReverseReLu = ReverseReLuFunction()
 	val ReLuMinMax = ReLuMinMaxFunction()
 	val ReLuTanh = ReLuTanhFunction()
 	val NegPosRange = NegPosRangeFunction()
 	val BinaryNegPos = BinaryNegPosFunction()
 	val Binary = BinaryStepFunction()
 	val BinaryRange = BinaryRangeFunction()
-	val Zero = ZeroFunction() // test
-	val Tanh = TanhFunction()
-	val FastTanh = FastTanhFunction()
-	val Sigmoid = SigmoidFunction()
-	val HardSigmoid = HardSigmoidFunction()
-	val MirrorReLu = MirrorReLuFunction()
+	val SmallTanh = SmallTanhFunction()
+	val NormPeakFunction = NormPeakFunction()
 	val MirrorReversedReLu = MirrorReLuReversedFunction()
 
 	fun activate(matrix: Matrix, buffer: Matrix, function: ActivationFunction) {
@@ -37,6 +41,7 @@ object Activations {
 			ReLu.nameType() -> ReLu
 			ReverseReLu.nameType() -> ReverseReLu
 			LeReLu.nameType() -> LeReLu
+			ReLu6.nameType() -> ReLu6
 			NegPosRange.nameType() -> NegPosRange
 			BinaryNegPos.nameType() -> BinaryNegPos
 			Binary.nameType() -> Binary
@@ -45,9 +50,11 @@ object Activations {
 			Tanh.nameType() -> Tanh
 			FastTanh.nameType() -> FastTanh
 			Sigmoid.nameType() -> Sigmoid
+			SmallTanh.nameType() -> SmallTanh
 			HardSigmoid.nameType() -> HardSigmoid
 			ReLuMinMax.nameType() -> ReLuMinMax
 			ReLuTanh.nameType() -> ReLuTanh
+			NormPeakFunction.nameType() -> NormPeakFunction
 			else -> throw IllegalArgumentException("unsupported type: $name")
 		}
 	}

@@ -9,6 +9,10 @@ infix fun Double.kDif(other: Double): Double {
 	return (this - other) / this + 1
 }
 
+infix fun Double.kDivide(other: Double): Double {
+	return ((this - other) / ((this + other) / 2)) + 1.0
+}
+
 fun Matrix.getShape(): LayerShape {
 	return LayerShape(this.width, this.height)
 }
