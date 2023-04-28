@@ -5,6 +5,10 @@ import brain.matrix.Matrix
 import java.nio.ByteBuffer
 import java.util.*
 
+infix fun Double.kDif(other: Double): Double {
+	return (this - other) / this + 1
+}
+
 fun Matrix.getShape(): LayerShape {
 	return LayerShape(this.width, this.height)
 }
