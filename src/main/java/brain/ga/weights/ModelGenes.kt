@@ -4,6 +4,7 @@ import brain.ga.policies.CrossOverPolicy
 import brain.ga.policies.MutationPolicy
 import brain.models.Model
 import brain.pso.ApproachPolicy
+import brain.pso.PolicyContext
 import brain.pso.VelocityPolicy
 import brain.utils.encodeGenes
 
@@ -77,8 +78,8 @@ class ModelGenes(
 		return this
 	}
 
-	fun applyVelocityPolicy(velocityPolicy: VelocityPolicy): ModelGenes {
-		velocityPolicy.move(this)
+	fun applyVelocityPolicy(velocityPolicy: VelocityPolicy, context: PolicyContext): ModelGenes {
+		velocityPolicy.move(this, context)
 //		layers.forEach { (s, layer) ->
 //			velocityPolicy.move(mod = layer, totalGeneCount = geneCount)
 //		}

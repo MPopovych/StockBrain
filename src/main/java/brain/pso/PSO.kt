@@ -79,13 +79,9 @@ class PSO(
 	) {
 		room.getAscendingFitnessList().forEach { model ->
 			val top = room.getTop() ?: throw IllegalStateException()
-//			val movedBuffer = if (generation % 2 == 0) {
-//				model.current.genes.copy().applyVelocityPolicy(settings.velocityPolicy)
-//			} else {
-//				ScoredVelocityPolicy.move(room, model.current.genes.copy())
-//			}
-////			val movedBuffer = ScoredVelocityPolicy.move(room, model.current.genes.copy())
-			val movedBuffer = model.current.genes.copy().applyVelocityPolicy(settings.velocityPolicy)
+			val choreographK = settings.choreographyPolicy.getKForContext(settings, generation, room)
+			val psoContext = PolicyContext(generation, room, settings, choreographK)
+			val movedBuffer = model.current.genes.copy().applyVelocityPolicy(settings.velocityPolicy, psoContext)
 			movedBuffer.applyToModel(model.modelBuffer)
 			movedBuffer.applyApproachPolicy(
 				settings.approachPersonalPolicy,
@@ -113,7 +109,9 @@ class PSO(
 		action: ((PSOScoreContext) -> Double)
 	) {
 		room.getAscendingFitnessList().forEach { model ->
-			val movedBuffer = model.current.genes.copy().applyVelocityPolicy(settings.velocityPolicy)
+			val choreographK = settings.choreographyPolicy.getKForContext(settings, generation, room)
+			val psoContext = PolicyContext(generation, room, settings, choreographK)
+			val movedBuffer = model.current.genes.copy().applyVelocityPolicy(settings.velocityPolicy, psoContext)
 			movedBuffer.applyToModel(model.modelBuffer)
 			val moveContext = PSOScoreContext(generation, PSOAction.MOVE, model.modelBuffer, movedBuffer)
 			val moveScore = action(moveContext)

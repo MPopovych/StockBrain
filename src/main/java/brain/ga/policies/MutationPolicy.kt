@@ -45,7 +45,7 @@ open class AdditiveMutationPolicy(private val fraction: Double = 0.01) : Mutatio
 	}
 }
 
-open class ZeroAllMutationPolicy(private val fraction: Float = 0.99f) : MutationPolicy {
+open class ZeroAllMutationPolicy(private val fraction: Float = 0.01f) : MutationPolicy {
 	override fun mutateWeight(
 		source: WeightGenes,
 		destination: WeightGenes,

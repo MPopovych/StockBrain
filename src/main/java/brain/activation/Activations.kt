@@ -6,11 +6,13 @@ object Activations {
 	val Abs = AbsFunction()
 	val ReLu = ReLuFunction()
 	val LeReLu = LeakyReLuFunction()
+	val Par = ParFunction()
 	val ReLu6 = ReLu6Function()
 
 	val Zero = ZeroFunction() // test
 	val Tanh = TanhFunction()
 	val FastTanh = FastTanhFunction()
+	val RevTanh = RevTanhFunction()
 	val Sigmoid = SigmoidFunction()
 	val HardSigmoid = HardSigmoidFunction()
 
@@ -23,7 +25,8 @@ object Activations {
 	val BinaryRange = BinaryRangeFunction()
 	val SmallTanh = SmallTanhFunction()
 	val NormPeakFunction = NormPeakFunction()
-	val MirrorReversedReLu = MirrorReLuReversedFunction()
+	val NPCap = NPCap()
+	val Pit = PitFunction()
 
 	fun activate(matrix: Matrix, buffer: Matrix, function: ActivationFunction) {
 		for (y in 0 until matrix.height) {
@@ -41,6 +44,7 @@ object Activations {
 			ReLu.nameType() -> ReLu
 			ReverseReLu.nameType() -> ReverseReLu
 			LeReLu.nameType() -> LeReLu
+			Par.nameType() -> Par
 			ReLu6.nameType() -> ReLu6
 			NegPosRange.nameType() -> NegPosRange
 			BinaryNegPos.nameType() -> BinaryNegPos
@@ -49,12 +53,15 @@ object Activations {
 			Zero.nameType() -> Zero
 			Tanh.nameType() -> Tanh
 			FastTanh.nameType() -> FastTanh
+			RevTanh.nameType() -> RevTanh
 			Sigmoid.nameType() -> Sigmoid
 			SmallTanh.nameType() -> SmallTanh
 			HardSigmoid.nameType() -> HardSigmoid
 			ReLuMinMax.nameType() -> ReLuMinMax
 			ReLuTanh.nameType() -> ReLuTanh
 			NormPeakFunction.nameType() -> NormPeakFunction
+			Pit.nameType() -> Pit
+			NPCap.nameType() -> NPCap
 			else -> throw IllegalArgumentException("unsupported type: $name")
 		}
 	}

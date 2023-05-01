@@ -220,6 +220,19 @@ public class MatrixMath {
 		}
 	}
 
+	public static void elementWiseAdd(Matrix a, Matrix b, Matrix destination) {
+		int thisX = a.width; // right, number of columns
+		int thisY = a.height; // down, number of rows
+
+		checkSameDimensions(a, b, destination);
+
+		for (int y = 0; y < thisY; y++) {
+			for (int x = 0; x < thisX; x++) {
+				destination.values[y][x] = a.values[y][x] + b.values[y][x];
+			}
+		}
+	}
+
 	public static void hadamard(Matrix a, Matrix b, Matrix destination) {
 		int thisX = a.width; // right, number of columns
 		int thisY = a.height; // down, number of rows
