@@ -4,13 +4,11 @@ import brain.layers.LayerShape
 import brain.matrix.Matrix
 import java.nio.ByteBuffer
 import java.util.*
+import kotlin.math.ln
 
-infix fun Double.kDif(other: Double): Double {
-	return (this - other) / this + 1
-}
 
-infix fun Double.kDivide(other: Double): Double {
-	return ((this - other) / ((this + other) / 2)) + 1.0
+infix fun Double.lnDiv(other: Double): Double {
+	return ln(this / other) + 1.0
 }
 
 fun Matrix.getShape(): LayerShape {
