@@ -9,11 +9,15 @@ import kotlin.math.ln
 import kotlin.math.log
 
 infix fun Double.lnDiv2(other: Double): Double {
-	return log(this / other, 2.0) + 1.0
+	return log(this / other, 2.0)
 }
 
 infix fun Double.lnDiv(other: Double): Double {
-	return ln(this / other) + 1.0
+	return ln(this / other)
+}
+
+infix fun Double.divDiff(other: Double): Double {
+	return (this - other) / this
 }
 
 fun Matrix.getShape(): LayerShape {

@@ -105,11 +105,11 @@ class GaussianVelocityPolicy() : VelocityPolicy {
 						randomK = 10.0f
 					}
 					val avgCount = (weightGenes.size + sqrtCount) / 2
-					val m = jRandom.nextGaussian(0.0, 0.02).toFloat()
-					val a = jRandom.nextGaussian(0.0, 1.0).toFloat() * randomK * context.choreographyK / avgCount
+					val m = jRandom.nextGaussian().toFloat() * 0.02f
+					val a = jRandom.nextGaussian().toFloat() * randomK * context.choreographyK / avgCount
 					val v = weightGenes.genes[it] + weightGenes.genes[it] * m + a
-					weightGenes.genes[it] = max(min(1.1f, v), -1.1f) * 0.995f
-//					weightGenes.genes[it] = v
+					weightGenes.genes[it] = max(min(1.3f, v), -1.3f) * 0.995f
+//					weightGenes.genes[it] = v * 0.995f
 				}
 
 				if (weightGenes.genes.any { !it.isFinite() }) throw IllegalStateException()
