@@ -3,7 +3,6 @@ package brain.pso
 import brain.ga.weights.LayerGenes
 import brain.ga.weights.ModelGenes
 import brain.ga.weights.WeightGenes
-import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.pow
 import kotlin.math.sqrt
@@ -12,7 +11,8 @@ import kotlin.random.Random
 interface ApproachPolicy {
 
 	companion object {
-		val Classic = ClassicApproachPolicy(0.9f)
+		val Classic9 = ClassicApproachPolicy(0.9f)
+		val Classic6 = ClassicApproachPolicy(0.6f)
 		val Classic3 = ClassicApproachPolicy(0.3f)
 		val OneTenth = ConstApproachPolicy(0.1f)
 		val OneFifth = ConstApproachPolicy(0.2f)
@@ -138,13 +138,13 @@ class ProximityApproachPolicy(private val const: Float = 3f, private val cap: Fl
 	}
 }
 
-class ClassicApproachPolicy(private val const: Float = 0.6f) : ApproachPolicy {
+class ClassicApproachPolicy(private val randomFactor: Float = 0.6f, private val added: Float = 0.05f) : ApproachPolicy {
 
 	override fun approachWeight(fromMod: WeightGenes, toRef: WeightGenes, progress: Float) {
 		fromMod.genes.indices.forEach {
-			val rConst = Random.nextFloat() * const
-			val delta = fromMod.genes[it] - toRef.genes[it]
-			fromMod.genes[it] = fromMod.genes[it] - (delta * rConst)
+			val rConst = added + Random.nextFloat() * randomFactor
+			val delta = toRef.genes[it] - fromMod.genes[it]
+			fromMod.genes[it] = fromMod.genes[it] + (delta * rConst)
 			if (!delta.isFinite()) throw IllegalStateException()
 		}
 	}

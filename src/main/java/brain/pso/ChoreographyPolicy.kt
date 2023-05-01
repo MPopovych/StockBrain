@@ -1,11 +1,15 @@
 package brain.pso
 
 import kotlin.math.cos
+import kotlin.math.max
+import kotlin.math.pow
+import kotlin.math.sin
 
 interface ChoreographyPolicy {
 	companion object {
 		val Linear = LinearChoreographyPolicy
 		val SinGen = SinGenChoreographyPolicy(15)
+		val SinPeakGen = SinPeakGenChoreographyPolicy(15)
 	}
 	fun getKForContext(settings: PSOSettings, gen: Int, board: PSOScoreBoard): Float
 }
@@ -13,6 +17,13 @@ interface ChoreographyPolicy {
 object LinearChoreographyPolicy : ChoreographyPolicy {
 	override fun getKForContext(settings: PSOSettings, gen: Int, board: PSOScoreBoard): Float {
 		return 1f
+	}
+}
+
+class SinPeakGenChoreographyPolicy(private val cycleSize: Int = 15) : ChoreographyPolicy {
+	override fun getKForContext(settings: PSOSettings, gen: Int, board: PSOScoreBoard): Float {
+		val toCycle = max(sin(((gen.toDouble() + cycleSize.toDouble() / Math.PI) * Math.PI) / cycleSize), 0.0)
+		return toCycle.pow(20.0).toFloat() * 8 + 0.5f
 	}
 }
 

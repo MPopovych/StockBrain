@@ -90,7 +90,7 @@ class CappedDistanceVelocityPolicy() : VelocityPolicy {
 	}
 }
 
-class GaussianVelocityPolicy() : VelocityPolicy {
+class GaussianVelocityPolicy(private val clamp: Float? = 1.3f, private val normalise: Boolean = true) : VelocityPolicy {
 
 	private val jRandom: java.util.Random = java.util.Random()
 	override fun move(mod: ModelGenes, context: PolicyContext) {
@@ -99,17 +99,28 @@ class GaussianVelocityPolicy() : VelocityPolicy {
 
 		for (layerGenes in mod.layers.values) {
 			for (weightGenes in layerGenes.map.values) {
+				val avgCount = (weightGenes.size + sqrtCount) / 2
+				val avg = weightGenes.genes.average().toFloat()
 				weightGenes.genes.indices.forEach {
 					var randomK = 1.0f
 					if (Random.nextInt(totalGeneCount) == 0) {
 						randomK = 10.0f
 					}
-					val avgCount = (weightGenes.size + sqrtCount) / 2
-					val m = jRandom.nextGaussian().toFloat() * 0.02f
+
+					// add normal noise
 					val a = jRandom.nextGaussian().toFloat() * randomK * context.choreographyK / avgCount
-					val v = weightGenes.genes[it] + weightGenes.genes[it] * m + a
-					weightGenes.genes[it] = max(min(1.3f, v), -1.3f) * 0.995f
-//					weightGenes.genes[it] = v * 0.995f
+					// move the average to 0 at random
+					val counter = if (normalise) {
+						jRandom.nextGaussian().toFloat() * -avg
+					} else {
+						0f
+					}
+					val v = weightGenes.genes[it] * 0.995f + a + counter
+					if (clamp != null) {
+						weightGenes.genes[it] = max(min(clamp, v), -clamp)
+					} else {
+						weightGenes.genes[it] = v
+					}
 				}
 
 				if (weightGenes.genes.any { !it.isFinite() }) throw IllegalStateException()

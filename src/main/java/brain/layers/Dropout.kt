@@ -50,7 +50,6 @@ class DropoutLayerImpl(
 	init {
 		require(rate >= 0 && rate < 1.0)
 	}
-	private val dropoutMConst = 1f / (1f - rate)
 
 	override fun init() {
 		outputBuffer = Matrix(directShape.width, directShape.height)
@@ -61,12 +60,23 @@ class DropoutLayerImpl(
 		if (!trainable) {
 			MatrixMath.transfer(input, outputBuffer)
 		} else {
+			var countToMutate = 0
+			val total = directShape.height * directShape.width
+			val dropMap = (0 until directShape.height * directShape.width).map {
+				if (Random.nextFloat() < rate) {
+					countToMutate++
+					return@map true
+				} else {
+					return@map false
+				}
+			}
+			val dropVar = 1f + countToMutate.toFloat() / total
 			for (y in 0 until directShape.height) {
 				for (x in 0 until directShape.width) {
-					if (Random.nextFloat() < rate) {
+					if (dropMap[y * directShape.width + x]) {
 						outputBuffer.values[y][x] = 0f
 					} else {
-						outputBuffer.values[y][x] = input.values[y][x] * dropoutMConst
+						outputBuffer.values[y][x] = input.values[y][x] * dropVar
 					}
 				}
 			}

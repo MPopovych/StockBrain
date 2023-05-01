@@ -21,7 +21,7 @@ class Model(
 	}
 
 	fun setTrainable(trainable: Boolean) {
-		for (layer in graphMap.values) {
+		for (layer in graphMap.values.map { it.layer }) {
 			if (layer is LayerTrainableMode) {
 				layer.setTrainable(trainable)
 			}
@@ -29,7 +29,7 @@ class Model(
 	}
 
 	fun warmup() {
-		for (layer in graphMap.values) {
+		for (layer in graphMap.values.map { it.layer }) {
 			if (layer is LayerWarmupMode) {
 				layer.warmup()
 			}
