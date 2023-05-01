@@ -4,8 +4,13 @@ import brain.layers.LayerShape
 import brain.matrix.Matrix
 import java.nio.ByteBuffer
 import java.util.*
+import kotlin.math.abs
 import kotlin.math.ln
+import kotlin.math.log
 
+infix fun Double.lnDiv2(other: Double): Double {
+	return log(this / other, 2.0) + 1.0
+}
 
 infix fun Double.lnDiv(other: Double): Double {
 	return ln(this / other) + 1.0
