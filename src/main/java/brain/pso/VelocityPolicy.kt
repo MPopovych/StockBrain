@@ -90,7 +90,7 @@ class CappedDistanceVelocityPolicy() : VelocityPolicy {
 	}
 }
 
-class GaussianVelocityPolicy(private val clamp: Float? = 1.3f, private val normalise: Boolean = true) : VelocityPolicy {
+class GaussianVelocityPolicy(val multi: Float = 1f, private val clamp: Float? = null, private val normalise: Boolean = true) : VelocityPolicy {
 
 	private val jRandom: java.util.Random = java.util.Random()
 	override fun move(mod: ModelGenes, context: PolicyContext) {
@@ -108,7 +108,7 @@ class GaussianVelocityPolicy(private val clamp: Float? = 1.3f, private val norma
 					}
 
 					// add normal noise
-					val a = jRandom.nextGaussian().toFloat() * randomK * context.choreographyK / avgCount
+					val a = jRandom.nextGaussian().toFloat() * multi * randomK * context.choreographyK / avgCount
 					// move the average to 0 at random
 					val counter = if (normalise) {
 						jRandom.nextGaussian().toFloat() * -avg

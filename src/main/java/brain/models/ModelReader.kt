@@ -208,6 +208,15 @@ object ModelReader {
 					buffer[parent] ?: throw IllegalStateException("No parent found in buffer")
 				}
 			}
+			ScaleSeriesSmooth.defaultNameType -> {
+				val meta = (ls.getMetaData() as? LayerMetaData.OnlyBiasMeta)
+					?: throw IllegalStateException("No meta for scale series smooth")
+				val activation = Activations.deserialize(ls.activation)
+				val parent = ls.parents?.getOrNull(0) ?: throw IllegalStateException("No parent in scale series smooth")
+				ScaleSeriesSmooth(activation = activation, useBias = meta.useBias, name = ls.name) {
+					buffer[parent] ?: throw IllegalStateException("No parent found in buffer")
+				}
+			}
 
 			PivotNorm.defaultNameType -> {
 				val activation = Activations.deserialize(ls.activation)
@@ -388,6 +397,12 @@ private class LayerDeserializer : JsonDeserializer<LayerSerialized> {
 			}
 
 			ScaleSeries.defaultNameType -> {
+				val element = json.asJsonObject[FIELD_BUILDER_DATA]
+				val data = ModelReader.innerGson.fromJson<LayerMetaData.OnlyBiasMeta>(element)
+				temp.copy(builderData = data)
+			}
+
+			ScaleSeriesSmooth.defaultNameType -> {
 				val element = json.asJsonObject[FIELD_BUILDER_DATA]
 				val data = ModelReader.innerGson.fromJson<LayerMetaData.OnlyBiasMeta>(element)
 				temp.copy(builderData = data)
