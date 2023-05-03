@@ -1,7 +1,10 @@
 package brain.pso
 
 import brain.ga.weights.ModelGenes
+import brain.layers.WeightData
+import brain.matrix.Matrix
 import brain.models.Model
+import brain.suppliers.Suppliers
 
 class PSOModel(
 	val ordinal: Int,
@@ -14,7 +17,9 @@ class PSOHolder(
 	var current: PSOScore,
 	var best: PSOScore,
 	val modelBuffer: Model,
-)
+) {
+	val velocity: PSOVelocity = PSOVelocity.randomOnModel(modelBuffer)
+}
 
 class PSOScore(
 	val score: Double,
@@ -22,5 +27,23 @@ class PSOScore(
 ) {
 	companion object {
 		val NULL = PSOScore(0.0, ModelGenes(0, emptyMap(), "", ""))
+	}
+}
+
+class PSOVelocity(
+	val layerAndWeightMap: Map<String, Map<String, FloatArray>>
+) {
+	companion object {
+		fun randomOnModel(model: Model): PSOVelocity {
+			return PSOVelocity(
+				model.graphMap.mapValues { gln ->
+					gln.value.layer.weights.mapValues sub@{ w ->
+						val r = FloatArray(w.value.matrix.width * w.value.matrix.height)
+						Suppliers.RandomHE.fill(r)
+						return@sub r
+					}
+				}
+			)
+		}
 	}
 }

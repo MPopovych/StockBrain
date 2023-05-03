@@ -55,17 +55,18 @@ class PSOScoreBoard(val order: Int, private val settings: PSOSettings) {
 		if (top == null) {
 			best = eval
 		}
+		if (settings.order == PSOScoreBoardOrder.Ascending && eval.current.score > eval.best.score) {
+			eval.best = eval.current
+		} else if (settings.order == PSOScoreBoardOrder.Descending && eval.current.score < eval.best.score) {
+			eval.best = eval.current
+		}
+
 		if (top != null) {
-			if (settings.order == PSOScoreBoardOrder.Ascending && eval.current.score >= top.best.score) {
+			if (settings.order == PSOScoreBoardOrder.Ascending && eval.current.score > top.best.score) {
 				best = eval
-			} else if (settings.order == PSOScoreBoardOrder.Descending && eval.current.score <= top.best.score) {
+			} else if (settings.order == PSOScoreBoardOrder.Descending && eval.current.score < top.best.score) {
 				best = eval
 			}
-		}
-		if (settings.order == PSOScoreBoardOrder.Ascending && eval.current.score >= eval.best.score) {
-			eval.best = eval.current
-		} else if (settings.order == PSOScoreBoardOrder.Descending && eval.current.score <= eval.best.score) {
-			eval.best = eval.current
 		}
 		scoreList[eval.ordinal] = eval
 	}
