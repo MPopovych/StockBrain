@@ -11,7 +11,7 @@ data class PSOSettings(
 	val approachPersonalPolicy: ApproachPolicy = ApproachPolicy.Classic6, // explore
 	val approachTopPolicy: ApproachPolicy = ApproachPolicy.Classic6,
 	val initialMutationPolicy: MutationPolicy = ReplaceMutationPolicy(1.0, mod = 0.1f),
-	val choreographyPolicy: ChoreographyPolicy = ChoreographyPolicy.SinGen
+	val choreographyPolicy: ChoreographyPolicy = ChoreographyPolicy.Linear
 )
 
 /**

@@ -108,6 +108,12 @@ class ModelFrame<T : FrameAsset> : ArrayList<T>(), WindowProvider<T> {
 			}
 		}
 
+		fun toList(): List<G> {
+			return (startIndex..endIndex step gapSize).map { index ->
+				return@map parent[index]
+			}
+		}
+
 		fun absoluteIndexList() = (startIndex..endIndex step gapSize).toList()
 
 		fun getHeadString(): String {

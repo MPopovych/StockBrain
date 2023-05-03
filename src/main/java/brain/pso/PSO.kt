@@ -85,7 +85,7 @@ class PSO(
 			val movedBuffer = model.current.genes.copy()
 
 			ClassicVelocityPolicy.move(
-				model.velocity,
+				model,
 				mod = movedBuffer,
 				pBest = model.best.genes,
 				gBest = top.genes,
