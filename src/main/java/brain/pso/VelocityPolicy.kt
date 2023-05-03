@@ -37,7 +37,7 @@ class ConstNoiseVelocityPolicy : VelocityPolicy {
 		}
 	}
 
-	private val take = 5
+	private val take = 50
 	private fun produceMoveVector(totalGeneCount: Int): List<Float> {
 		val randomPeaks = (0 until take).map {
 			(Random.nextFloat() * 2 - 1f)
@@ -84,13 +84,17 @@ class CappedDistanceVelocityPolicy() : VelocityPolicy {
 		val distributionArray = (randomPeaks + randomFlats).shuffled()
 		val distSum = distributionArray.map { abs(it) }.sum()
 		val positionDeltaArray = distributionArray.map {
-			max(min(sqrtDistance * (it / distSum), 1f), -1f)
+			max(min(10 * (it / distSum), 1f), -1f)
 		}
 		return positionDeltaArray
 	}
 }
 
-class GaussianVelocityPolicy(val multi: Float = 1f, private val clamp: Float? = null, private val normalise: Boolean = true) : VelocityPolicy {
+class GaussianVelocityPolicy(
+	val multi: Float = 1f,
+	private val clamp: Float? = 1.3f,
+	private val normalise: Boolean = true
+) : VelocityPolicy {
 
 	private val jRandom: java.util.Random = java.util.Random()
 	override fun move(mod: ModelGenes, context: PolicyContext) {
@@ -99,23 +103,22 @@ class GaussianVelocityPolicy(val multi: Float = 1f, private val clamp: Float? = 
 
 		for (layerGenes in mod.layers.values) {
 			for (weightGenes in layerGenes.map.values) {
-				val avgCount = (weightGenes.size + sqrtCount) / 2
+				val avgCount = (weightGenes.size + sqrtCount)
 				val avg = weightGenes.genes.average().toFloat()
+
 				weightGenes.genes.indices.forEach {
-					var randomK = 1.0f
-					if (Random.nextInt(totalGeneCount) == 0) {
-						randomK = 10.0f
-					}
+					// move only half of weights, smooths out training
+					if (jRandom.nextBoolean()) return@forEach
 
 					// add normal noise
-					val a = jRandom.nextGaussian().toFloat() * multi * randomK * context.choreographyK / avgCount
-					// move the average to 0 at random
+					val a = 3f * jRandom.nextGaussian().toFloat() * context.choreographyK / avgCount
+					// move the average to negative at random
 					val counter = if (normalise) {
-						jRandom.nextGaussian().toFloat() * -avg
+						2f * jRandom.nextGaussian().toFloat() * context.choreographyK * -avg
 					} else {
 						0f
 					}
-					val v = weightGenes.genes[it] * 0.995f + a + counter
+					val v = weightGenes.genes[it] + (a + counter) * multi
 					if (clamp != null) {
 						weightGenes.genes[it] = max(min(clamp, v), -clamp)
 					} else {

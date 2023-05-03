@@ -1,7 +1,13 @@
 package brain.activation;
 
-public interface ActivationFunction {
+public abstract class ActivationFunction {
 
-	float apply(float value);
+	abstract float apply(float value);
+
+	void applyTo(float[] array) {
+		for (int i = 0; i < array.length; i++) {
+			array[i] = apply(array[i]);
+		}
+	}
 
 }

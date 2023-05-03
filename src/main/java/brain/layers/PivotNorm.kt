@@ -6,7 +6,6 @@ import brain.matrix.Matrix
 import brain.matrix.MatrixMath
 import brain.suppliers.Suppliers
 import brain.suppliers.ValueFiller
-import brain.suppliers.ValueSupplier
 
 /**
  * Applies an element wise bias, multiplication and bias on each row, same matrices are used on every (t) row

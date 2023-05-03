@@ -23,7 +23,7 @@ object LinearChoreographyPolicy : ChoreographyPolicy {
 class SinPeakGenChoreographyPolicy(private val cycleSize: Int = 15) : ChoreographyPolicy {
 	override fun getKForContext(settings: PSOSettings, gen: Int, board: PSOScoreBoard): Float {
 		val toCycle = max(sin(((gen.toDouble() + cycleSize.toDouble() / Math.PI) * Math.PI) / cycleSize), 0.0)
-		return toCycle.pow(20.0).toFloat() * 3 + 0.5f
+		return toCycle.pow(20.0).toFloat() * 3 + 0.3f
 	}
 }
 

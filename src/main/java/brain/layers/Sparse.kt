@@ -7,7 +7,6 @@ import brain.matrix.Matrix
 import brain.matrix.MatrixMath
 import brain.suppliers.Suppliers
 import brain.suppliers.ValueFiller
-import brain.suppliers.ValueSupplier
 
 class Sparse(
 	private val units: Int,
@@ -57,7 +56,7 @@ class SparseLayerImpl(
 	private val parentShape: LayerShape,
 	private val useBias: Boolean = true,
 	override var name: String,
-) : Layer.SingleInputLayer(), LayerWarmupMode, LayerTrainableMode {
+) : Layer.SingleInputLayer(), LayerWarmupMode {
 	override val nameType: String = Sparse.defaultNameType
 	override lateinit var outputBuffer: Matrix
 	lateinit var kernel: WeightData
@@ -66,7 +65,6 @@ class SparseLayerImpl(
 	lateinit var bias: WeightData
 
 	private var warm = false
-	private var trainable = false
 
 	override fun init() {
 		kernel = WeightData("weight", Matrix(units, parentShape.width), true)
@@ -87,10 +85,8 @@ class SparseLayerImpl(
 
 	override fun call(input: Matrix): Matrix {
 		flushBuffer()
-		if (trainable && !warm) {
+		if (!warm) {
 			throw IllegalStateException("Warmup not called")
-		} else {
-			warmup()
 		}
 		MatrixMath.multiply(input, gateBuffer, outputBuffer)
 		if (useBias) MatrixMath.addSingleToEveryRow(outputBuffer, bias.matrix, outputBuffer)
@@ -98,10 +94,6 @@ class SparseLayerImpl(
 			Activations.activate(outputBuffer, outputBuffer, it)
 		}
 		return outputBuffer
-	}
-
-	override fun setTrainable(trainable: Boolean) {
-		this.trainable = trainable
 	}
 
 }

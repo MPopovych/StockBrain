@@ -1,6 +1,6 @@
 package brain.activation;
 
-public class ReLuFunction implements ActivationFunction {
+public class ReLuFunction extends ActivationFunction {
 	private static final float MIN_VALUE = 0f;
 
 	@Override

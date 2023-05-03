@@ -1,6 +1,6 @@
 package brain.activation;
 
-public class ParFunction implements ActivationFunction {
+public class ParFunction extends ActivationFunction {
 
 	@Override
 	public float apply(float value) {

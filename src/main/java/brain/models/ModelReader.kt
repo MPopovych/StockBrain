@@ -107,7 +107,7 @@ object ModelReader {
 
 			Disperse.defaultNameType -> {
 				val activation = Activations.deserialize(ls.activation)
-				val meta = (ls.getMetaData() as? LayerMetaData.DisperseMeta)
+				val meta = (ls.getMetaData() as? LayerMetaData.OnlyUnitsMeta)
 					?: throw IllegalStateException("No meta for disperse")
 				val parent = ls.parents?.getOrNull(0) ?: throw IllegalStateException("No parent in disperse")
 				Disperse(units = meta.units, activation = activation, name = ls.name) {
@@ -214,6 +214,15 @@ object ModelReader {
 				val activation = Activations.deserialize(ls.activation)
 				val parent = ls.parents?.getOrNull(0) ?: throw IllegalStateException("No parent in scale series smooth")
 				ScaleSeriesSmooth(activation = activation, useBias = meta.useBias, name = ls.name) {
+					buffer[parent] ?: throw IllegalStateException("No parent found in buffer")
+				}
+			}
+
+			RepeatSingle.defaultNameType -> {
+				val meta = (ls.getMetaData() as? LayerMetaData.OnlyUnitsMeta)
+					?: throw IllegalStateException("No meta for scale repeat single")
+				val parent = ls.parents?.getOrNull(0) ?: throw IllegalStateException("No parent in repeat single")
+				RepeatSingle(times = meta.units, name = ls.name) {
 					buffer[parent] ?: throw IllegalStateException("No parent found in buffer")
 				}
 			}
@@ -380,7 +389,7 @@ private class LayerDeserializer : JsonDeserializer<LayerSerialized> {
 
 			Disperse.defaultNameType -> {
 				val element = json.asJsonObject[FIELD_BUILDER_DATA]
-				val data = ModelReader.innerGson.fromJson<LayerMetaData.DisperseMeta>(element)
+				val data = ModelReader.innerGson.fromJson<LayerMetaData.OnlyUnitsMeta>(element)
 				temp.copy(builderData = data)
 			}
 
@@ -405,6 +414,12 @@ private class LayerDeserializer : JsonDeserializer<LayerSerialized> {
 			ScaleSeriesSmooth.defaultNameType -> {
 				val element = json.asJsonObject[FIELD_BUILDER_DATA]
 				val data = ModelReader.innerGson.fromJson<LayerMetaData.OnlyBiasMeta>(element)
+				temp.copy(builderData = data)
+			}
+
+			RepeatSingle.defaultNameType -> {
+				val element = json.asJsonObject[FIELD_BUILDER_DATA]
+				val data = ModelReader.innerGson.fromJson<LayerMetaData.OnlyUnitsMeta>(element)
 				temp.copy(builderData = data)
 			}
 

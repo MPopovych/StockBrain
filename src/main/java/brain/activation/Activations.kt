@@ -8,14 +8,18 @@ object Activations {
 	val LeReLu = LeakyReLuFunction()
 	val Par = ParFunction()
 	val ReLu6 = ReLu6Function()
+	val SoftMax = SoftMaxFunction()
 
 	val Zero = ZeroFunction() // test
 	val Tanh = TanhFunction()
 	val FastTanh = FastTanhFunction()
 	val RevTanh = RevTanhFunction()
 	val Sigmoid = SigmoidFunction()
-	val HardSigmoid = HardSigmoidFunction()
+	val FastSigmoid = FastSigmoidFunction()
 
+
+	val TanhMax = TanhMaxFunction()
+	val BinMax = BinMaxFunction()
 	val ReverseReLu = ReverseReLuFunction()
 	val ReLuMinMax = ReLuMinMaxFunction()
 	val ReLuTanh = ReLuTanhFunction()
@@ -30,9 +34,7 @@ object Activations {
 
 	fun activate(matrix: Matrix, buffer: Matrix, function: ActivationFunction) {
 		for (y in 0 until matrix.height) {
-			for (x in 0 until matrix.width) {
-				buffer.values[y][x] = function.apply(matrix.values[y][x])
-			}
+			function.applyTo(buffer.values[y])
 		}
 	}
 
@@ -44,6 +46,10 @@ object Activations {
 			ReLu.nameType() -> ReLu
 			ReverseReLu.nameType() -> ReverseReLu
 			LeReLu.nameType() -> LeReLu
+			SoftMax.nameType() -> SoftMax
+
+			TanhMax.nameType() -> TanhMax
+			BinMax.nameType() -> BinMax
 			Par.nameType() -> Par
 			ReLu6.nameType() -> ReLu6
 			NegPosRange.nameType() -> NegPosRange
@@ -56,7 +62,7 @@ object Activations {
 			RevTanh.nameType() -> RevTanh
 			Sigmoid.nameType() -> Sigmoid
 			SmallTanh.nameType() -> SmallTanh
-			HardSigmoid.nameType() -> HardSigmoid
+			FastSigmoid.nameType() -> FastSigmoid
 			ReLuMinMax.nameType() -> ReLuMinMax
 			ReLuTanh.nameType() -> ReLuTanh
 			NormPeakFunction.nameType() -> NormPeakFunction
@@ -71,8 +77,7 @@ object Activations {
 	}
 }
 
-fun ActivationFunction?.applyFromMatrixTo(matrix: Matrix, buffer: Matrix) {
-	this ?: return
+fun ActivationFunction.applyFromMatrixTo(matrix: Matrix, buffer: Matrix) {
 	Activations.activate(matrix, buffer, this)
 }
 

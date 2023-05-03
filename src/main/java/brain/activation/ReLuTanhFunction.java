@@ -1,6 +1,6 @@
 package brain.activation;
 
-public class ReLuTanhFunction implements ActivationFunction  {
+public class ReLuTanhFunction extends ActivationFunction  {
 	/** cred to <a href="https://stackoverflow.com/questions/3535593/lookup-table-fast-sigmoidal-function">finnw</a> */
 	private static final int TANH_FRAC_EXP = 6; // LUT precision == 2 ** -6 == 1/64
 	private static final int TANH_LUT_SIZE = (1 << TANH_FRAC_EXP) * 8 + 1;

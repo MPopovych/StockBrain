@@ -6,7 +6,6 @@ import brain.matrix.Matrix
 import brain.matrix.MatrixMath
 import brain.suppliers.Suppliers
 import brain.suppliers.ValueFiller
-import brain.suppliers.ValueSupplier
 
 /**
  * Applies element wise multiplication and bias on the whole matrix

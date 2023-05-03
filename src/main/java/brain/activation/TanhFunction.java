@@ -1,7 +1,7 @@
 package brain.activation;
 
 // for tests
-public class TanhFunction implements ActivationFunction {
+public class TanhFunction extends ActivationFunction {
 
 	@Override
 	public float apply(float value) {

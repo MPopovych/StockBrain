@@ -18,17 +18,20 @@ class ModelGenes(
 	companion object {
 		operator fun invoke(bornOnEpoch: Int, model: Model, parentAId: String, parentBId: String): ModelGenes {
 			val weights: Map<String, LayerGenes> = model.graphMap.values
-				.map {
-					val map = it.layer.weights.values
+				.mapIndexed { callOrder, graphLayerNode ->
+					val map = graphLayerNode.layer.weights.values
 						.filter { w -> w.trainable }
 						.map { w ->
 							WeightGenes(
 								w.name,
-								w.matrix.readFloatData()
+								w.matrix.readFloatData(),
+								w.matrix.width,
+								w.matrix.height,
+								callOrder
 							)
 						}
 						.associateBy { w -> w.weightName }
-					return@map LayerGenes(it.layer.name, map)
+					return@mapIndexed LayerGenes(graphLayerNode.layer.name, map)
 				}.associateBy { it.layerId }
 
 			return ModelGenes(bornOnEpoch, weights, parentAId, parentBId)

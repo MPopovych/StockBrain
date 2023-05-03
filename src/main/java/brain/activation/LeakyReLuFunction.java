@@ -1,6 +1,6 @@
 package brain.activation;
 
-public class LeakyReLuFunction implements ActivationFunction {
+public class LeakyReLuFunction extends ActivationFunction {
 	private static final float LEAK_VALUE = 0.01f;
 
 	@Override

@@ -43,7 +43,7 @@ class Disperse(
 	}
 
 	override fun getSerializedBuilderData(): LayerMetaData {
-		return LayerMetaData.DisperseMeta(units)
+		return LayerMetaData.OnlyUnitsMeta(units)
 	}
 }
 
