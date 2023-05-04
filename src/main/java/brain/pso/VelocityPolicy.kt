@@ -102,6 +102,7 @@ class GaussianVelocityPolicy(private val clamp: Float? = 1.3f, private val norma
 				val avgCount = (weightGenes.size + sqrtCount) / 2
 				val avg = weightGenes.genes.average().toFloat()
 				weightGenes.genes.indices.forEach {
+					if (jRandom.nextBoolean()) return@forEach
 					var randomK = 1.0f
 					if (Random.nextInt(totalGeneCount) == 0) {
 						randomK = 10.0f
@@ -111,7 +112,7 @@ class GaussianVelocityPolicy(private val clamp: Float? = 1.3f, private val norma
 					val a = jRandom.nextGaussian().toFloat() * randomK * context.choreographyK / avgCount
 					// move the average to 0 at random
 					val counter = if (normalise) {
-						jRandom.nextGaussian().toFloat() * -avg
+						2f * jRandom.nextGaussian().toFloat() * -avg
 					} else {
 						0f
 					}
