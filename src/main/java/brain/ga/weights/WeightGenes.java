@@ -13,6 +13,8 @@ public class WeightGenes {
 		this.width = width;
 		this.height = height;
 		this.callOrder = callOrder;
+
+		if (this.genes.length != width * height || this.genes.length == 0) throw new IllegalStateException();
 		System.arraycopy(genes, 0, this.genes, 0, genes.length);
 	}
 
@@ -22,6 +24,7 @@ public class WeightGenes {
 		this.width = width;
 		this.height = height;
 		this.callOrder = callOrder;
+		if (this.genes.length != width * height) throw new IllegalStateException();
 	}
 
 	public int getSize() {

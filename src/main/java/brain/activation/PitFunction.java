@@ -3,6 +3,6 @@ package brain.activation;
 public class PitFunction extends ActivationFunction {
 	@Override
 	public float apply(float value) {
-		return Math.min((Math.max(Math.max((value * 3f) - 2.5f, value / 3f - 0.5f) + 0.5f, value / 10f)), 1f + value / 10f - 0.1f);
+		return Math.max(value - 1, Math.min(value + 1, 0));
 	}
 }

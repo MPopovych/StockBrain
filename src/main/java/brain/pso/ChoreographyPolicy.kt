@@ -9,6 +9,7 @@ interface ChoreographyPolicy {
 	companion object {
 		val Linear = LinearChoreographyPolicy
 		val SinGen = SinGenChoreographyPolicy(15)
+		val SinGenNP = SinGenNPChoreographyPolicy(15)
 		val SinPeakGen = SinPeakGenChoreographyPolicy(15)
 	}
 	fun getKForContext(settings: PSOSettings, gen: Int, board: PSOScoreBoard): Float
@@ -29,7 +30,13 @@ class SinPeakGenChoreographyPolicy(private val cycleSize: Int = 15) : Choreograp
 
 class SinGenChoreographyPolicy(private val cycleSize: Int = 15) : ChoreographyPolicy {
 	override fun getKForContext(settings: PSOSettings, gen: Int, board: PSOScoreBoard): Float {
-		val toCycle = (gen.toDouble() * 10) / (Math.PI * cycleSize)
-		return (cos(toCycle) * 0.8 + 0.9).toFloat()
+		val toCycle = sin(gen.toFloat() * (Math.PI / cycleSize).toFloat())
+		return (toCycle * 0.8f + 0.9f)
+	}
+}
+
+class SinGenNPChoreographyPolicy(private val cycleSize: Int = 15) : ChoreographyPolicy {
+	override fun getKForContext(settings: PSOSettings, gen: Int, board: PSOScoreBoard): Float {
+		return sin(gen.toFloat() * (Math.PI / cycleSize).toFloat())
 	}
 }

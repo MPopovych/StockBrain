@@ -5,6 +5,7 @@ import brain.layers.WeightData
 import brain.matrix.Matrix
 import brain.models.Model
 import brain.suppliers.Suppliers
+import kotlin.random.Random
 
 class PSOModel(
 	val ordinal: Int,
@@ -38,8 +39,11 @@ class PSOVelocity(
 			return PSOVelocity(
 				model.graphMap.mapValues { gln ->
 					gln.value.layer.weights.mapValues sub@{ w ->
-						val r = FloatArray(w.value.matrix.width * w.value.matrix.height)
-						Suppliers.RandomHE.fill(r)
+						val size = w.value.matrix.width * w.value.matrix.height
+						val r = FloatArray(size) {
+							Random.nextFloat() / (size + 10) // const to lesser influence on narrow weights
+						}
+//						Suppliers.RandomHE.fill(r)
 						return@sub r
 					}
 				}
