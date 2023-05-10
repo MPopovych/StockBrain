@@ -51,10 +51,8 @@ object CustomVelocityPolicyV2 {
 			mTillTRatio = min(mTillT / scoreRange, 1.0).toFloat()
 			tTillBRatio = min(tTillB / scoreRange, 1.0).toFloat()
 		}
-		val randomDepth = tCopy.layers.values.filter { l -> l.map.values.sumOf { w -> w.size } > 0 }.random().depth
 		val randomWeightReductionK = if (jRandom.nextInt(10) == 0) 0.995f else 1f
 		tCopy.layers.map { tLayer ->
-			if (tLayer.value.depth != randomDepth) return@map
 
 			val bLayer = best.genes.layers[tLayer.key] ?: throw IllegalStateException()
 			val mLayer = mCopy.layers[tLayer.key] ?: throw IllegalStateException()
@@ -107,21 +105,22 @@ object CustomVelocityPolicyV2 {
 		val t = if (current >= 0 && target <= 0) {
 			// move from positive towards negative
 			val dampen = fastTanh.apply(current / 3) * current
-			if (dampen < 0.00001f) {
+			if (dampen < 0.000001f) {
 				abs(fastTanh.apply(target / 3)) * target
 			}
 			dampen
 		} else if (current <= 0 && target >= 0) {
 			// move from negative towards zero
 			val dampen = fastTanh.apply(current / 3) * current
-			if (dampen > -0.00001f) {
+			if (dampen > -0.000001f) {
 				abs(fastTanh.apply(target / 3)) * target
 			}
 			dampen
 		} else {
 			target
 		}
-		val d = min(max(t - current, -0.3f), 0.3f)
+//		val d = min(max(t - current, -0.3f), 0.3f)
+		val d = t - current
 		return current + d
 	}
 }

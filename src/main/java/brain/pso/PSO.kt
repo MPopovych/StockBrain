@@ -80,7 +80,7 @@ class PSO(
 		generation: Int,
 		action: ((PSOScoreContext) -> Double)
 	) {
-		room.getAscendingFitnessList().chunked(3).forEach { models ->
+		room.getAscendingFitnessList().shuffled().chunked(3).forEach { models ->
 			if (models.size < 3) return@forEach
 
 			val sorted = when (settings.order) {
