@@ -14,6 +14,7 @@ enum class PSOScoreBoardOrder {
 class PSOScoreBoard(val order: Int, private val settings: PSOSettings) {
 
 	private var best: PSOHolder? = null
+	private var bestGen: Int = -1
 	private var scoreList: HashMap<Int, PSOHolder> = HashMap()
 
 	val size: Int
@@ -48,25 +49,31 @@ class PSOScoreBoard(val order: Int, private val settings: PSOSettings) {
 		}
 	}
 
-	fun push(eval: PSOHolder) {
+	fun push(eval: PSOHolder, gen: Int) {
 		if (!eval.current.score.isFinite()) throw IllegalStateException("Not a finite number: ${eval.current.score}")
 
+//		if (gen - settings.keepBestForXGens > bestGen) {
+//			best = null
+//		}
 		val top = best
 		if (top == null) {
 			best = eval
+			bestGen = gen
 		}
 
 		if (top != null) {
-			if (settings.order == PSOScoreBoardOrder.Ascending && eval.current.score > top.best.score) {
+			if (settings.order == PSOScoreBoardOrder.Ascending && eval.current.score >= top.best.score) {
 				best = eval
-			} else if (settings.order == PSOScoreBoardOrder.Descending && eval.current.score < top.best.score) {
+				bestGen = gen
+			} else if (settings.order == PSOScoreBoardOrder.Descending && eval.current.score <= top.best.score) {
 				best = eval
+				bestGen = gen
 			}
 		}
 
-		if (settings.order == PSOScoreBoardOrder.Ascending && eval.current.score > eval.best.score) {
+		if (settings.order == PSOScoreBoardOrder.Ascending && eval.current.score >= eval.best.score) {
 			eval.best = eval.current
-		} else if (settings.order == PSOScoreBoardOrder.Descending && eval.current.score < eval.best.score) {
+		} else if (settings.order == PSOScoreBoardOrder.Descending && eval.current.score <= eval.best.score) {
 			eval.best = eval.current
 		}
 		scoreList[eval.ordinal] = eval
@@ -87,7 +94,7 @@ class PSOScoreBoard(val order: Int, private val settings: PSOSettings) {
 					"- best: ${t.best.score.roundUp(6).toString().padEnd(8)} \t" +
 					"- db: ${distanceToBest.roundUp(3).toString().padEnd(5)} \t" +
 					"- d: ${distanceToTop.roundUp(3).toString().padEnd(5)} \t" +
-					"- h: ${t.current.genes.hashCode().toString().padEnd(15)} \t: ${t.ordinal}" ).appendLine()
+					"- h: ${t.current.genes.chromosome().hashCode().toString().padEnd(15)} \t: ${t.ordinal}" ).appendLine()
 		}
 		printGreenBr(sb.toString().trimIndent())
 	}

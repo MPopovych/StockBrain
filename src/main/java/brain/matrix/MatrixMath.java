@@ -28,10 +28,10 @@ public class MatrixMath {
 					"has to be: dw[%s vs final %s], dh[%s vs final %s]").formatted(b.width, d.width, a.height, d.height));
 		}
 
-		if (d.width * d.height > 225) {
-			multiplyBig(a, b, d, 64);
-			return;
-		}
+//		if (d.width * d.height > 225) {
+//			multiplyBig(a, b, d, 64);
+//			return;
+//		}
 
 		final int m = a.height;
 		final int g = a.width;

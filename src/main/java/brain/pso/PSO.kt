@@ -32,7 +32,8 @@ class PSO(
 					if (i == 0) {
 						runInitGeneration(board, genCount, block)
 					} else {
-						runGeneration(board, genCount, block)
+						runGenerationTest(board, genCount, block)
+//						runGeneration(board, genCount, block)
 //						runGenerationFast(board, genCount, block)
 					}
 				}
@@ -62,6 +63,7 @@ class PSO(
 	) {
 		modelBuffer[room.order].forEach { model ->
 			val context = PSOScoreContext(generation, PSOAction.INITIAL, model.modelBuffer, model.geneBuffer)
+			model.geneBuffer.applyToModel(model.modelBuffer)
 			val score = action(context)
 			val moveHolder = PSOHolder(
 				model.ordinal,
@@ -69,77 +71,80 @@ class PSO(
 				best = PSOScore(score, model.geneBuffer),
 				model.modelBuffer
 			)
-			room.push(moveHolder)
+			room.push(moveHolder, generation)
 		}
 	}
 
-	private fun runGeneration(
+	private fun runGenerationTest(
 		room: PSOScoreBoard,
 		generation: Int,
 		action: ((PSOScoreContext) -> Double)
 	) {
-		room.getAscendingFitnessList().forEach { model ->
-			val top = room.getTop() ?: throw IllegalStateException()
+		room.getAscendingFitnessList().chunked(3).forEach { models ->
+			if (models.size < 3) return@forEach
+
+			val sorted = when (settings.order) {
+				PSOScoreBoardOrder.Ascending -> models.sortedBy { it.current.score }
+				PSOScoreBoardOrder.Descending -> models.sortedByDescending { it.current.score }
+			}
+			val best = when (settings.order) {
+				PSOScoreBoardOrder.Ascending -> models.maxBy { it.best.score }
+				PSOScoreBoardOrder.Descending -> models.minBy { it.best.score }
+			}
+
 			val choreographK = settings.choreographyPolicy.getKForContext(settings, generation, room)
 			val psoContext = PolicyContext(generation, room, settings, choreographK)
-			val movedBuffer = model.current.genes.copy()
 
-			ClassicVelocityPolicy.move(
-				model,
-				mod = movedBuffer,
-				pBest = model.best.genes,
-				gBest = top.genes,
+			val top = sorted[2]
+			val middle = sorted[1]
+			val worst = sorted[0]
+
+			val triple = CustomVelocityPolicyV2.move(
+				best.best,
+				top.current, worst.current, worst.current,
 				psoContext,
 			)
-			movedBuffer.applyToModel(model.modelBuffer)
 
-			val moveContext = PSOScoreContext(generation, PSOAction.MOVE, model.modelBuffer, movedBuffer)
-			val moveScore = action(moveContext)
-			val moveHolder = PSOHolder(
-				model.ordinal,
-				current = PSOScore(moveScore, movedBuffer),
-				best = model.best,
-				model.modelBuffer,
+			triple.first.applyToModel(top.modelBuffer)
+			triple.second.applyToModel(middle.modelBuffer)
+			triple.third.applyToModel(worst.modelBuffer)
+			val moveContextT = PSOScoreContext(generation, PSOAction.MOVE, top.modelBuffer, triple.first)
+			val moveContextM = PSOScoreContext(generation, PSOAction.MOVE, middle.modelBuffer, triple.second)
+			val moveContextW = PSOScoreContext(generation, PSOAction.MOVE, worst.modelBuffer, triple.third)
+
+			val moveScoreT = action(moveContextT)
+			val moveHolderT = PSOHolder(
+				top.ordinal,
+				current = PSOScore(moveScoreT, triple.first),
+				best = top.best,
+				top.modelBuffer,
 			)
-			room.push(moveHolder)
+			room.push(moveHolderT, generation)
+
+			val moveScoreM = action(moveContextM)
+			val moveHolderM = PSOHolder(
+				middle.ordinal,
+				current = PSOScore(moveScoreM, triple.second),
+				best = middle.best,
+				middle.modelBuffer,
+			)
+			room.push(moveHolderM, generation)
+
+			val moveScoreW = action(moveContextW)
+			val moveHolderW = PSOHolder(
+				worst.ordinal,
+				current = PSOScore(moveScoreW, triple.third),
+				best = worst.best,
+				worst.modelBuffer,
+			)
+			room.push(moveHolderW, generation)
 		}
 	}
 
-	private fun runGenerationFast(
-		room: PSOScoreBoard,
-		generation: Int,
-		action: ((PSOScoreContext) -> Double)
-	) {
-		room.getAscendingFitnessList().forEach { model ->
-			val top = room.getTop() ?: throw IllegalStateException()
-			val choreographK = settings.choreographyPolicy.getKForContext(settings, generation, room)
-			val psoContext = PolicyContext(generation, room, settings, choreographK)
-			val movedBuffer = model.current.genes.copy().applyVelocityPolicy(settings.velocityPolicy, psoContext)
-
-			movedBuffer.applyApproachPolicy(
-				settings.approachPersonalPolicy,
-				destination = model.best.genes,
-			)
-			movedBuffer.applyApproachPolicy(
-				settings.approachTopPolicy,
-				destination = top.genes,
-			)
-			movedBuffer.applyToModel(model.modelBuffer)
-			val moveContext = PSOScoreContext(generation, PSOAction.MOVE, model.modelBuffer, movedBuffer)
-			val moveScore = action(moveContext)
-			val moveHolder = PSOHolder(
-				model.ordinal,
-				current = PSOScore(moveScore, movedBuffer),
-				best = model.best,
-				model.modelBuffer,
-			)
-			room.push(moveHolder)
-		}
-	}
 
 	private fun allocBuffer(): ArrayList<PSOModel> {
 		var ordinal = 0
-		return (0..settings.population).mapTo(ArrayList()) { index ->
+		return (0 until settings.population).mapTo(ArrayList()) { index ->
 			if (index == 0) { // keep origin
 				val model = originalBuilder.build()
 				originalGenes.applyToModel(model)

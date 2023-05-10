@@ -83,10 +83,10 @@ class GA(
 			is FutureMatch.CrossMatch -> {
 				val destination = command.parentA.copyWithParent(command.parentA.id, command.parentB.id)
 				destination.applyCrossOverPolicy(settings.crossOverPolicy, command.parentA.genes, command.parentB.genes)
-				val chromosome = destination.chromosome.hashCode()
+				val chromosome = destination.chromosome().hashCode()
 				if (command.mutate
-					|| chromosome == command.parentA.genes.chromosome.hashCode()
-					|| chromosome == command.parentB.genes.chromosome.hashCode()
+					|| chromosome == command.parentA.genes.chromosome().hashCode()
+					|| chromosome == command.parentB.genes.chromosome().hashCode()
 				) {
 
 					destination.applyMutationPolicy(settings.mutationPolicy, source = destination)
@@ -139,7 +139,7 @@ class GA(
 		val scores = contexts.map { context ->
 			val score = action(context)
 			val appliedScore = settings.scoringPolicy.applyScore(settings, room, score, generation)
-			return@map GAScoreHolder(id = context.genes.chromosome, score = appliedScore, genes = context.genes)
+			return@map GAScoreHolder(id = context.genes.chromosome(), score = appliedScore, genes = context.genes)
 		}
 
 		room.pushBatch(scores)

@@ -62,9 +62,9 @@ class DenseLayerImpl(
 
 	override fun init() {
 		kernel = WeightData("weight", Matrix(units, parentShape.width), true)
-		addWeights(kernel)
+		registerWeight(kernel)
 		bias = WeightData("bias", Matrix(units, 1), trainable = useBias)
-		addWeights(bias)
+		registerWeight(bias)
 		outputBuffer = Matrix(units, parentShape.height)
 	}
 

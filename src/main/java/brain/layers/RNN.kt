@@ -74,18 +74,18 @@ open class RNNImpl(
 
 	override fun init() {
 		iKernel = WeightData("iKernel", Matrix(units, parentShape.width, Suppliers.RandomHE), trainable = true)
-		addWeights(iKernel)
+		registerWeight(iKernel)
 		hKernel = WeightData("hKernel", Matrix(units, units, Suppliers.RandomHE), trainable = true)
-		addWeights(hKernel)
+		registerWeight(hKernel)
 
 		for (w in weights.values) {
 			Suppliers.fillFull(w.matrix, Suppliers.RandomHE)
 		}
 
 		hBias = WeightData("hBias", Matrix(units, 1), trainable = useBias)
-		addWeights(hBias)
+		registerWeight(hBias)
 		oBias = WeightData("oBias", Matrix(units, 1), trainable = useBias)
-		addWeights(oBias)
+		registerWeight(oBias)
 
 		cellStateBufferCurrent = Matrix(parentShape.width, 1)
 		cellStateBufferPrev = Matrix(units, 1)
@@ -109,7 +109,6 @@ open class RNNImpl(
 	override fun call(input: Matrix): Matrix {
 		flushBuffer()
 		MatrixMath.flush(cellStateBufferPrev) // h_prev
-
 
 		val rowIterator = cachedIterator ?: (0 until input.height).let {
 			var list = (0 until input.height).toList()

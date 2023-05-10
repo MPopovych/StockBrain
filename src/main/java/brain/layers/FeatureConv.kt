@@ -104,14 +104,14 @@ class FeatureConvImpl(
 		kernels = ArrayList()
 		for (i in 0 until parentShape.width) {
 			val localKernel = WeightData("weight_f$i", Matrix(units, kernelSize), true)
-			addWeights(localKernel)
+			registerWeight(localKernel)
 			kernels.add(localKernel)
 		}
 
 		biases = ArrayList()
 		for (i in 0 until parentShape.width) {
 			val localKernel = WeightData("bias_f$i", Matrix(units, 1), useBias)
-			addWeights(localKernel)
+			registerWeight(localKernel)
 			biases.add(localKernel)
 		}
 

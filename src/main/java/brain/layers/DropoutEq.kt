@@ -2,23 +2,24 @@ package brain.layers
 
 import brain.matrix.Matrix
 import brain.matrix.MatrixMath
+import kotlin.math.abs
 import kotlin.random.Random
 
-class Dropout(
+class DropoutEq(
 	private val rate: Float,
 	override var name: String = Layer.DEFAULT_NAME,
 	parentLayerBlock: (() -> LayerBuilder<*>),
-) : LayerBuilder.SingleInput<DropoutLayerImpl> {
+) : LayerBuilder.SingleInput<DropoutEqLayerImpl> {
 	companion object {
-		const val defaultNameType = "Dropout"
+		const val defaultNameType = "DropoutEq"
 	}
 
 	override val nameType: String = defaultNameType
 	override val parentLayer: LayerBuilder<*> = parentLayerBlock()
 	private val shape = parentLayer.getShape()
 
-	override fun create(): DropoutLayerImpl {
-		return DropoutLayerImpl(
+	override fun create(): DropoutEqLayerImpl {
+		return DropoutEqLayerImpl(
 			rate = rate,
 			directShape = shape,
 			name = name,
@@ -37,12 +38,12 @@ class Dropout(
 	}
 }
 
-class DropoutLayerImpl(
+class DropoutEqLayerImpl(
 	private val rate: Float,
 	private val directShape: LayerShape,
 	override var name: String,
 ) : Layer.SingleInputLayer(), LayerTrainableMode {
-	override val nameType: String = Dropout.defaultNameType
+	override val nameType: String = DropoutEq.defaultNameType
 	override lateinit var outputBuffer: Matrix
 
 	private var trainable = false
@@ -60,23 +61,45 @@ class DropoutLayerImpl(
 		if (!trainable) {
 			MatrixMath.transfer(input, outputBuffer)
 		} else {
-			var countToMutate = 0
-			val total = directShape.height * directShape.width
-			val dropMap = (0 until directShape.height * directShape.width).map {
-				if (Random.nextFloat() < rate) {
-					countToMutate++
-					return@map true
-				} else {
-					return@map false
-				}
-			}
-			val dropVar = (total + countToMutate.toFloat()) / total
+			var inputPositiveSum = 0f
+			var outputPositiveSum = 0f
+			var pDefCount = 0
+
+			var inputNegativeSum = 0f
+			var outputNegativeSum = 0f
+			var nDefCount = 0
+
 			for (y in 0 until directShape.height) {
 				for (x in 0 until directShape.width) {
-					if (dropMap[y * directShape.width + x]) {
+					val vIn = input.values[y][x]
+					if (vIn > 0) {
+						inputPositiveSum += vIn
+						pDefCount++
+					} else {
+						inputNegativeSum += vIn
+						nDefCount++
+					}
+					if (Random.nextFloat() < rate) {
 						outputBuffer.values[y][x] = 0f
 					} else {
-						outputBuffer.values[y][x] = input.values[y][x] * dropVar
+						outputBuffer.values[y][x] = vIn
+						if (vIn > 0) {
+							outputPositiveSum += vIn
+						} else {
+							outputNegativeSum += vIn
+						}
+					}
+				}
+			}
+			val ratioPositive = (1 + inputPositiveSum) / (1 + outputPositiveSum)
+			val ratioNegative = (1 + abs(inputNegativeSum)) / (1 + abs(outputNegativeSum))
+			for (y in 0 until directShape.height) {
+				for (x in 0 until directShape.width) {
+					val v = outputBuffer.values[y][x]
+					if (v > 0) {
+						outputBuffer.values[y][x] *= ratioPositive
+					} else {
+						outputBuffer.values[y][x] *= ratioNegative
 					}
 				}
 			}

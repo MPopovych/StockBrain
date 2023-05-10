@@ -47,7 +47,7 @@ class ModelBuilder(
 	}
 
 	fun build(debug: Boolean = this.debug): Model {
-		val graphMap = buildLayerNodes(graph.keys, debug).mapKeys { it.value.layer.name }
+		val graphMap = buildLayerNodes(graph, debug).mapKeys { it.value.layer.name }
 
 		val inputMapByKey = inputs
 			.mapValues {
@@ -66,12 +66,13 @@ class ModelBuilder(
 
 	private fun buildNodes() {
 		for (output in outputs.values) {
-			iterateNodes(output)
+			iterateNodes(output, 0)
 		}
 	}
 
 	private fun iterateNodes(
 		currentLayer: LayerBuilder<*>,
+		depth: Int,
 	): GraphBuilderNode {
 		val existing = graph[currentLayer]
 		if (existing != null) {
@@ -86,9 +87,9 @@ class ModelBuilder(
 				currentLayer.parentLayers.forEach { builder ->
 					val parentCon = reverseQueue.getOrPut(builder) { Connection(builder) }
 					parentCon.children.add(connection)
-					iterateNodes(builder)
+					iterateNodes(builder, depth +1)
 				}
-				val currentNode = GraphBuilderNode.MultiParent(currentLayer)
+				val currentNode = GraphBuilderNode.MultiParent(currentLayer, depth)
 				return currentNode
 					.also {
 						graph[currentLayer] = it
@@ -98,16 +99,16 @@ class ModelBuilder(
 			}
 			is LayerBuilder.SingleInput -> {
 				// at the stage of implementation this is a single parent
-				iterateNodes(currentLayer.parentLayer)
+				iterateNodes(currentLayer.parentLayer, depth +1)
 				val parentCon = reverseQueue.getOrPut(currentLayer.parentLayer) { Connection(currentLayer.parentLayer) }
 				parentCon.children.add(connection)
-				return GraphBuilderNode.SingleParent(currentLayer).also {
+				return GraphBuilderNode.SingleParent(currentLayer, depth).also {
 					graph[currentLayer] = it
 					sortedConnections.add(connection)
 				}.ifAlsoBr(debug) { printYellowBr(it) }
 			}
 			is InputLayer -> {
-				return GraphBuilderNode.DeadEnd(currentLayer).also {
+				return GraphBuilderNode.DeadEnd(currentLayer, depth).also {
 					graph[currentLayer] = it
 					sortedConnections.add(connection)
 				}.ifAlsoBr(debug) { printYellowBr(it) }

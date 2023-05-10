@@ -3,9 +3,6 @@ package brain.ga.weights
 import brain.ga.policies.CrossOverPolicy
 import brain.ga.policies.MutationPolicy
 import brain.models.Model
-import brain.pso.ApproachPolicy
-import brain.pso.PolicyContext
-import brain.pso.VelocityPolicy
 import brain.utils.encodeGenes
 
 // a hard copy of weights
@@ -18,7 +15,7 @@ class ModelGenes(
 	companion object {
 		operator fun invoke(bornOnEpoch: Int, model: Model, parentAId: String, parentBId: String): ModelGenes {
 			val weights: Map<String, LayerGenes> = model.graphMap.values
-				.mapIndexed { callOrder, graphLayerNode ->
+				.mapIndexed { _, graphLayerNode ->
 					val map = graphLayerNode.layer.weights.values
 						.filter { w -> w.trainable }
 						.map { w ->
@@ -27,19 +24,18 @@ class ModelGenes(
 								w.matrix.readFloatData(),
 								w.matrix.width,
 								w.matrix.height,
-								callOrder
+								graphLayerNode.depth
 							)
 						}
 						.associateBy { w -> w.weightName }
-					return@mapIndexed LayerGenes(graphLayerNode.layer.name, map)
+					return@mapIndexed LayerGenes(graphLayerNode.layer.name, map, graphLayerNode.depth)
 				}.associateBy { it.layerId }
 
 			return ModelGenes(bornOnEpoch, weights, parentAId, parentBId)
 		}
 	}
 
-	val chromosome: String
-		get() = layers.values.joinToString(" ") { it.chromosome }
+	fun chromosome() = layers.values.joinToString(" ") { it.chromosome() }
 
 	val geneCount = layers.values.sumOf { l -> l.map.values.sumOf { w -> w.size } }
 
@@ -52,6 +48,7 @@ class ModelGenes(
 				weight.matrix.writeFloatData(weightGenes.genes)
 			}
 		}
+		model.onWeightUpdate()
 	}
 
 	fun copy(): ModelGenes {
@@ -81,29 +78,12 @@ class ModelGenes(
 		return this
 	}
 
-	fun applyVelocityPolicy(velocityPolicy: VelocityPolicy, context: PolicyContext): ModelGenes {
-		velocityPolicy.move(this, context)
-//		layers.forEach { (s, layer) ->
-//			velocityPolicy.move(mod = layer, totalGeneCount = geneCount)
-//		}
-		return this
-	}
-
-	fun applyApproachPolicy(
-		approachPolicy: ApproachPolicy,
-		destination: ModelGenes,
-	): ModelGenes {
-		approachPolicy.approach(this, destination)
-		return this
-	}
-
 }
 
-class LayerGenes(val layerId: String, val map: Map<String, WeightGenes>) {
-	val chromosome
-		get() = map.values.joinToString(" ") { weightGenes -> weightGenes.genes.encodeGenes() }
+class LayerGenes(val layerId: String, val map: Map<String, WeightGenes>, val depth: Int) {
+	fun chromosome() = map.values.joinToString(" ") { weightGenes -> weightGenes.genes.encodeGenes() }
 
 	fun copy(): LayerGenes {
-		return LayerGenes(layerId, map.mapValues { it.value.copy() })
+		return LayerGenes(layerId, map.mapValues { it.value.copy() }, depth)
 	}
 }

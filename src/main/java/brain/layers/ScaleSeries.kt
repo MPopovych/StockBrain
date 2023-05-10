@@ -63,9 +63,9 @@ class ScaleSeriesLayerImpl(
 
 	override fun init() {
 		kernel = WeightData("weight", Matrix(directShape.width, 1), true)
-		addWeights(kernel)
+		registerWeight(kernel)
 		bias = WeightData("bias", Matrix(directShape.width, 1), trainable = useBias)
-		addWeights(bias)
+		registerWeight(bias)
 		outputBuffer = Matrix(directShape.width, directShape.height)
 	}
 

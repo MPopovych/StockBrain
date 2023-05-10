@@ -105,29 +105,29 @@ open class GRUImpl(
 
 	override fun init() {
 		zGate = WeightData("zGate", Matrix(units, parentShape.width), trainable = true)
-		addWeights(zGate)
+		registerWeight(zGate)
 		rGate = WeightData("rGate", Matrix(units, parentShape.width), trainable = true)
-		addWeights(rGate)
+		registerWeight(rGate)
 		hGate = WeightData("hGate", Matrix(units, parentShape.width), trainable = true)
-		addWeights(hGate)
+		registerWeight(hGate)
 
 		zRecGate = WeightData("zRecGate", Matrix(units, units), trainable = true)
-		addWeights(zRecGate)
+		registerWeight(zRecGate)
 		rRecGate = WeightData("rRecGate", Matrix(units, units), trainable = true)
-		addWeights(rRecGate)
+		registerWeight(rRecGate)
 		hRecGate = WeightData("hRecGate", Matrix(units, units), trainable = true)
-		addWeights(hRecGate)
+		registerWeight(hRecGate)
 
 		for (w in weights.values) {
 			Suppliers.fillFull(w.matrix, Suppliers.RandomHE)
 		}
 
 		zBias = WeightData("zBias", Matrix(units, 1), trainable = useBias)
-		addWeights(zBias)
+		registerWeight(zBias)
 		rBias = WeightData("rBias", Matrix(units, 1), trainable = useBias)
-		addWeights(rBias)
+		registerWeight(rBias)
 		hBias = WeightData("hBias", Matrix(units, 1), trainable = useBias)
-		addWeights(hBias)
+		registerWeight(hBias)
 
 		cellStateBufferCurrent = Matrix(parentShape.width, 1)
 		cellStateBufferPrev = Matrix(units, 1)

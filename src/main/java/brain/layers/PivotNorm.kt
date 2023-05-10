@@ -65,11 +65,11 @@ class PivotNormLayerImpl(
 
 	override fun init() {
 		kernel = WeightData("weight", Matrix(directShape.width, 1), true)
-		addWeights(kernel)
+		registerWeight(kernel)
 		biasA = WeightData("biasA", Matrix(directShape.width, 1), true)
-		addWeights(biasA)
+		registerWeight(biasA)
 		biasB = WeightData("biasB", Matrix(directShape.width, 1), true)
-		addWeights(biasB)
+		registerWeight(biasB)
 		outputBuffer = Matrix(directShape.width, directShape.height)
 	}
 

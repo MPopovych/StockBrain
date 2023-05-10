@@ -56,31 +56,26 @@ class SparseLayerImpl(
 	private val parentShape: LayerShape,
 	private val useBias: Boolean = true,
 	override var name: String,
-) : Layer.SingleInputLayer(), LayerWarmupMode {
+) : Layer.SingleInputLayer() {
 	override val nameType: String = Sparse.defaultNameType
 	override lateinit var outputBuffer: Matrix
 	lateinit var kernel: WeightData
 	lateinit var gateBuffer: Matrix
+	lateinit var actBuffer: Matrix
 	lateinit var gate: WeightData
 	lateinit var bias: WeightData
-
 	private var warm = false
 
 	override fun init() {
 		kernel = WeightData("weight", Matrix(units, parentShape.width), true)
-		addWeights(kernel)
+		registerWeight(kernel)
 		gate = WeightData("gate", Matrix(units, parentShape.width), true)
-		addWeights(gate)
+		registerWeight(gate)
 		bias = WeightData("bias", Matrix(units, 1), trainable = useBias)
-		addWeights(bias)
+		registerWeight(bias)
 		gateBuffer = Matrix(units, parentShape.width)
+		actBuffer = Matrix(units, parentShape.width)
 		outputBuffer = Matrix(units, parentShape.height)
-	}
-
-	override fun warmup() {
-		Activations.BinaryNegPos.applyFromMatrixTo(gate.matrix, gateBuffer)
-		MatrixMath.hadamard(kernel.matrix, gateBuffer, gateBuffer)
-		warm = true
 	}
 
 	override fun call(input: Matrix): Matrix {
@@ -94,6 +89,12 @@ class SparseLayerImpl(
 			Activations.activate(outputBuffer, outputBuffer, it)
 		}
 		return outputBuffer
+	}
+
+	override fun onWeightUpdate() {
+		warm = true
+		Activations.BinaryNegPos.applyFromMatrixTo(gate.matrix, actBuffer)
+		MatrixMath.hadamard(kernel.matrix, actBuffer, gateBuffer)
 	}
 
 }

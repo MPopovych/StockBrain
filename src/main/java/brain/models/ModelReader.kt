@@ -253,6 +253,24 @@ object ModelReader {
 				}
 			}
 
+			DropoutEq.defaultNameType -> {
+				val meta = (ls.getMetaData() as? LayerMetaData.DropoutMeta)
+					?: throw IllegalStateException("No meta for dropout eq")
+				val parent = ls.parents?.getOrNull(0) ?: throw IllegalStateException("No parent in dropout eq")
+				DropoutEq(rate = meta.rate, name = ls.name) {
+					buffer[parent] ?: throw IllegalStateException("No parent found in buffer")
+				}
+			}
+
+			GNoise.defaultNameType -> {
+				val meta = (ls.getMetaData() as? LayerMetaData.DropoutMeta)
+					?: throw IllegalStateException("No meta for g noise")
+				val parent = ls.parents?.getOrNull(0) ?: throw IllegalStateException("No parent in g noise")
+				GNoise(rate = meta.rate, name = ls.name) {
+					buffer[parent] ?: throw IllegalStateException("No parent found in buffer")
+				}
+			}
+
 			ConvDelta.defaultNameType -> {
 				val activation = Activations.deserialize(ls.activation)
 				val parent = ls.parents?.getOrNull(0) ?: throw IllegalStateException("No parent in conv delta")
@@ -424,6 +442,18 @@ private class LayerDeserializer : JsonDeserializer<LayerSerialized> {
 			}
 
 			Dropout.defaultNameType -> {
+				val element = json.asJsonObject[FIELD_BUILDER_DATA]
+				val data = ModelReader.innerGson.fromJson<LayerMetaData.DropoutMeta>(element)
+				temp.copy(builderData = data)
+			}
+
+			DropoutEq.defaultNameType -> {
+				val element = json.asJsonObject[FIELD_BUILDER_DATA]
+				val data = ModelReader.innerGson.fromJson<LayerMetaData.DropoutMeta>(element)
+				temp.copy(builderData = data)
+			}
+
+			GNoise.defaultNameType -> {
 				val element = json.asJsonObject[FIELD_BUILDER_DATA]
 				val data = ModelReader.innerGson.fromJson<LayerMetaData.DropoutMeta>(element)
 				temp.copy(builderData = data)

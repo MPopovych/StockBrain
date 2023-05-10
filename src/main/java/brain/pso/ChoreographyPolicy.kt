@@ -1,6 +1,5 @@
 package brain.pso
 
-import kotlin.math.cos
 import kotlin.math.max
 import kotlin.math.pow
 import kotlin.math.sin

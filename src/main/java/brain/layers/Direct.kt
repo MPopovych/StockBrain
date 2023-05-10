@@ -63,9 +63,9 @@ class DirectLayerImpl(
 
 	override fun init() {
 		kernel = WeightData("weight", Matrix(directShape.width, directShape.height), true)
-		addWeights(kernel)
+		registerWeight(kernel)
 		bias = WeightData("bias", Matrix(directShape.width, directShape.height), trainable = useBias)
-		addWeights(bias)
+		registerWeight(bias)
 		outputBuffer = Matrix(directShape.width, directShape.height)
 	}
 

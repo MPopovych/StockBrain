@@ -35,10 +35,9 @@ open class AdditiveMutationPolicy(private val fraction: Double = 0.01) : Mutatio
 		destination: WeightGenes,
 		totalGeneCount: Int,
 	) {
-		val toMutate = (fraction * totalGeneCount).roundUpInt()
 		val indices = source.genes.indices
 		for (i in indices) {
-			if (Random.nextInt(totalGeneCount) <= toMutate) {
+			if (Random.nextFloat() <= fraction) {
 				destination.genes[indices.random()] += supplyNext(destination.size)
 			}
 		}
@@ -59,7 +58,7 @@ open class ZeroAllMutationPolicy(private val fraction: Float = 0.01f) : Mutation
 }
 
 open class ReplaceMutationPolicy(private val fraction: Double = 0.01, private val mod: Float = 1f) : MutationPolicy {
-	private val randomRangeSupplier = Suppliers.RandomHE
+	private val randomRangeSupplier = Suppliers.RandomRangeNP
 	private fun supplyNext(count: Int) = randomRangeSupplier.supply(count, 0, 0) * mod
 
 	override fun mutateWeight(
@@ -67,10 +66,9 @@ open class ReplaceMutationPolicy(private val fraction: Double = 0.01, private va
 		destination: WeightGenes,
 		totalGeneCount: Int,
 	) {
-		val toMutate = (fraction * totalGeneCount).roundUpInt()
 		val indices = source.genes.indices
 		for (i in indices) {
-			if (Random.nextInt(totalGeneCount) <= toMutate) {
+			if (Random.nextFloat() <= fraction) {
 				destination.genes[indices.random()] = supplyNext(destination.size)
 			}
 		}
@@ -83,10 +81,9 @@ open class CopyMutationPolicy(private val fraction: Double = 0.01) : MutationPol
 		destination: WeightGenes,
 		totalGeneCount: Int,
 	) {
-		val toMutate = (fraction * totalGeneCount).roundUpInt()
 		val indices = source.genes.indices
 		for (i in indices) {
-			if (Random.nextInt(totalGeneCount) <= toMutate) {
+			if (Random.nextFloat() <= fraction) {
 				val randomPosA = indices.random()
 				val randomPosB = indices.random()
 				destination.genes[randomPosA] = source.genes[randomPosB]
@@ -101,10 +98,9 @@ open class UpscaleMutationPolicy(private val fraction: Double = 0.01) : Mutation
 		destination: WeightGenes,
 		totalGeneCount: Int,
 	) {
-		val toMutate = (fraction * totalGeneCount).roundUpInt()
 		val indices = source.genes.indices
 		for (i in indices) {
-			if (Random.nextInt(totalGeneCount) <= toMutate) {
+			if (Random.nextFloat() <= fraction) {
 				val randomIndex = indices.random()
 				if (Random.nextBoolean()) {
 					destination.genes[randomIndex] = source.genes[randomIndex] * 1.1f
@@ -123,11 +119,10 @@ open class InversionMutationPolicy(private val fraction: Double = 0.01) : Mutati
 		destination: WeightGenes,
 		totalGeneCount: Int,
 	) {
-		val toMutate = (fraction * totalGeneCount).roundUpInt()
 		val indices = source.genes.indices
 		for (i in indices) {
 			val randomIndex = indices.random()
-			if (Random.nextInt(totalGeneCount) <= toMutate) {
+			if (Random.nextFloat() <= fraction) {
 				destination.genes[randomIndex] = -source.genes[randomIndex]
 			}
 		}

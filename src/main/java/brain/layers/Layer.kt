@@ -21,13 +21,15 @@ sealed class Layer {
 
 	open val activation: ActivationFunction? = null
 	val weights = LinkedHashMap<String, WeightData>()
-	fun addWeights(weightData: WeightData) {
+	fun registerWeight(weightData: WeightData) {
 		weights[weightData.name] = weightData
 	}
 
 	open fun flushBuffer() {
 		MatrixMath.flush(outputBuffer)
 	}
+
+	open fun onWeightUpdate() { }
 
 	fun getTrainable() = weights.values.filter { it.trainable }
 	fun getTrainableNumber() = getTrainable().sumOf { it.matrix.width * it.matrix.height }

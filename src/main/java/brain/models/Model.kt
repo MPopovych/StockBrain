@@ -28,11 +28,13 @@ class Model(
 		}
 	}
 
-	fun warmup() {
+	init {
+		onWeightUpdate()
+	}
+
+	fun onWeightUpdate() {
 		for (layer in graphMap.values.map { it.layer }) {
-			if (layer is LayerWarmupMode) {
-				layer.warmup()
-			}
+			layer.onWeightUpdate()
 		}
 	}
 

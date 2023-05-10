@@ -41,6 +41,7 @@ class FeatureDense(
 			parentShape = parentLayer.getShape(),
 			useBias = useBias,
 			activation = activation,
+			pivotAvg = pivotAvg,
 			name = name,
 		)
 			.also {
@@ -78,12 +79,12 @@ class FeatureDenseImpl(
 		for (i in 0 until parentShape.width) {
 			val localKernel = WeightData("weight_f$i", Matrix(units, parentShape.height), true)
 			Suppliers.fillFull(localKernel.matrix, Suppliers.RandomHE)
-			addWeights(localKernel)
+			registerWeight(localKernel)
 			kernels.add(localKernel)
 		}
 
 		bias = WeightData("bias", Matrix(parentShape.width, units), trainable = useBias)
-		addWeights(bias)
+		registerWeight(bias)
 
 		transposeFeatureBuffer = Matrix(parentShape.height, 1) // width = height, height = 1, that's correct
 		transposeOutputBuffer = Matrix(units, 1) // width = height, height = 1, that's correct
@@ -102,8 +103,7 @@ class FeatureDenseImpl(
 				transposeFeatureBuffer.values[0][y] = input.values[y][x]
 			}
 			if (pivotAvg) {
-//				val avg = transposeFeatureBuffer.values[0].average().toFloat()
-				val avg = transposeFeatureBuffer.values[0][0]
+				val avg = transposeFeatureBuffer.values[0].average().toFloat()
 				for (y in 0 until input.height) {
 					// fill horizontally
 					transposeFeatureBuffer.values[0][y] -= avg

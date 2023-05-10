@@ -62,9 +62,9 @@ class ScaleSeriesSmoothLayerImpl(
 
 	override fun init() {
 		kernel = WeightData("weight", Matrix(directShape.width, 2), true)
-		addWeights(kernel)
+		registerWeight(kernel)
 		bias = WeightData("bias", Matrix(directShape.width, 2), trainable = useBias)
-		addWeights(bias)
+		registerWeight(bias)
 		outputBuffer = Matrix(directShape.width, directShape.height)
 	}
 
@@ -74,9 +74,9 @@ class ScaleSeriesSmoothLayerImpl(
 			val weightXTop = kernel.matrix.values[0][x]
 			val weightXBot = kernel.matrix.values[1][x]
 			for (y in 0 until input.height) {
-				val weightXPoint = x.toFloat() / (input.width - 1)
+				val weightYPoint = (y + 1).toFloat() / (input.height)
 				outputBuffer.values[y][x] =
-					input.values[y][x] * (weightXTop * (1 - weightXPoint) + weightXBot * weightXPoint)
+					input.values[y][x] * (weightXTop * (1 - weightYPoint) + weightXBot * weightYPoint)
 			}
 		}
 		if (useBias) {
@@ -84,9 +84,9 @@ class ScaleSeriesSmoothLayerImpl(
 				val weightXTop = bias.matrix.values[0][x]
 				val weightXBot = bias.matrix.values[1][x]
 				for (y in 0 until input.height) {
-					val weightXPoint = x.toFloat() / (input.width - 1)
+					val weightYPoint = (y + 1).toFloat() / (input.height)
 					outputBuffer.values[y][x] =
-						outputBuffer.values[y][x] + (weightXTop * (1 - weightXPoint) + weightXBot * weightXPoint)
+						outputBuffer.values[y][x] + (weightXTop * (1 - weightYPoint) + weightXBot * weightYPoint)
 				}
 			}
 		}

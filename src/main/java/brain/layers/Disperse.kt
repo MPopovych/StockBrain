@@ -61,7 +61,7 @@ class DisperseLayerImpl(
 
 	override fun init() {
 		bias = WeightData("bias", Matrix(units * parentShape.width, 1), trainable = useBias)
-		addWeights(bias)
+		registerWeight(bias)
 		outputBuffer = Matrix(units * parentShape.width, parentShape.height)
 	}
 

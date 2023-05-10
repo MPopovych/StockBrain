@@ -56,7 +56,7 @@ class FeatureFilterLayerImpl(
 
 	override fun init() {
 		kernel = WeightData("weight", Matrix(directShape.width, 1), true)
-		addWeights(kernel)
+		registerWeight(kernel)
 		weightActivatedBuffer = Matrix(directShape.width, 1)
 		outputBuffer = Matrix(directShape.width, directShape.height)
 	}
