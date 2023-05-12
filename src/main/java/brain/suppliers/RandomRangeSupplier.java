@@ -14,13 +14,13 @@ public class RandomRangeSupplier implements ValueFiller {
 
 	@Override
 	public float supply(int count, int x, int y) {
-		return random.nextFloat() * 2f - 1f;
+		return (float) random.nextGaussian() / 3f;
 	}
 
 	@Override
 	public void fill(float[] array) {
 		for (int i = 0; i < array.length; i++) {
-			array[i] = random.nextFloat() * 2f - 1f;
+			array[i] = (float) random.nextGaussian() / 3f;
 		}
 	}
 }

@@ -38,7 +38,8 @@ open class AdditiveMutationPolicy(private val fraction: Double = 0.01) : Mutatio
 		val indices = source.genes.indices
 		for (i in indices) {
 			if (Random.nextFloat() <= fraction) {
-				destination.genes[indices.random()] += supplyNext(destination.size)
+				val rIndex = indices.random()
+				destination.genes[rIndex] = source.genes[rIndex] + supplyNext(destination.size)
 			}
 		}
 	}
@@ -52,7 +53,7 @@ open class ZeroAllMutationPolicy(private val fraction: Float = 0.01f) : Mutation
 	) {
 		val indices = source.genes.indices
 		for (i in indices) {
-			destination.genes[i] *= fraction
+			destination.genes[i] = source.genes[i] * fraction
 		}
 	}
 }
@@ -84,9 +85,7 @@ open class CopyMutationPolicy(private val fraction: Double = 0.01) : MutationPol
 		val indices = source.genes.indices
 		for (i in indices) {
 			if (Random.nextFloat() <= fraction) {
-				val randomPosA = indices.random()
-				val randomPosB = indices.random()
-				destination.genes[randomPosA] = source.genes[randomPosB]
+				destination.genes[indices.random()] = source.genes[indices.random()]
 			}
 		}
 	}

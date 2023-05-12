@@ -93,7 +93,7 @@ class SparseLayerImpl(
 
 	override fun onWeightUpdate() {
 		warm = true
-		Activations.BinaryNegPos.applyFromMatrixTo(gate.matrix, actBuffer)
+		Activations.BinaryZeroPos.applyFromMatrixTo(gate.matrix, actBuffer)
 		MatrixMath.hadamard(kernel.matrix, actBuffer, gateBuffer)
 	}
 

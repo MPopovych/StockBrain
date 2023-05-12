@@ -1,5 +1,6 @@
 package brain.ga
 
+import brain.pso.PSOUtils
 import brain.utils.printGreenBr
 import brain.utils.roundUp
 import kotlin.math.abs
@@ -83,14 +84,18 @@ class GAScoreBoard(val order: Int, private val settings: GASettings) {
 	}
 
 	fun printScoreBoard(limit: Int? = null) {
+		val top = getTop() ?: return
+
 		val sb = StringBuilder()
 		val stdAndPercent = getStdAndPercent()
 		sb.append("Room: $order - ")
 		sb.append("Score deviation: ${stdAndPercent.first} : ${stdAndPercent.second.roundUp(2)}%").appendLine()
 		scoreList.takeLast(limit ?: scoreList.size).forEach { t ->
+			val distanceToTop = PSOUtils.modelDistance(t.genes, top.genes)
 			sb.append("score: ${t.score.roundUp(6).toString().padEnd(8)} \t" +
-					"- ${t.id.hashCode().toString().padEnd(12)} \t" +
-					"- g:${t.bornOnEpoch}" ).appendLine()
+					"- h: ${t.id.hashCode().toString().padEnd(12)} \t" +
+					"- d: ${distanceToTop.roundUp(3).toString().padEnd(5)} \t" +
+					"- g: ${t.bornOnEpoch}" ).appendLine()
 		}
 		printGreenBr(sb.toString().trimIndent())
 	}

@@ -78,7 +78,7 @@ open class OutlierOptPolicy(private val fraction: Float = 0.2f) : WeightOptPolic
 			val v = destination.genes[it]
 			if (v == 0.0f) return@forEach
 			val absV = abs(v)
-			val sign = absV / v
+			val sign = if (v >= 0) 1 else -1
 			destination.genes[it] = (max(min(absV, capH), capL) * fraction + absV * (1 - fraction)) * sign
 		}
 	}

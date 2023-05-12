@@ -11,12 +11,12 @@ class MutationPolicyTest {
 
 	@Test
 	fun testAdditiveMutationPolicy() {
-		val a = WeightGenes("a", floatArrayOf(0.3f, 0.3f, 0.3f, 0.3f, 0.3f, 0.3f, 0.3f))
+		val a = WeightGenes("a", floatArrayOf(0.3f, 0.3f, 0.3f, 0.3f, 0.3f, 0.3f, 0.3f), 1, 7 , 0)
 		val d = a.emptyCopy()
 		assertNotEqualModel(a, d)
 
 		repeat(10) {
-			AdditiveMutationPolicy(fraction = 0.5).mutateWeight(a, d)
+			AdditiveMutationPolicy(fraction = 0.5).mutateWeight(a, d, a.size)
 		}
 
 		printBlueBr("testAdditiveMutationPolicy ${d.genes.toList()}")
@@ -25,12 +25,12 @@ class MutationPolicyTest {
 
 	@Test
 	fun testAdditiveMutationPolicyLowChance() {
-		val a = WeightGenes("a", floatArrayOf(0.3f, 0.3f, 0.3f, 0.3f, 0.3f, 0.3f, 0.3f))
+		val a = WeightGenes("a", floatArrayOf(0.3f, 0.3f, 0.3f, 0.3f, 0.3f, 0.3f, 0.3f), 1, 7 , 0)
 		val ref = a.copy()
 		assertEqualModel(a, ref)
 
 		repeat(1000) {
-			AdditiveMutationPolicy(fraction = 0.05).mutateWeight(a, a)
+			AdditiveMutationPolicy(fraction = 0.05).mutateWeight(a, a, a.size)
 		}
 
 		printBlueBr("testAdditiveMutationPolicy ${ref.genes.toList()}")

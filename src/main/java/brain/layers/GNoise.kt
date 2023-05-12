@@ -64,7 +64,7 @@ class GNoiseLayerImpl(
 		} else {
 			for (y in 0 until directShape.height) {
 				for (x in 0 until directShape.width) {
-					outputBuffer.values[y][x] = input.values[y][x] + jRandom.nextGaussian().toFloat() * rate
+					outputBuffer.values[y][x] = input.values[y][x] * (1 + jRandom.nextGaussian().toFloat() * rate)
 				}
 			}
 		}

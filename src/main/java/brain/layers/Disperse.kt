@@ -51,7 +51,6 @@ class DisperseLayerImpl(
 	val units: Int,
 	override val activation: ActivationFunction? = null,
 	private val parentShape: LayerShape,
-	private val useBias: Boolean = true,
 	override var name: String,
 ) : Layer.SingleInputLayer() {
 	override val nameType: String = Disperse.defaultNameType
@@ -60,7 +59,7 @@ class DisperseLayerImpl(
 	lateinit var bias: WeightData
 
 	override fun init() {
-		bias = WeightData("bias", Matrix(units * parentShape.width, 1), trainable = useBias)
+		bias = WeightData("bias", Matrix(units * parentShape.width, 1), trainable = true)
 		registerWeight(bias)
 		outputBuffer = Matrix(units * parentShape.width, parentShape.height)
 	}

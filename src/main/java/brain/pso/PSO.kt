@@ -99,11 +99,15 @@ class PSO(
 			val middle = sorted[1]
 			val worst = sorted[0]
 
-			val triple = CustomVelocityPolicyV2.move(
+			val triple = CustomVelocityPolicy.move(
 				best.best,
-				top.current, worst.current, worst.current,
+				top.current, middle.current, worst.current,
 				psoContext,
 			)
+
+//			OptPolicy.opt(triple.first, psoContext)
+//			OptPolicy.opt(triple.second, psoContext)
+//			OptPolicy.opt(triple.third, psoContext)
 
 			triple.first.applyToModel(top.modelBuffer)
 			triple.second.applyToModel(middle.modelBuffer)

@@ -5,7 +5,7 @@ import brain.activation.applyFromMatrixTo
 import brain.matrix.Matrix
 
 class Activation(
-	private val function: ActivationFunction,
+	private val activation: ActivationFunction,
 	override var name: String = Layer.DEFAULT_NAME,
 	parentLayerBlock: (() -> LayerBuilder<*>),
 ) : LayerBuilder.SingleInput<ActivationLayerImpl> {
@@ -19,7 +19,7 @@ class Activation(
 	private val activationShape = parentLayer.getShape()
 
 	override fun create(): ActivationLayerImpl {
-		return ActivationLayerImpl(function, activationShape, name).also {
+		return ActivationLayerImpl(activation, activationShape, name).also {
 			it.init()
 		}
 	}

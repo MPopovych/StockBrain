@@ -1,5 +1,7 @@
 package brain.activation;
 
+import java.util.Arrays;
+
 public class SoftMaxFunction extends ActivationFunction {
 	@Override
 	public float apply(float value) {
@@ -7,22 +9,24 @@ public class SoftMaxFunction extends ActivationFunction {
 	}
 
 	@Override
-	void applyTo(float[] array) {
-		float max = Float.MIN_VALUE;
-		for (float value : array) {
+	public void applyTo(float[] from, float[] to) {
+		float max = from[0];
+		for (float value : from) {
 			max = Math.max(value, max);
 		}
 		float sum = 0;
-		for (int i = 0; i < array.length; i++) {
-			float value = (float) Math.exp(array[i] - max);
-			array[i] = value;
+
+		for (int i = 0; i < from.length; i++) {
+			float value = (float) Math.exp(from[i] - max);
+			to[i] = value;
 			sum += value;
 		}
 		if (sum == 0f) {
-			sum = 0.00001f;
+			Arrays.fill(to, 0f);
+			return;
 		}
-		for (int i = 0; i < array.length; i++) {
-			array[i] = array[i] / sum;
+		for (int i = 0; i < from.length; i++) {
+			to[i] = to[i] / sum;
 		}
 	}
 }

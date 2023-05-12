@@ -12,6 +12,7 @@ class Model(
 	internal var outputByKey: Map<String, GraphLayerNode>,
 	var graphMap: Map<String, GraphLayerNode>,
 	internal val debug: Boolean = false,
+	private val check: Boolean = true,
 ) {
 
 	var propCallback: ((LinkedHashMap<String, Matrix>) -> Unit)? = null
@@ -65,7 +66,8 @@ class Model(
 							", ${inputLayer.layer.getShape().height} vs ${entry.value.height}"
 				)
 			}
-			outputBuffer[inputLayer.layer.name] = inputLayer.layer.call(entry.value)
+			val m = check(inputLayer.layer.call(entry.value), inputLayer)
+			outputBuffer[inputLayer.layer.name] = m
 		}
 
 		for (node in graphMap.values) {
@@ -80,14 +82,14 @@ class Model(
 						outputBuffer[id]
 							?: throw IllegalStateException("missing: $id for ${node.layer.name}")
 					}
-					val outM = node.layer.call(mList)
+					val outM = check(node.layer.call(mList), node)
 					outputBuffer[node.layer.name] = outM
 				}
 
 				is GraphLayerNode.SingleParent -> {
 					val m = outputBuffer[node.parentId]
 						?: throw IllegalStateException("missing: ${node.parentId} for ${node.layer.name}")
-					val outM = node.layer.call(m)
+					val outM = check(node.layer.call(m), node)
 					outputBuffer[node.layer.name] = outM
 				}
 			}
@@ -104,6 +106,13 @@ class Model(
 	}
 
 	fun revertToBuilder() = builder
+
+	fun check(matrix: Matrix, layer: GraphLayerNode): Matrix {
+		if (check && matrix.values.any { it.any { f -> !f.isFinite() } }) {
+			throw IllegalStateException("${layer.layer.name} has NaN")
+		}
+		return matrix
+	}
 }
 
 

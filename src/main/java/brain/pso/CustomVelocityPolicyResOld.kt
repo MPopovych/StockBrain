@@ -1,16 +1,18 @@
 package brain.pso
 
-import brain.activation.FastTanhFunction
 import brain.ga.weights.ModelGenes
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.random.Random
 
-object CustomVelocityPolicyV2 {
+object CustomVelocityPolicyResOld {
 
-	private const val alpha = 0.8f
-	private const val weightCap = 1.75f
+	private const val alpha = 0.6f
+	private const val alphaRandom = 0.3f
+
+	private const val weightCap = 1.3f
+	private const val weightHeavy = 0.6f
 
 	private val jRandom = java.util.Random()
 
@@ -31,28 +33,30 @@ object CustomVelocityPolicyV2 {
 			PSOScoreBoardOrder.Ascending -> {
 				scoreRange = best.score - worst.score
 				wTillM = middle.score - worst.score
-				tTillB = best.score - top.score
 				mTillT = top.score - middle.score
+				tTillB = best.score - top.score
 			}
 
 			PSOScoreBoardOrder.Descending -> {
 				scoreRange = worst.score - best.score
 				wTillM = worst.score - middle.score
-				tTillB = top.score - best.score
 				mTillT = middle.score - top.score
+				tTillB = top.score - best.score
 			}
 		}
 
-		var wTillMRatio = 0.33f
-		var mTillTRatio = 0.33f
-		var tTillBRatio = 0.33f
+		var wTillMRatio = 0.90f
+		var mTillTRatio = 0.60f
+		var tTillBRatio = 0.30f
 		if (scoreRange != 0.0) {
-			wTillMRatio = min(wTillM / scoreRange, 1.0).toFloat()
-			mTillTRatio = min(mTillT / scoreRange, 1.0).toFloat()
 			tTillBRatio = min(tTillB / scoreRange, 1.0).toFloat()
+			mTillTRatio = min(mTillT / scoreRange, 1.0).toFloat()
+			wTillMRatio = min(wTillM / scoreRange, 1.0).toFloat()
 		}
-		val randomWeightReductionK = if (jRandom.nextInt(10) == 0) 0.995f else 1f
+//		val randomDepth = tCopy.layers.values.filter { l -> l.map.values.sumOf { w -> w.size } > 0 }.random().depth
+//		val randomWeightReductionK = if (jRandom.nextInt(10) == 0) 0.995f else 1f
 		tCopy.layers.map { tLayer ->
+//			if (psoContext.generation % 2 == 0 && tLayer.value.depth != randomDepth) return@map
 
 			val bLayer = best.genes.layers[tLayer.key] ?: throw IllegalStateException()
 			val mLayer = mCopy.layers[tLayer.key] ?: throw IllegalStateException()
@@ -70,23 +74,29 @@ object CustomVelocityPolicyV2 {
 					val mValue = mWeight[i]
 					val wValue = wWeight[i]
 
-					val chance1In = 300
-					var wDirection = ((tValue - wValue) * (mTillTRatio) + (mValue - wValue) * wTillMRatio) * alpha
-					if (Random.nextInt(chance1In) == 0) {
-						wDirection = jRandom.nextGaussian().toFloat() * alpha
+					val chance1In = 100
+					var wmDirection = (mValue - wValue) * (alpha + alphaRandom * jRandom.nextFloat())
+					if (Random.nextInt(chance1In) == 0 && wmDirection == 0.0f) {
+						wmDirection = -wValue
 					}
-					var mDirection = ((bValue - mValue) * tTillBRatio + (tValue - mValue) * mTillTRatio) * alpha
-					if (Random.nextInt(chance1In) == 0) {
-						mDirection = jRandom.nextGaussian().toFloat() * alpha
+					var mtDirection = (tValue - mValue) * (alpha + alphaRandom * jRandom.nextFloat())
+//					if (Random.nextInt(chance1In) == 0 && mtDirection == 0.0f) {
+//						mtDirection = -mValue
+//					}
+					var tbDirection = (bValue - tValue) * (alpha + alphaRandom * jRandom.nextFloat())
+					if (tbDirection == 0.0f) {
+						tbDirection = (mtDirection + wmDirection) / 2 + (jRandom.nextGaussian().toFloat() / 30f)
 					}
-					var tDirection = (bValue - tValue) * alpha
-					if (Random.nextInt(chance1In) == 0) {
-						tDirection = jRandom.nextGaussian().toFloat() * alpha
+					if (mtDirection == 0.0f) {
+						mtDirection = (tbDirection + wmDirection) / 2 + (jRandom.nextGaussian().toFloat() / 30f)
+					}
+					if (wmDirection == 0.0f) {
+						wmDirection = (tbDirection + mtDirection) / 2 + (jRandom.nextGaussian().toFloat() / 30f)
 					}
 
-					val wSigned = mValue + wDirection * randomWeightReductionK
-					val mSigned = wValue + mDirection * randomWeightReductionK
-					val tSigned = tValue + tDirection * randomWeightReductionK
+					val wSigned = wValue + wmDirection
+					val mSigned = mValue + mtDirection
+					val tSigned = tValue + tbDirection
 
 					wWeight[i] = max(min(smoothMove(wValue, wSigned), weightCap), -weightCap)
 					mWeight[i] = max(min(smoothMove(mValue, mSigned), weightCap), -weightCap)
@@ -97,30 +107,19 @@ object CustomVelocityPolicyV2 {
 		return Triple(tCopy, mCopy, wCopy)
 	}
 
-	private val fastTanh = FastTanhFunction()
-	private fun smoothMove(current: Float, target: Float): Float {
-		if (current == target) {
-			return smoothMove(current, current + jRandom.nextGaussian().toFloat() / 100)
-		}
+	fun smoothMove(current: Float, target: Float): Float {
 		val t = if (current >= 0 && target <= 0) {
 			// move from positive towards negative
-			val dampen = fastTanh.apply(current / 3) * current
-			if (dampen < 0.000001f) {
-				abs(fastTanh.apply(target / 3)) * target
-			}
-			dampen
+			(current + target) / 3
 		} else if (current <= 0 && target >= 0) {
 			// move from negative towards zero
-			val dampen = fastTanh.apply(current / 3) * current
-			if (dampen > -0.000001f) {
-				abs(fastTanh.apply(target / 3)) * target
-			}
-			dampen
+			(current + target) / 3
 		} else {
+			if (abs(target) > weightHeavy) {
+				(current + target) / 3
+			}
 			target
 		}
-//		val d = min(max(t - current, -0.3f), 0.3f)
-		val d = t - current
-		return current + d
+		return t
 	}
 }

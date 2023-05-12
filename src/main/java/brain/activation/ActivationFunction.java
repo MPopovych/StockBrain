@@ -2,11 +2,19 @@ package brain.activation;
 
 public abstract class ActivationFunction {
 
-	abstract float apply(float value);
+	public abstract float apply(float value);
 
-	void applyTo(float[] array) {
-		for (int i = 0; i < array.length; i++) {
-			array[i] = apply(array[i]);
+	public void applyTo(float[] from, float[] to) {
+		for (int i = 0; i < from.length; i++) {
+			to[i] = apply(from[i]);
+		}
+	}
+
+	int sign(float value) {
+		if (value >= 0) {
+			return 1;
+		} else {
+			return -1;
 		}
 	}
 

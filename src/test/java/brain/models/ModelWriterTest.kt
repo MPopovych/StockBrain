@@ -34,7 +34,7 @@ class ModelWriterTest {
 		val d1 = Dense(4, activation = Activations.LeReLu, name = "d1") { d0 }
 		val d2 = Direct(activation = Activations.ReLu, name = "d2") { d0 }
 		val d3 = Direct(useBias = false, name = "d3") { d2 }
-		val a2 = Activation(function = Activations.ReLu) { d3 }
+		val a2 = Activation(activation = Activations.ReLu) { d3 }
 		val concat = Concat { listOf(d1, a2) }
 		val convDelta = ConvDelta { concat }
 		val flatten = Flatten { convDelta }

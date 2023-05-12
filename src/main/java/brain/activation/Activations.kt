@@ -24,7 +24,7 @@ object Activations {
 	val ReLuMinMax = ReLuMinMaxFunction()
 	val ReLuTanh = ReLuTanhFunction()
 	val NegPosRange = NegPosRangeFunction()
-	val BinaryNegPos = BinaryNegPosFunction()
+	val BinaryZeroPos = BinaryZeroPosFunction()
 	val Binary = BinaryStepFunction()
 	val BinaryRange = BinaryRangeFunction()
 	val SmallTanh = SmallTanhFunction()
@@ -34,7 +34,7 @@ object Activations {
 
 	fun activate(matrix: Matrix, buffer: Matrix, function: ActivationFunction) {
 		for (y in 0 until matrix.height) {
-			function.applyTo(buffer.values[y])
+			function.applyTo(matrix.values[y], buffer.values[y])
 		}
 	}
 
@@ -53,7 +53,7 @@ object Activations {
 			Par.nameType() -> Par
 			ReLu6.nameType() -> ReLu6
 			NegPosRange.nameType() -> NegPosRange
-			BinaryNegPos.nameType() -> BinaryNegPos
+			BinaryZeroPos.nameType() -> BinaryZeroPos
 			Binary.nameType() -> Binary
 			BinaryRange.nameType() -> BinaryRange
 			Zero.nameType() -> Zero

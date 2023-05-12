@@ -189,6 +189,26 @@ object ModelReader {
 				}
 			}
 
+			MRU.defaultNameType -> {
+				val meta =
+					(ls.getMetaData() as? LayerMetaData.GRUMeta) ?: throw IllegalStateException("No meta for MRU")
+				val activation = Activations.deserialize(ls.activation)
+				val updateActivation = Activations.deserialize(meta.updateActivation)
+				val resetActivation = Activations.deserialize(meta.resetActivation)
+				val parent = ls.parents?.getOrNull(0) ?: throw IllegalStateException("No parent in MRU")
+				MRU(
+					activation = activation,
+					updateActivation = updateActivation,
+					resetActivation = resetActivation,
+					reverse = meta.reverse,
+					useBias = meta.useBias,
+					units = ls.width,
+					name = ls.name
+				) {
+					buffer[parent] ?: throw IllegalStateException("No parent found in buffer")
+				}
+			}
+
 			Direct.defaultNameType -> {
 				val meta = (ls.getMetaData() as? LayerMetaData.OnlyBiasMeta)
 					?: throw IllegalStateException("No meta for direct")
@@ -208,6 +228,7 @@ object ModelReader {
 					buffer[parent] ?: throw IllegalStateException("No parent found in buffer")
 				}
 			}
+
 			ScaleSeriesSmooth.defaultNameType -> {
 				val meta = (ls.getMetaData() as? LayerMetaData.OnlyBiasMeta)
 					?: throw IllegalStateException("No meta for scale series smooth")
@@ -360,6 +381,7 @@ object ModelReader {
 					units = meta.units,
 					kernelSize = meta.kernels,
 					step = meta.step,
+					reverse = meta.reverse,
 					activation = activation,
 					useBias = meta.useBias,
 					name = ls.name
@@ -374,6 +396,44 @@ object ModelReader {
 				val parent = ls.parents?.getOrNull(0) ?: throw IllegalStateException("No parent in feature mask")
 				FeatureMask(filterIndexes = meta.allowIndexes, name = ls.name) {
 					buffer[parent] ?: throw IllegalStateException("No parent found in feature mask")
+				}
+			}
+
+			SoftMemory.defaultNameType -> {
+				val meta = (ls.getMetaData() as? LayerMetaData.SoftMemoryMeta)
+					?: throw IllegalStateException("No meta for soft memory")
+				val activation = Activations.deserialize(ls.activation)
+				val parents = ls.parents?.map { p ->
+					buffer[p] ?: throw IllegalStateException("No parent found in buffer")
+				} ?: throw IllegalStateException("No parent in soft memory")
+
+				SoftMemory(
+					units = meta.units,
+					options = meta.options,
+					useBias = meta.useBias,
+					activation = activation,
+					name = ls.name
+				) {
+					parents
+				}
+			}
+
+			HardMemory.defaultNameType -> {
+				val meta = (ls.getMetaData() as? LayerMetaData.SoftMemoryMeta)
+					?: throw IllegalStateException("No meta for hard memory")
+				val activation = Activations.deserialize(ls.activation)
+				val parents = ls.parents?.map { p ->
+					buffer[p] ?: throw IllegalStateException("No parent found in buffer")
+				} ?: throw IllegalStateException("No parent in hard memory")
+
+				HardMemory(
+					units = meta.units,
+					options = meta.options,
+					useBias = meta.useBias,
+					activation = activation,
+					name = ls.name
+				) {
+					parents
 				}
 			}
 
@@ -483,6 +543,12 @@ private class LayerDeserializer : JsonDeserializer<LayerSerialized> {
 				temp.copy(builderData = data)
 			}
 
+			MRU.defaultNameType -> {
+				val element = json.asJsonObject[FIELD_BUILDER_DATA]
+				val data = ModelReader.innerGson.fromJson<LayerMetaData.GRUMeta>(element)
+				temp.copy(builderData = data)
+			}
+
 			FeatureDense.defaultNameType -> {
 				val element = json.asJsonObject[FIELD_BUILDER_DATA]
 				val data = ModelReader.innerGson.fromJson<LayerMetaData.FeatureDenseMeta>(element)
@@ -492,6 +558,18 @@ private class LayerDeserializer : JsonDeserializer<LayerSerialized> {
 			FeatureConv.defaultNameType -> {
 				val element = json.asJsonObject[FIELD_BUILDER_DATA]
 				val data = ModelReader.innerGson.fromJson<LayerMetaData.FeatureConvMeta>(element)
+				temp.copy(builderData = data)
+			}
+
+			SoftMemory.defaultNameType -> {
+				val element = json.asJsonObject[FIELD_BUILDER_DATA]
+				val data = ModelReader.innerGson.fromJson<LayerMetaData.SoftMemoryMeta>(element)
+				temp.copy(builderData = data)
+			}
+
+			HardMemory.defaultNameType -> {
+				val element = json.asJsonObject[FIELD_BUILDER_DATA]
+				val data = ModelReader.innerGson.fromJson<LayerMetaData.SoftMemoryMeta>(element)
 				temp.copy(builderData = data)
 			}
 
