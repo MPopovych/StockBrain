@@ -26,7 +26,7 @@ public class SoftMaxFunction extends ActivationFunction {
 			return;
 		}
 		for (int i = 0; i < from.length; i++) {
-			to[i] = to[i] / sum;
+			to[i] = from[i] / sum;
 		}
 	}
 }

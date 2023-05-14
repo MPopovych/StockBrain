@@ -6,7 +6,6 @@ import brain.activation.applyFromMatrixTo
 import brain.matrix.Matrix
 import brain.matrix.MatrixMath
 import brain.suppliers.Suppliers
-import brain.utils.printCyanBr
 
 
 class SoftMemory(
@@ -70,8 +69,8 @@ class SoftMemoryImpl(
 	private lateinit var kernels: ArrayList<WeightData>
 	private lateinit var bias: WeightData
 
-	private lateinit var kernelBuffer: Matrix
 	private lateinit var kernelSumBuffer: Matrix
+	private lateinit var kernelPartialBuffer: Matrix
 	private lateinit var voteBuffer: Matrix
 
 	override fun init() {
@@ -87,24 +86,24 @@ class SoftMemoryImpl(
 		registerWeight(bias)
 
 		outputBuffer = Matrix(units, inputShape.height)
-		kernelBuffer = Matrix(units, inputShape.width)
 		kernelSumBuffer = Matrix(units, inputShape.width)
+		kernelPartialBuffer = Matrix(units, inputShape.width)
 		voteBuffer = Matrix(options, 1)
 	}
 
 	override fun call(inputs: List<Matrix>): Matrix {
 		flushBuffer()
-		MatrixMath.flush(kernelBuffer)
 		MatrixMath.flush(kernelSumBuffer)
+		MatrixMath.flush(kernelPartialBuffer)
 		MatrixMath.flush(voteBuffer)
 
 		Activations.SoftMax.applyFromMatrixTo(inputs[1], voteBuffer)
 		for (i in 0 until voteBuffer.width) {
 			val ratio = voteBuffer.values[0][i]
-			MatrixMath.multiply(kernels[i].matrix, ratio, kernelSumBuffer)
-			MatrixMath.add(kernelBuffer, kernelSumBuffer, kernelBuffer)
+			MatrixMath.multiply(kernels[i].matrix, ratio, kernelPartialBuffer)
+			MatrixMath.add(kernelSumBuffer, kernelPartialBuffer, kernelSumBuffer)
 		}
-		MatrixMath.multiply(inputs[0], kernelBuffer, outputBuffer)
+		MatrixMath.multiply(inputs[0], kernelSumBuffer, outputBuffer)
 		if (useBias) MatrixMath.addSingleToEveryRow(outputBuffer, bias.matrix, outputBuffer)
 		activation?.also {
 			Activations.activate(outputBuffer, outputBuffer, it)

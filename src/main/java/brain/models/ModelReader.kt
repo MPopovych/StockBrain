@@ -128,7 +128,7 @@ object ModelReader {
 					resetActivation = resetActivation,
 					reverse = meta.reverse,
 					useBias = meta.useBias,
-					units = ls.width,
+					units = meta.units,
 					name = ls.name
 				) {
 					buffer[parent] ?: throw IllegalStateException("No parent found in buffer")
@@ -150,7 +150,7 @@ object ModelReader {
 					resetActivation = resetActivation,
 					reverse = meta.reverse,
 					useBias = meta.useBias,
-					units = ls.width,
+					units = meta.units,
 					name = ls.name
 				) {
 					buffer[parent] ?: throw IllegalStateException("No parent found in buffer")
@@ -193,16 +193,11 @@ object ModelReader {
 				val meta =
 					(ls.getMetaData() as? LayerMetaData.GRUMeta) ?: throw IllegalStateException("No meta for MRU")
 				val activation = Activations.deserialize(ls.activation)
-				val updateActivation = Activations.deserialize(meta.updateActivation)
-				val resetActivation = Activations.deserialize(meta.resetActivation)
 				val parent = ls.parents?.getOrNull(0) ?: throw IllegalStateException("No parent in MRU")
 				MRU(
 					activation = activation,
-					updateActivation = updateActivation,
-					resetActivation = resetActivation,
-					reverse = meta.reverse,
 					useBias = meta.useBias,
-					units = ls.width,
+					units = meta.units,
 					name = ls.name
 				) {
 					buffer[parent] ?: throw IllegalStateException("No parent found in buffer")

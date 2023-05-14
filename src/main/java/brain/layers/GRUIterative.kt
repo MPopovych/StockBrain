@@ -47,6 +47,7 @@ class GRUIterative(
 
 	override fun getSerializedBuilderData(): LayerMetaData.GRUMeta {
 		return LayerMetaData.GRUMeta(
+			units = units,
 			useBias = useBias,
 			reverse = reverse,
 			updateActivation = updateActivation?.nameType(),

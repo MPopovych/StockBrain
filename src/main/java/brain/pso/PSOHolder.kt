@@ -32,7 +32,7 @@ class PSOVelocity(
 ) {
 	companion object {
 		fun getRandomVelocity(size: Int): Float {
-			return jRandom.nextFloat()
+			return jRandom.nextFloat() * 2 - 1f
 		}
 
 		private val jRandom = java.util.Random()

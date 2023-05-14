@@ -51,7 +51,9 @@ class GRU(
 	}
 
 	override fun getSerializedBuilderData(): LayerMetaData.GRUMeta {
-		return LayerMetaData.GRUMeta(useBias = useBias,
+		return LayerMetaData.GRUMeta(
+			units = units,
+			useBias = useBias,
 			reverse = reverse,
 			updateActivation = updateActivation?.nameType(),
 			resetActivation = resetActivation?.nameType())
