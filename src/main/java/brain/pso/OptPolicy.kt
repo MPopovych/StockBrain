@@ -5,8 +5,7 @@ import kotlin.math.abs
 
 object OptPolicy {
 
-	private const val alpha = 0.01f
-	private const val alphaRandom = 0.03f
+	private const val alpha = 0.3f
 
 	private val jRandom = java.util.Random()
 
@@ -20,16 +19,21 @@ object OptPolicy {
 
 				val currentGenes = w.genes
 				val velocityGenes = FloatArray(currentGenes.size)
-				if (w.height > 1 && w.width > 2) {
+				if (w.width > 2 && w.callOrder < 4) {
 					for (featH in 0 until w.height) {
 						var sum = 0f
 						for (featW in featH until w.size step w.width) {
 							sum += currentGenes[featW]
 						}
 						val avg = sum / w.width
-						if (abs(avg) > 0.1f) {
+						if (abs(avg) > 0.4f) {
 							for (featW in featH until w.size step w.width) {
-								velocityGenes[featW] -= avg * (alpha + jRandom.nextFloat() * alphaRandom)
+								val weight = velocityGenes[featW]
+								if (avg > 0 && weight > 0) {
+									velocityGenes[featW] -= avg * abs(jRandom.nextGaussian().toFloat() / 3) * alpha
+								} else if (avg < 0 && weight < 0) {
+									velocityGenes[featW] -= avg * abs(jRandom.nextGaussian().toFloat() / 3) * alpha
+								}
 							}
 						}
 					}

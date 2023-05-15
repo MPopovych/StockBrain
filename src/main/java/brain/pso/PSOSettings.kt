@@ -9,13 +9,14 @@ data class PSOSettings(
 	val keepBestForXGens: Int = 40,
 	val order: PSOScoreBoardOrder,
 	val population: Int,
-	val initialMutationPolicy: MutationPolicy = AdditiveMutationPolicy(1.0, mod = 3f),
+	val initialMutationPolicy: MutationPolicy = AdditiveMutationPolicy(1.0, mod = 10f),
 	val choreographyPolicy: ChoreographyPolicy = ChoreographyPolicy.SinGenNP,
 	val alpha: Float = 0.9f, // 0.9f
 	val rBetaBase: Float = 0.5f, // 0.5f
 	val rBetaRandom: Float = 1.1f,// 1.1f, // 1.4f
-	val weightCap: Float = 2f, // 2f
+	val weightCap: Float = 1.4f, // 2f
 	val weightHeavy: Float = 0.6f, // 0.6f
+	val useZeroOpt: Boolean = false
 ) {
 	companion object {
 		val DEFAULT_BOT = PSOSettings(

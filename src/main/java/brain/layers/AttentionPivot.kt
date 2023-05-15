@@ -17,14 +17,14 @@ class AttentionPivot(
 	override val parentLayers: List<LayerBuilder<*>> = parentLayerBlock()
 
 	init {
-		if (parentLayers.size > 2) {
+		if (parentLayers.size != 2) {
 			throw IllegalStateException("Illegal count of parents: ${parentLayers.size}}")
 		}
 		if (parentLayers[0].getShape().width != parentLayers[1].getShape().width ) {
 			throw IllegalStateException("Illegal widths of parents: ${parentLayers[0].getShape()} ${parentLayers[1].getShape()}}")
 		}
-		if (parentLayers[1].getShape().height != 1) {
-			throw IllegalStateException("Illegal heights of parent 2: ${parentLayers[1].getShape()}}")
+		if (parentLayers[0].getShape().height != parentLayers[1].getShape().height) {
+			throw IllegalStateException("Illegal heights of parents: ${parentLayers[0].getShape()} ${parentLayers[1].getShape()}}")
 		}
 	}
 
@@ -55,10 +55,7 @@ class AttentionPivotImpl(private val concatShape: LayerShape, override var name:
 
 		for (y in 0 until concatShape.height) {
 			for (x in 0 until concatShape.width) {
-				var m = 0f
-				m += inputs[0].values[y][x]
-				m += inputs[1].values[0][x]
-				outputBuffer.values[y][x] = m
+				outputBuffer.values[y][x] = inputs[0].values[y][x] * (1f + inputs[1].values[y][x])
 			}
 		}
 		return outputBuffer

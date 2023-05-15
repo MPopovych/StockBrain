@@ -105,9 +105,11 @@ class PSO(
 				psoContext,
 			)
 
-//			OptPolicy.opt(triple.first, psoContext)
-//			OptPolicy.opt(triple.second, psoContext)
-//			OptPolicy.opt(triple.third, psoContext)
+			if (settings.useZeroOpt && Random.nextBoolean()) {
+				OptPolicy.opt(triple.first, psoContext)
+				OptPolicy.opt(triple.second, psoContext)
+				OptPolicy.opt(triple.third, psoContext)
+			}
 
 			triple.first.applyToModel(top.modelBuffer)
 			triple.second.applyToModel(middle.modelBuffer)
