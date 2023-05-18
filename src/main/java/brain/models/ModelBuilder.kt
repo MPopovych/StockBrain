@@ -32,7 +32,7 @@ class ModelBuilder(
 		processDownGraph()
 		// used on init, as a check for structure
 		for (input in inputs.values) {
-			val root = graph[input] ?: throw IllegalStateException("input layer disconnected")
+			val root = graph[input] ?: throw IllegalStateException("input layer disconnected ${input.name}")
 			if (root !is GraphBuilderNode.DeadEnd) {
 				throw IllegalStateException("input layer should be dead end")
 			}

@@ -28,13 +28,13 @@ class ActivationsTest {
 
 	@Test
 	fun testSoftMax() {
-		floatArrayOf(0f, 1f).also { Activations.SoftMax.applyTo(it) }.also { printRedBr("1: ", it.toList()) }
+		floatArrayOf(0f, 1f).also { Activations.SoftMax.applyTo(it, it) }.also { printRedBr("1: ", it.toList()) }
 
-		floatArrayOf(0.44f, 0.66f).also { Activations.SoftMax.applyTo(it) }.also { printRedBr("2: ", it.toList()) }
+		floatArrayOf(0.44f, 0.66f).also { Activations.SoftMax.applyTo(it, it) }.also { printRedBr("2: ", it.toList()) }
 
-		floatArrayOf(0.11f, 0.55f).also { Activations.SoftMax.applyTo(it) }.also { printRedBr("3: ", it.toList()) }
+		floatArrayOf(0.11f, 0.55f).also { Activations.SoftMax.applyTo(it, it) }.also { printRedBr("3: ", it.toList()) }
 
-		floatArrayOf(0.99f, 1f).also { Activations.SoftMax.applyTo(it) }.also { printRedBr("4: ", it.toList()) }
+		floatArrayOf(0.99f, 1f).also { Activations.SoftMax.applyTo(it, it) }.also { printRedBr("4: ", it.toList()) }
 	}
 
 	private val smallTestArrayHalf = (0 until 100).map { it.toFloat() / 100 }

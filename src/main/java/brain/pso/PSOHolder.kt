@@ -23,7 +23,7 @@ class PSOScore(
 	val genes: ModelGenes
 ) {
 	companion object {
-		val NULL = PSOScore(0.0, ModelGenes(0, emptyMap(), "", ""))
+		val NULL = PSOScore(0.0, ModelGenes(emptyMap()))
 	}
 }
 

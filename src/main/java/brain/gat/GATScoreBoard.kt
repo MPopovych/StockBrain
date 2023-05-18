@@ -1,5 +1,7 @@
-package brain.ga
+package brain.gat
 
+import brain.gat.context.GATScored
+import brain.gat.context.GATSettings
 import brain.pso.PSOUtils
 import brain.utils.printGreenBr
 import brain.utils.roundUp
@@ -7,21 +9,22 @@ import kotlin.math.abs
 import kotlin.math.pow
 import kotlin.math.sqrt
 
-enum class GAScoreBoardOrder {
+enum class GATScoreBoardOrder {
 	Ascending,
 	Descending
 }
 
-class GAScoreBoard(val order: Int, private val settings: GASettings) {
+class GATScoreBoard(val order: Int, private val settings: GATSettings) {
 
-	private var scoreList: ArrayList<GAScoreHolder> = ArrayList()
+	private var scoreList: ArrayList<GATScored> = ArrayList()
 
 	val size: Int
 		get() = scoreList.size
 
-	fun getAscendingFitnessList(): List<GAScoreHolder> = scoreList
+	// last is best
+	fun getAscendingFitnessList(): List<GATScored> = scoreList
 
-	fun getTop(): GAScoreHolder? {
+	fun getTop(): GATScored? {
 		return scoreList.lastOrNull()
 	}
 
@@ -42,11 +45,11 @@ class GAScoreBoard(val order: Int, private val settings: GASettings) {
 		return Pair(std, stdPercent * 100)
 	}
 
-	fun pushBatch(batch: List<GAScoreHolder>) {
-		if (settings.scoreBoardClearOnGeneration) {
+	fun pushBatch(batch: List<GATScored>) {
+		if (settings.clearEveryGeneration) {
 			scoreList.clear()
 		}
-		val idSet = scoreList.filter { !it.isOutDated }.map { it.id }.toSet()
+		val idSet = scoreList.map { it.id }.toSet()
 
 		batch.onEach {
 				if (it.score.isNaN() || it.score.isInfinite()) {
@@ -65,37 +68,31 @@ class GAScoreBoard(val order: Int, private val settings: GASettings) {
 			}
 
 		scoreList.addAll(0, batch.filter { it.id !in idSet  }) // add to 0 for distinct
-		var sorted = when (settings.scoreBoardOrder) {
-			GAScoreBoardOrder.Ascending -> scoreList
-				.sortedBy { it.bornOnEpoch }
+		val sorted = when (settings.order) {
+			GATScoreBoardOrder.Ascending -> scoreList
+				.sortedBy { it.model.bornOnEpoch }
 				.sortedBy { it.score } // ascending
-			GAScoreBoardOrder.Descending -> scoreList
-				.sortedBy { it.bornOnEpoch }
+			GATScoreBoardOrder.Descending -> scoreList
+				.sortedBy { it.model.bornOnEpoch }
 				.sortedByDescending { it.score } // descending
 		}
-		sorted = sorted.filter { !it.isOutDated }
-		sorted = if (settings.scoreBoardAllowSameResult) sorted else sorted.distinctBy { it.score }
 
 		scoreList.clear()
 		scoreList.addAll(sorted)
-		while (scoreList.size > settings.totalPopulationCount) {
+		while (scoreList.size > settings.population) {
 			scoreList.removeFirst()
 		}
 	}
 
 	fun printScoreBoard(limit: Int? = null) {
-		val top = getTop() ?: return
-
 		val sb = StringBuilder()
 		val stdAndPercent = getStdAndPercent()
 		sb.append("Room: $order - ")
 		sb.append("Score deviation: ${stdAndPercent.first} : ${stdAndPercent.second.roundUp(2)}%").appendLine()
 		scoreList.takeLast(limit ?: scoreList.size).forEach { t ->
-			val distanceToTop = PSOUtils.modelDistance(t.genes, top.genes)
 			sb.append("score: ${t.score.roundUp(6).toString().padEnd(8)} \t" +
 					"- h: ${t.id.hashCode().toString().padEnd(12)} \t" +
-					"- d: ${distanceToTop.roundUp(3).toString().padEnd(5)} \t" +
-					"- g: ${t.bornOnEpoch}" ).appendLine()
+					"- g: ${t.model.bornOnEpoch}" ).appendLine()
 		}
 		printGreenBr(sb.toString().trimIndent())
 	}

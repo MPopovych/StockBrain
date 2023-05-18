@@ -67,19 +67,21 @@ class HardMemoryImpl(
 	override lateinit var outputBuffer: Matrix
 
 	private lateinit var kernels: ArrayList<WeightData>
-	private lateinit var bias: WeightData
+	private lateinit var biases: ArrayList<WeightData>
 
 	override fun init() {
 		kernels = ArrayList()
+		biases = ArrayList()
 		for (i in 0 until options) {
-			val localKernel = WeightData("option_$i", Matrix(units, inputShape.width), true)
+			val localKernel = WeightData("kernel_$i", Matrix(units, inputShape.width), true)
 			Suppliers.fillFull(localKernel.matrix, Suppliers.RandomHE)
 			registerWeight(localKernel)
 			kernels.add(localKernel)
-		}
 
-		bias = WeightData("bias", Matrix(units, 1), trainable = useBias)
-		registerWeight(bias)
+			val localBias = WeightData("bias_${i}", Matrix(units, 1), trainable = useBias)
+			registerWeight(localBias)
+			biases.add(localBias)
+		}
 
 		outputBuffer = Matrix(units, inputShape.height)
 	}
@@ -98,8 +100,9 @@ class HardMemoryImpl(
 		}
 
 		val votedKernel = kernels[vote]
+		val votedBias = biases[vote]
 		MatrixMath.multiply(inputs[0], votedKernel.matrix, outputBuffer)
-		if (useBias) MatrixMath.addSingleToEveryRow(outputBuffer, bias.matrix, outputBuffer)
+		if (useBias) MatrixMath.addSingleToEveryRow(outputBuffer, votedBias.matrix, outputBuffer)
 		activation?.also {
 			Activations.activate(outputBuffer, outputBuffer, it)
 		}

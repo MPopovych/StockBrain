@@ -12,7 +12,7 @@ class Model(
 	internal var outputByKey: Map<String, GraphLayerNode>,
 	var graphMap: Map<String, GraphLayerNode>,
 	internal val debug: Boolean = false,
-	private val check: Boolean = true,
+	private val check: Boolean = false,
 ) {
 
 	var propCallback: ((LinkedHashMap<String, Matrix>) -> Unit)? = null

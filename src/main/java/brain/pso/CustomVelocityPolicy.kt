@@ -101,8 +101,9 @@ object CustomVelocityPolicy {
 		} else {
 			if (abs(target) > weightHeavy) {
 				(current + target) / 3
+			} else {
+				target
 			}
-			target
 		}
 		return t
 	}

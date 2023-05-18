@@ -7,13 +7,10 @@ import brain.utils.encodeGenes
 
 // a hard copy of weights
 class ModelGenes(
-	var bornOnEpoch: Int,
 	val layers: Map<String, LayerGenes>,
-	val parentAId: String,
-	val parentBId: String,
 ) {
 	companion object {
-		operator fun invoke(bornOnEpoch: Int, model: Model, parentAId: String, parentBId: String): ModelGenes {
+		operator fun invoke(model: Model): ModelGenes {
 			val weights: Map<String, LayerGenes> = model.graphMap.values
 				.mapIndexed { _, graphLayerNode ->
 					val map = graphLayerNode.layer.weights.values
@@ -31,11 +28,11 @@ class ModelGenes(
 					return@mapIndexed LayerGenes(graphLayerNode.layer.name, map, graphLayerNode.depth)
 				}.associateBy { it.layerId }
 
-			return ModelGenes(bornOnEpoch, weights, parentAId, parentBId)
+			return ModelGenes(weights)
 		}
 	}
 
-	fun chromosome() = layers.values.joinToString(" ") { it.chromosome() }
+	fun chromosome() = layers.values.joinToString(" ") { it.chromosome().hashCode().toString() }
 
 	val geneCount = layers.values.sumOf { l -> l.map.values.sumOf { w -> w.size } }
 
@@ -53,12 +50,7 @@ class ModelGenes(
 
 	fun copy(): ModelGenes {
 		val wCopy = layers.mapValues { it.value.copy() }
-		return ModelGenes(-1, wCopy, parentAId, parentBId)
-	}
-
-	fun copyWithParents(parentAId: String, parentBId: String): ModelGenes {
-		val wCopy = layers.mapValues { it.value.copy() }
-		return ModelGenes(-1, wCopy, parentAId, parentBId)
+		return ModelGenes(wCopy)
 	}
 
 	fun applyCrossOverPolicy(crossOverPolicy: CrossOverPolicy, a: ModelGenes, b: ModelGenes): ModelGenes {

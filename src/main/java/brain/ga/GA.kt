@@ -3,9 +3,7 @@ package brain.ga
 import brain.ga.policies.FutureMatch
 import brain.ga.weights.ModelGenes
 import brain.models.Model
-import brain.utils.printCyanBr
 import brain.utils.printYellowBr
-import kotlin.random.Random
 
 
 class GA(
@@ -16,7 +14,7 @@ class GA(
 ) {
 
 	private val originalBuilder = initialModel.revertToBuilder()
-	private val originalGenes = ModelGenes(0, initialModel, "I", "I")
+	private val originalGenes = ModelGenes(initialModel)
 	private val modelBuffer = (0 until settings.rooms).map {
 		allocBuffer()
 	}
@@ -53,9 +51,7 @@ class GA(
 						val randomModel = modelBuffer[toI][randomToI]
 						val bestFrom = scoreBoardWithRooms.rooms[repeatIndex].getTop() ?: return@repeat
 						bestFrom.genes.applyToModel(randomModel.first)
-						modelBuffer[toI][randomToI] = Pair(randomModel.first, bestFrom.genes.copy().also {
-							it.bornOnEpoch = genCount
-						})
+						modelBuffer[toI][randomToI] = Pair(randomModel.first, bestFrom.genes.copy())
 						printYellowBr("Leak from $repeatIndex to $toI with score: ${bestFrom.score}: ${bestFrom.id.hashCode()}")
 					}
 				}
@@ -81,24 +77,17 @@ class GA(
 	private fun handleCommand(generation: Int, command: FutureMatch): ModelGenes {
 		when (command) {
 			is FutureMatch.CrossMatch -> {
-				val destination = command.parentA.copyWithParent(command.parentA.id, command.parentB.id)
+				val destination = command.parentA.copyGene()
 				destination.applyCrossOverPolicy(settings.crossOverPolicy, command.parentA.genes, command.parentB.genes)
-				val chromosome = destination.chromosome().hashCode()
-				if (command.mutate
-					|| chromosome == command.parentA.genes.chromosome().hashCode()
-					|| chromosome == command.parentB.genes.chromosome().hashCode()
-				) {
-
+				if (command.mutate) {
 					destination.applyMutationPolicy(settings.mutationPolicy, source = destination)
 				}
-				destination.bornOnEpoch = generation
 				settings.weightOptPolicy.optimise(destination)
 				return destination
 			}
 
 			is FutureMatch.MutateMatch -> {
-				val destination = command.source.copyWithParent(command.source.id, command.source.id)
-				destination.bornOnEpoch = generation
+				val destination = command.source.copyGene()
 				destination.applyMutationPolicy(settings.mutationPolicy, source = command.source.genes)
 				settings.weightOptPolicy.optimise(destination)
 				return destination
@@ -106,17 +95,11 @@ class GA(
 
 			is FutureMatch.Repeat -> {
 				// keep bornOnEpoch the same
-				return command.source.copyGene().also {
-					it.bornOnEpoch = command.source.bornOnEpoch
-				}
+				return command.source.copyGene()
 			}
 
 			is FutureMatch.New -> {
-				val destination = originalGenes.copyWithParents(
-					Random.nextInt(-900, 900).toString(),
-					Random.nextInt(-900, 900).toString()
-				)
-				destination.bornOnEpoch = generation
+				val destination = originalGenes.copy()
 				destination.applyMutationPolicy(settings.initialMutationPolicy, source = destination)
 				return destination
 			}
@@ -139,7 +122,10 @@ class GA(
 		val scores = contexts.map { context ->
 			val score = action(context)
 			val appliedScore = settings.scoringPolicy.applyScore(settings, room, score, generation)
-			return@map GAScoreHolder(id = context.genes.chromosome(), score = appliedScore, genes = context.genes)
+			return@map GAScoreHolder(
+				id = context.genes.chromosome(), score = appliedScore, genes = context.genes,
+				bornOnEpoch = generation, parentA = "", parentB = ""
+			)
 		}
 
 		room.pushBatch(scores)
@@ -152,18 +138,11 @@ class GA(
 			if (index == 0) { // keep origin
 				val model = originalBuilder.build()
 				originalGenes.applyToModel(model)
-				return@mapTo Pair(model, originalGenes.copyWithParents(
-					Random.nextInt(-900, 900).toString(),
-					Random.nextInt(-900, 900).toString()
-				))
+				return@mapTo Pair(model, originalGenes.copy())
 			}
 			val model = originalBuilder.build()
-			val genes = originalGenes.copyWithParents(
-				Random.nextInt(-900, 900).toString(),
-				Random.nextInt(-900, 900).toString()
-			).applyMutationPolicy(settings.initialMutationPolicy, originalGenes)
+			val genes = originalGenes.copy().applyMutationPolicy(settings.initialMutationPolicy, originalGenes)
 			genes.applyToModel(model)
-			genes.bornOnEpoch = 0
 			return@mapTo Pair(model, genes)
 		}
 	}

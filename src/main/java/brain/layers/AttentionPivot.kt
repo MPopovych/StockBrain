@@ -1,6 +1,8 @@
 package brain.layers
 
 import brain.matrix.Matrix
+import kotlin.math.max
+import kotlin.math.min
 
 
 class AttentionPivot(
@@ -55,7 +57,8 @@ class AttentionPivotImpl(private val concatShape: LayerShape, override var name:
 
 		for (y in 0 until concatShape.height) {
 			for (x in 0 until concatShape.width) {
-				outputBuffer.values[y][x] = inputs[0].values[y][x] * (1f + inputs[1].values[y][x])
+				val pivot = inputs[1].values[y][x]
+				outputBuffer.values[y][x] = inputs[0].values[y][x] * (1f + max(-0.1f, min(0.1f, pivot)))
 			}
 		}
 		return outputBuffer

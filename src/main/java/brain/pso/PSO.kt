@@ -13,7 +13,7 @@ class PSO(
 ) {
 
 	private val originalBuilder = initialModel.revertToBuilder()
-	private val originalGenes = ModelGenes(0, initialModel, "I", "I")
+	private val originalGenes = ModelGenes(initialModel)
 	private val modelBuffer = (0 until settings.swarms).map {
 		allocBuffer()
 	}
@@ -80,18 +80,25 @@ class PSO(
 		generation: Int,
 		action: ((PSOScoreContext) -> Double)
 	) {
-		room.getAscendingFitnessList().shuffled().chunked(3).forEach { models ->
+		val list = room.getAscendingFitnessList()
+		list.shuffled().chunked(3).forEach { models ->
 			if (models.size < 3) return@forEach
 
 			val sorted = when (settings.order) {
 				PSOScoreBoardOrder.Ascending -> models.sortedBy { it.current.score }
 				PSOScoreBoardOrder.Descending -> models.sortedByDescending { it.current.score }
 			}
-			val best = when (settings.order) {
-				PSOScoreBoardOrder.Ascending -> models.maxBy { it.best.score }
-				PSOScoreBoardOrder.Descending -> models.minBy { it.best.score }
+			val best = if (settings.followBest) {
+				when (settings.order) {
+					PSOScoreBoardOrder.Ascending -> models.maxBy { it.best.score }
+					PSOScoreBoardOrder.Descending -> models.minBy { it.best.score }
+				}
+			} else {
+				when (settings.order) {
+					PSOScoreBoardOrder.Ascending -> list.maxBy { it.current.score }
+					PSOScoreBoardOrder.Descending -> list.minBy { it.current.score }
+				}
 			}
-
 			val choreographK = settings.choreographyPolicy.getKForContext(settings, generation, room)
 			val psoContext = PolicyContext(generation, room, settings, choreographK)
 
@@ -154,19 +161,12 @@ class PSO(
 			if (index == 0) { // keep origin
 				val model = originalBuilder.build()
 				originalGenes.applyToModel(model)
-				val genes = originalGenes.copyWithParents(
-					Random.nextInt(-900, 900).toString(),
-					Random.nextInt(-900, 900).toString()
-				)
+				val genes = originalGenes.copy()
 				return@mapTo PSOModel(ordinal++, genes, model)
 			}
 			val model = originalBuilder.build()
-			val genes = originalGenes.copyWithParents(
-				Random.nextInt(-900, 900).toString(),
-				Random.nextInt(-900, 900).toString()
-			).applyMutationPolicy(settings.initialMutationPolicy, originalGenes)
+			val genes = originalGenes.copy().applyMutationPolicy(settings.initialMutationPolicy, originalGenes)
 			genes.applyToModel(model)
-			genes.bornOnEpoch = 0
 			return@mapTo PSOModel(ordinal++, genes, model)
 		}
 	}
