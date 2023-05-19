@@ -17,7 +17,7 @@ data class PSOSettings(
 	val weightCap: Float = 2f, // 2f
 	val weightHeavy: Float = 0.6f, // 0.6f
 	val useZeroOpt: Boolean = false,
-	val followBest: Boolean = false,
+	val followBest: Boolean = true,
 ) {
 	companion object {
 		val DEFAULT_BOT = PSOSettings(

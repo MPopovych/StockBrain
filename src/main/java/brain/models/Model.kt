@@ -107,7 +107,7 @@ class Model(
 
 	fun revertToBuilder() = builder
 
-	fun check(matrix: Matrix, layer: GraphLayerNode): Matrix {
+	private fun check(matrix: Matrix, layer: GraphLayerNode): Matrix {
 		if (check && matrix.values.any { it.any { f -> !f.isFinite() } }) {
 			throw IllegalStateException("${layer.layer.name} has NaN")
 		}

@@ -136,6 +136,19 @@ public class MatrixMath {
 		}
 	}
 
+	public static void sub(Matrix a, Matrix b, Matrix d) {
+		int thisX = a.width; // right, number of columns
+		int thisY = a.height; // down, number of rows
+
+		checkSameDimensions(a, b, d);
+
+		for (int y = 0; y < thisY; y++) {
+			for (int x = 0; x < thisX; x++) {
+				d.values[y][x] = a.values[y][x] - b.values[y][x];
+			}
+		}
+	}
+
 	public static void add(Matrix a, Matrix d, float constant) {
 		int thisX = a.width; // right, number of columns
 		int thisY = a.height; // down, number of rows

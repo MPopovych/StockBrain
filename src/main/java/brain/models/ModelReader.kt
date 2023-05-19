@@ -204,6 +204,21 @@ object ModelReader {
 				}
 			}
 
+			CRU.defaultNameType -> {
+				val meta =
+					(ls.getMetaData() as? LayerMetaData.GRUMeta) ?: throw IllegalStateException("No meta for CRU")
+				val activation = Activations.deserialize(ls.activation)
+				val parent = ls.parents?.getOrNull(0) ?: throw IllegalStateException("No parent in CRU")
+				CRU(
+					activation = activation,
+					useBias = meta.useBias,
+					units = meta.units,
+					name = ls.name
+				) {
+					buffer[parent] ?: throw IllegalStateException("No parent found in buffer")
+				}
+			}
+
 			Direct.defaultNameType -> {
 				val meta = (ls.getMetaData() as? LayerMetaData.OnlyBiasMeta)
 					?: throw IllegalStateException("No meta for direct")
@@ -539,6 +554,12 @@ private class LayerDeserializer : JsonDeserializer<LayerSerialized> {
 			}
 
 			MRU.defaultNameType -> {
+				val element = json.asJsonObject[FIELD_BUILDER_DATA]
+				val data = ModelReader.innerGson.fromJson<LayerMetaData.GRUMeta>(element)
+				temp.copy(builderData = data)
+			}
+
+			CRU.defaultNameType -> {
 				val element = json.asJsonObject[FIELD_BUILDER_DATA]
 				val data = ModelReader.innerGson.fromJson<LayerMetaData.GRUMeta>(element)
 				temp.copy(builderData = data)

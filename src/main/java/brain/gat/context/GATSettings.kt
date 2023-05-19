@@ -5,7 +5,7 @@ import brain.gat.GATScoreBoardOrder
 class GATSettings(
 	val population: Int,
 	val topParentCount: Int,
-	val mutationRate: Float = 0.01f,
+	val mutationRate: Float = 0.02f,
 	val initialMutationRate: Float = 0.50f,
 	val weightCap: Float = 1.5f,
 	val weightHeavy: Float = 1.0f,
