@@ -57,12 +57,24 @@ class GATScoreBoard(val order: Int, private val settings: GATSettings) {
 				}
 				if (it.parentA in idSet) {
 					scoreList.removeIf { parent ->
-						parent.id == it.parentA && parent.score <= it.score
+						val greater =
+							if (settings.order == GATScoreBoardOrder.Ascending) {
+								it.score >= parent.score
+							} else {
+								it.score <= parent.score
+							}
+						parent.id == it.parentA && greater
 					}
 				}
 				if (it.parentB in idSet) {
 					scoreList.removeIf { parent ->
-						parent.id == it.parentB && parent.score <= it.score
+						val greater =
+							if (settings.order == GATScoreBoardOrder.Ascending) {
+								it.score >= parent.score
+							} else {
+								it.score <= parent.score
+							}
+						parent.id == it.parentB && greater
 					}
 				}
 			}

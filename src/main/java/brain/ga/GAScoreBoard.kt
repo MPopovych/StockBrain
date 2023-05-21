@@ -1,5 +1,6 @@
 package brain.ga
 
+import brain.gat.GATScoreBoardOrder
 import brain.pso.PSOUtils
 import brain.utils.printGreenBr
 import brain.utils.roundUp
@@ -54,12 +55,24 @@ class GAScoreBoard(val order: Int, private val settings: GASettings) {
 				}
 				if (it.parentA in idSet) {
 					scoreList.removeIf { parent ->
-						parent.id == it.parentA && parent.score <= it.score
+						val greater =
+							if (settings.scoreBoardOrder == GAScoreBoardOrder.Ascending) {
+								it.score >= parent.score
+							} else {
+								it.score <= parent.score
+							}
+						parent.id == it.parentA && greater
 					}
 				}
 				if (it.parentB in idSet) {
 					scoreList.removeIf { parent ->
-						parent.id == it.parentB && parent.score <= it.score
+						val greater =
+							if (settings.scoreBoardOrder == GAScoreBoardOrder.Ascending) {
+								it.score >= parent.score
+							} else {
+								it.score <= parent.score
+							}
+						parent.id == it.parentB && greater
 					}
 				}
 			}
