@@ -41,9 +41,6 @@ class GRU(
 			parentShape = parentLayer.getShape(),
 			name = name,
 		)
-			.also {
-				it.init()
-			}
 	}
 
 	override fun getShape(): LayerShape {
@@ -72,17 +69,17 @@ open class GRUImpl(
 ) : Layer.SingleInputLayer() {
 	override val nameType: String = GRU.defaultNameType
 
-	private lateinit var zBias: WeightData
-	private lateinit var rBias: WeightData
-	private lateinit var hBias: WeightData
+	private var zBias: WeightData
+	private var rBias: WeightData
+	private var hBias: WeightData
 
-	private lateinit var zGate: WeightData
-	private lateinit var rGate: WeightData
-	private lateinit var hGate: WeightData
+	private var zGate: WeightData
+	private var rGate: WeightData
+	private var hGate: WeightData
 
-	private lateinit var zRecGate: WeightData
-	private lateinit var rRecGate: WeightData
-	private lateinit var hRecGate: WeightData
+	private var zRecGate: WeightData
+	private var rRecGate: WeightData
+	private var hRecGate: WeightData
 
 	private val zGateBufferM1: Matrix = Matrix(units, 1)
 	private val zGateBufferM2: Matrix = Matrix(units, 1)
@@ -101,11 +98,13 @@ open class GRUImpl(
 	private val cGateBufferM1: Matrix = Matrix(units, 1)
 	private val cGateBufferM2: Matrix = Matrix(units, 1)
 
-	lateinit var cellStateBufferCurrent: Matrix
-	lateinit var cellStateBufferPrev: Matrix
+	var cellStateBufferCurrent: Matrix
+	var cellStateBufferPrev: Matrix
 	override lateinit var outputBuffer: Matrix
 
-	override fun init() {
+	override fun init() { }
+
+	init {
 		zGate = WeightData("zGate", Matrix(units, parentShape.width), trainable = true)
 		registerWeight(zGate)
 		rGate = WeightData("rGate", Matrix(units, parentShape.width), trainable = true)

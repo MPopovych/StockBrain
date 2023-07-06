@@ -46,24 +46,6 @@ public class MatrixFMath {
 				d.values[i * f + j] = sum;
 			}
 		}
-
-		for (int i = 0; i < m; i++) {
-			int cIndex = i * f;
-			int aIndexStart = i * g;
-			for (int j = 0; j < h; j++) {
-				float total = 0;
-
-				int indexA = aIndexStart;
-				int indexB = j;
-				int end = indexA + p;
-				while (indexA < end) {
-					total += a.values[indexA++] * b.values[indexB];
-					indexB += h;
-				}
-
-				d.values[cIndex++] = total;
-			}
-		}
 	}
 
 	private static void multiplyReordered(MatrixF a, MatrixF b, MatrixF d) {

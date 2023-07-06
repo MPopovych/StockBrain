@@ -99,7 +99,7 @@ class ModelBuilder(
 			}
 			is LayerBuilder.SingleInput -> {
 				// at the stage of implementation this is a single parent
-				iterateNodes(currentLayer.parentLayer, depth +1)
+				iterateNodes(currentLayer.parentLayer, depth + 1)
 				val parentCon = reverseQueue.getOrPut(currentLayer.parentLayer) { Connection(currentLayer.parentLayer) }
 				parentCon.children.add(connection)
 				return GraphBuilderNode.SingleParent(currentLayer, depth).also {

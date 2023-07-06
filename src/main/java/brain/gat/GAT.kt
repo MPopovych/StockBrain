@@ -30,7 +30,7 @@ class GAT(
 			if (i == 0) {
 				runInitGeneration(scoreboard, genCount, block)
 			} else {
-				runGenerationTest(scoreboard, genCount, block)
+				runGeneration(scoreboard, genCount, block)
 			}
 			val elapsed = (System.currentTimeMillis() - time) / 1000
 
@@ -76,7 +76,7 @@ class GAT(
 		room.pushBatch(scores)
 	}
 
-	private fun runGenerationTest(
+	private fun runGeneration(
 		room: GATScoreBoard,
 		generation: Int,
 		action: ((GATEvalContext) -> Double)
