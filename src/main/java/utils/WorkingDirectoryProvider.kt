@@ -10,6 +10,9 @@ class WorkingDirectoryProvider(
 	private val gson: Gson = GsonBuilder().disableHtmlEscaping().create(),
 	private val checkExists: Boolean = false,
 ) {
+
+	constructor(folder: String): this(folder, GsonBuilder().disableHtmlEscaping().create(), false)
+
 	constructor(
 		folder: String,
 		gson: Gson = GsonBuilder().disableHtmlEscaping().create(),
