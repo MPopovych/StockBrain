@@ -14,15 +14,12 @@ object DNAMutationPolicy {
 			val mixedWeights = layerA.map.mapValues w@{ weight ->
 				val aGenes = weight.value
 				val mix = FloatArray(aGenes.size) { ord ->
+					val current = aGenes.genes[ord]
 					if (Random.nextFloat() < mutateRate) {
 						val new = (Random.nextFloat() * 2f - 1f) * settings.weightCap
-						if (new > settings.weightHeavy || new < -settings.weightHeavy) {
-							(new + settings.weightHeavy) / 2
-						} else {
-							new
-						}
+						if (settings.additive) current + new else new
 					} else {
-						aGenes.genes[ord]
+						current
 					}
 				}
 				return@w WeightGenes(
