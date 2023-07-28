@@ -109,7 +109,7 @@ class GA(
 	private fun runGeneration(
 		room: GAScoreBoard,
 		generation: Int,
-		action: ((GAScoreContext) -> Double)
+		action: ((GAScoreContext) -> Double),
 	): List<FutureMatch> {
 		val contexts = modelBuffer[room.order]
 			.map { model ->

@@ -19,7 +19,7 @@ class STDMutationRagePolicy(private val basisRate: Double = 0.01) : MutationRate
 class SinMutationRagePolicy(
 	private val rate: Int = 10,
 	private val amplitude: Double = 0.9,
-	private val base: Double = 0.1
+	private val base: Double = 0.1,
 ) : MutationRatePolicy {
 
 	init {

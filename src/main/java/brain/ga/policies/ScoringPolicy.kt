@@ -11,7 +11,7 @@ interface ScoringPolicy {
 	fun applyScore(settings: GASettings, board: GAScoreBoard, score: Double, gen: Int): Double
 }
 
-class PlainScoringPolicy: ScoringPolicy {
+class PlainScoringPolicy : ScoringPolicy {
 	override fun applyScore(settings: GASettings, board: GAScoreBoard, score: Double, gen: Int): Double {
 		return score
 	}
@@ -26,6 +26,7 @@ class SteadyScoringPolicy(pace: Double = 0.01, private val eps: Double = 0.002) 
 			GAScoreBoardOrder.Ascending -> {
 				min((max(top, 0.0) + eps) * capKF - (Random.nextFloat() / 10000), score)
 			}
+
 			GAScoreBoardOrder.Descending -> {
 				max(top / capKF + Random.nextFloat() / 10000, score)
 			}

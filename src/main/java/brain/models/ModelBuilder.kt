@@ -58,7 +58,8 @@ class ModelBuilder(
 		val outputMapByKey = outputs
 			.mapValues {
 				val node = graphMap[it.value.name]
-				node ?: throw IllegalStateException("Expected ${GraphLayerNode::class.simpleName} at key ${it.value.name}, got: null")
+				node
+					?: throw IllegalStateException("Expected ${GraphLayerNode::class.simpleName} at key ${it.value.name}, got: null")
 			}
 
 		return Model(this, inputMapByKey, outputMapByKey, graphMap, debug = debug)
@@ -87,7 +88,7 @@ class ModelBuilder(
 				currentLayer.parentLayers.forEach { builder ->
 					val parentCon = reverseQueue.getOrPut(builder) { Connection(builder) }
 					parentCon.children.add(connection)
-					iterateNodes(builder, depth +1)
+					iterateNodes(builder, depth + 1)
 				}
 				val currentNode = GraphBuilderNode.MultiParent(currentLayer, depth)
 				return currentNode
@@ -97,6 +98,7 @@ class ModelBuilder(
 					}
 					.ifAlsoBr(debug) { printYellowBr(it) }
 			}
+
 			is LayerBuilder.SingleInput -> {
 				// at the stage of implementation this is a single parent
 				iterateNodes(currentLayer.parentLayer, depth + 1)
@@ -107,12 +109,14 @@ class ModelBuilder(
 					sortedConnections.add(connection)
 				}.ifAlsoBr(debug) { printYellowBr(it) }
 			}
+
 			is InputLayer -> {
 				return GraphBuilderNode.DeadEnd(currentLayer, depth).also {
 					graph[currentLayer] = it
 					sortedConnections.add(connection)
 				}.ifAlsoBr(debug) { printYellowBr(it) }
 			}
+
 			else -> {
 				throw IllegalStateException("Bad graph structure")
 			}

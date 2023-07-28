@@ -59,7 +59,7 @@ class PSO(
 	private fun runInitGeneration(
 		room: PSOScoreBoard,
 		generation: Int,
-		action: ((PSOScoreContext) -> Double)
+		action: ((PSOScoreContext) -> Double),
 	) {
 		modelBuffer[room.order].forEach { model ->
 			val context = PSOScoreContext(generation, PSOAction.INITIAL, model.modelBuffer, model.geneBuffer)
@@ -78,7 +78,7 @@ class PSO(
 	private fun runGenerationTest(
 		room: PSOScoreBoard,
 		generation: Int,
-		action: ((PSOScoreContext) -> Double)
+		action: ((PSOScoreContext) -> Double),
 	) {
 		val list = room.getAscendingFitnessList()
 		list.shuffled().chunked(3).forEach { models ->

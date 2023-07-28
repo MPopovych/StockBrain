@@ -34,7 +34,7 @@ class ModelFrameTest {
 		assertEquals(3, array.size)
 		assertEquals(1f, array[0])
 		assertEquals(-1f, array[1])
-		assertTrue {  array[2] in (-1.0 .. 1.0) }
+		assertTrue { array[2] in (-1.0..1.0) }
 	}
 
 	@Test
@@ -42,14 +42,15 @@ class ModelFrameTest {
 		val array = testSampleSingle.to2FArray(scaleFilter)
 		assertEquals(2, array.size)
 		assertEquals(1f, array[0])
-		assertTrue {  array[1] in (-1.0 .. 1.0) }
+		assertTrue { array[1] in (-1.0..1.0) }
 	}
 
 	@Test
 	fun testWindowIndexList() {
 		val lastIndex = testSamples.size - 1
 		printBlueBr("Last index: $lastIndex")
-		val lastWindow = testSamples.getBackWindow(lastIndex, windowSize = 2, gapSize = 3) ?: throw IllegalStateException()
+		val lastWindow =
+			testSamples.getBackWindow(lastIndex, windowSize = 2, gapSize = 3) ?: throw IllegalStateException()
 		val indList = lastWindow.absoluteIndexList()
 		printRedBr(indList)
 	}
@@ -113,7 +114,7 @@ class ModelFrameTest {
 		assertEquals(-1f, firstArray[0][1])
 	}
 
-	private object ModelFrameTestGetter: NamedPropGetter<ModelFrameTestAssetFrameData>() {
+	private object ModelFrameTestGetter : NamedPropGetter<ModelFrameTestAssetFrameData>() {
 		val p = nameProp("P") { a -> a.pos }
 		val n = nameProp("N") { a -> a.neg }
 		val r = nameProp("R") { a -> a.random }
@@ -123,8 +124,8 @@ class ModelFrameTest {
 		val id: String,
 		val pos: Double,
 		val neg: Double,
-		val random: Double
-	): NamedFrameAsset<ModelFrameTestAssetFrameData> {
+		val random: Double,
+	) : NamedFrameAsset<ModelFrameTestAssetFrameData> {
 		override fun propGetter(): NamedPropGetter<ModelFrameTestAssetFrameData> {
 			return ModelFrameTestGetter
 		}

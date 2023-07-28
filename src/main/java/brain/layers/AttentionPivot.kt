@@ -9,7 +9,7 @@ class AttentionPivot(
 	override var name: String = Layer.DEFAULT_NAME,
 	parentLayerBlock: (() -> List<LayerBuilder<*>>),
 ) : LayerBuilder.MultiInput<AttentionPivotImpl> {
-	constructor(vararg layer: LayerBuilder<*>, name: String = Layer.DEFAULT_NAME): this(name, { layer.toList() })
+	constructor(vararg layer: LayerBuilder<*>, name: String = Layer.DEFAULT_NAME) : this(name, { layer.toList() })
 
 	companion object {
 		const val defaultNameType = "AttentionPivot"
@@ -22,7 +22,7 @@ class AttentionPivot(
 		if (parentLayers.size != 2) {
 			throw IllegalStateException("Illegal count of parents: ${parentLayers.size}}")
 		}
-		if (parentLayers[0].getShape().width != parentLayers[1].getShape().width ) {
+		if (parentLayers[0].getShape().width != parentLayers[1].getShape().width) {
 			throw IllegalStateException("Illegal widths of parents: ${parentLayers[0].getShape()} ${parentLayers[1].getShape()}}")
 		}
 		if (parentLayers[0].getShape().height != parentLayers[1].getShape().height) {

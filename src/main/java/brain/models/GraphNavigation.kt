@@ -40,7 +40,12 @@ internal fun iterateLayerNodes(
 				iterateLayerNodes(builder, nodeMap, queue, debug)
 			}
 			val currentLayerImpl = curLB.create() as Layer.MultiInputLayer
-			val currentNode = GraphLayerNode.MultiParent(currentLayerImpl, curLB, parents.map { it.layer.name }, currentBuilderNode.depth)
+			val currentNode = GraphLayerNode.MultiParent(
+				currentLayerImpl,
+				curLB,
+				parents.map { it.layer.name },
+				currentBuilderNode.depth
+			)
 			return currentNode
 				.also { queue[curLB] = it }
 				.ifAlsoBr(debug) { printYellowBr(it) }
@@ -72,7 +77,7 @@ internal fun iterateLayerNodes(
 sealed class GraphLayerNode(
 	open val layer: Layer,
 	open val builder: LB,
-	open val depth: Int
+	open val depth: Int,
 ) {
 	class Input(override val layer: Layer.SingleInputLayer, builder: LB, depth: Int) :
 		GraphLayerNode(layer, builder, depth)

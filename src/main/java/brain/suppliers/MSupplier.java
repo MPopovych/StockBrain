@@ -14,7 +14,7 @@ public class MSupplier implements ValueFiller {
 
 	@Override
 	public float supply(int count, int x, int y) {
-		return ((random.nextFloat() * 2f) - 1f) / (count / (float) Math.sqrt(count)) ;
+		return ((random.nextFloat() * 2f) - 1f) / (count / (float) Math.sqrt(count));
 	}
 
 	@Override

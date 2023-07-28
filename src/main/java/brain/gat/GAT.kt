@@ -54,7 +54,7 @@ class GAT(
 	private fun runInitGeneration(
 		room: GATScoreBoard,
 		generation: Int,
-		action: ((GATEvalContext) -> Double)
+		action: ((GATEvalContext) -> Double),
 	) {
 		val scores = (0 until settings.population).map { ord ->
 			if (ord == 0) {
@@ -79,12 +79,12 @@ class GAT(
 	private fun runGeneration(
 		room: GATScoreBoard,
 		generation: Int,
-		action: ((GATEvalContext) -> Double)
+		action: ((GATEvalContext) -> Double),
 	) {
-		val list = room.getAscendingFitnessList().takeLast(settings.topParentCount)
+		val list = room.getAscendingFitnessList().takeLast(settings.topParentCount).asReversed()
 
 		val scores = (0 until settings.population).map {
-			val aM = list.random()
+			val aM = list[it % list.size] // use at least once the top specimens
 			val bM = list.random()
 			val a = aM.model.produceZygote(settings)
 			val b = bM.model.produceZygote(settings)

@@ -9,8 +9,8 @@ class CrossOverPolicyTest {
 
 	@Test
 	fun testSinglePoint() {
-		val a = WeightGenes("a", floatArrayOf(0.3f, 0.3f, 0.3f, 0.3f, 0.3f, 0.3f, 0.3f), 1, 7 , 0)
-		val b = WeightGenes("a", floatArrayOf(0.6f, 0.6f, 0.6f, 0.6f, 0.6f, 0.6f, 0.6f), 1, 7 , 0)
+		val a = WeightGenes("a", floatArrayOf(0.3f, 0.3f, 0.3f, 0.3f, 0.3f, 0.3f, 0.3f), 1, 7, 0)
+		val b = WeightGenes("a", floatArrayOf(0.6f, 0.6f, 0.6f, 0.6f, 0.6f, 0.6f, 0.6f), 1, 7, 0)
 		val d = a.emptyCopy()
 		assertNotEqualModel(a, d)
 
@@ -21,8 +21,8 @@ class CrossOverPolicyTest {
 
 	@Test
 	fun testUniform() {
-		val a = WeightGenes("a", floatArrayOf(0.3f, 0.3f, 0.3f, 0.3f, 0.3f, 0.3f, 0.3f), 1, 7 , 0)
-		val b = WeightGenes("a", floatArrayOf(0.6f, 0.6f, 0.6f, 0.6f, 0.6f, 0.6f, 0.6f), 1, 7 , 0)
+		val a = WeightGenes("a", floatArrayOf(0.3f, 0.3f, 0.3f, 0.3f, 0.3f, 0.3f, 0.3f), 1, 7, 0)
+		val b = WeightGenes("a", floatArrayOf(0.6f, 0.6f, 0.6f, 0.6f, 0.6f, 0.6f, 0.6f), 1, 7, 0)
 		val d = a.emptyCopy()
 		assertNotEqualModel(a, d)
 

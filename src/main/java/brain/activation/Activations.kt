@@ -16,6 +16,7 @@ object Activations {
 	val RevTanh = RevTanhFunction()
 	val Sigmoid = SigmoidFunction()
 	val FastSigmoid = FastSigmoidFunction()
+	val TestFun = TestFunction()
 
 
 	val TanhMax = TanhMaxFunction()
@@ -63,6 +64,7 @@ object Activations {
 			Sigmoid.nameType() -> Sigmoid
 			SmallTanh.nameType() -> SmallTanh
 			FastSigmoid.nameType() -> FastSigmoid
+			TestFun.nameType() -> TestFun
 			ReLuMinMax.nameType() -> ReLuMinMax
 			ReLuTanh.nameType() -> ReLuTanh
 			NormPeakFunction.nameType() -> NormPeakFunction

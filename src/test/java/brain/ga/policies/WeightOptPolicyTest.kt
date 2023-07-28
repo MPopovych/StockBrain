@@ -11,7 +11,7 @@ class WeightOptPolicyTest {
 
 	@Test
 	fun testDiscreteOptPolicy() {
-		val a = WeightGenes("a", floatArrayOf(0.1f, 0.2f, 0.6f, 0.7f, 0.9f, 0.3f, 0.66f), 1, 7 , 0)
+		val a = WeightGenes("a", floatArrayOf(0.1f, 0.2f, 0.6f, 0.7f, 0.9f, 0.3f, 0.66f), 1, 7, 0)
 		val d = a.copy()
 		assertEqualModel(a, d)
 
@@ -23,7 +23,7 @@ class WeightOptPolicyTest {
 
 	@Test
 	fun testNoiseOptPolicy() {
-		val a = WeightGenes("a", floatArrayOf(0.1f, 0.2f, 0.6f, 0.7f, 0.9f, 0.3f, 0.66f), 1, 7 , 0)
+		val a = WeightGenes("a", floatArrayOf(0.1f, 0.2f, 0.6f, 0.7f, 0.9f, 0.3f, 0.66f), 1, 7, 0)
 		val d = a.copy()
 		assertEqualModel(a, d)
 
@@ -35,7 +35,7 @@ class WeightOptPolicyTest {
 
 	@Test
 	fun testOutlierOptPolicy() {
-		val a = WeightGenes("a", floatArrayOf(0.1f, 0.2f, 0.6f, 0.7f, -0.9f, 0.3f, 0.66f), 1, 7 , 0)
+		val a = WeightGenes("a", floatArrayOf(0.1f, 0.2f, 0.6f, 0.7f, -0.9f, 0.3f, 0.66f), 1, 7, 0)
 		val d = a.copy()
 		assertEqualModel(a, d)
 

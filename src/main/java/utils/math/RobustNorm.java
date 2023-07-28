@@ -27,6 +27,6 @@ public class RobustNorm implements ScaleImpl {
 	public float performScale(ScaleMeta owner, float data) {
 		float iqr = owner.getIqr();
 		if (iqr == 0f) return 0f;
-		return  (data - owner.getMedian()) / iqr;
+		return (data - owner.getMedian()) / iqr;
 	}
 }

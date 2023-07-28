@@ -4,6 +4,6 @@ class PolicyContext(
 	val generation: Int,
 	val board: PSOScoreBoard,
 	val settings: PSOSettings,
-	val choreographyK: Float
+	val choreographyK: Float,
 ) {
 }

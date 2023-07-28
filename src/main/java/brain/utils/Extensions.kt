@@ -31,6 +31,7 @@ fun Matrix.print() {
 fun Matrix.printRedBr() {
 	printRedBr(describe())
 }
+
 fun Matrix.printGreenBr() {
 	printGreenBr(describe())
 }
@@ -38,7 +39,7 @@ fun Matrix.printGreenBr() {
 fun Matrix.describe(): String {
 	val sb = StringBuilder()
 	for (y in 0 until height) {
-		val line = "[${values[y].joinToString {it.roundDisplay() }}]"
+		val line = "[${values[y].joinToString { it.roundDisplay() }}]"
 		sb.append(line).appendLine()
 	}
 	return sb.toString().trimIndent()

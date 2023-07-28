@@ -26,7 +26,8 @@ object FramePropTestAssetGetter : NamedPropGetter<FramePropTestAssetFrameData>()
 	val testValue = nameProp("TEST") { a -> a.testDouble }
 }
 
-data class FramePropTestAssetFrameData(val testFloat: Float, val testDouble: Double) : NamedFrameAsset<FramePropTestAssetFrameData> {
+data class FramePropTestAssetFrameData(val testFloat: Float, val testDouble: Double) :
+	NamedFrameAsset<FramePropTestAssetFrameData> {
 	override fun propGetter(): NamedPropGetter<FramePropTestAssetFrameData> {
 		return FramePropTestAssetGetter
 	}

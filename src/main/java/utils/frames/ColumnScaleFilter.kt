@@ -34,7 +34,7 @@ class ColumnScaleFilter : LinkedHashMap<String, ScaleMeta>() {
 
 		fun <T : FrameAsset> byTypeMap(
 			modelFrame: ModelFrame<T>,
-			map: Map<String, ScaleMetaType>
+			map: Map<String, ScaleMetaType>,
 		): ColumnScaleFilter {
 			val scales = HashMap<String, ScaleMeta>()
 			for ((key, type) in map) {

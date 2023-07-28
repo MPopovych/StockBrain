@@ -108,7 +108,7 @@ class ScaleMetaTest {
 		val id: String,
 		val increment: Float,
 		val mod: Float,
-		val unchanging: Float
+		val unchanging: Float,
 	) : NamedFrameAsset<ScaleMetaTestAsset> {
 		override fun propGetter(): NamedPropGetter<ScaleMetaTestAsset> {
 			return ScaleMetaTestGetter

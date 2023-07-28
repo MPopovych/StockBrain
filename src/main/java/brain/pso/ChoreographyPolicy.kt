@@ -11,6 +11,7 @@ interface ChoreographyPolicy {
 		val SinGenNP = SinGenNPChoreographyPolicy(15)
 		val SinPeakGen = SinPeakGenChoreographyPolicy(15)
 	}
+
 	fun getKForContext(settings: PSOSettings, gen: Int, board: PSOScoreBoard): Float
 }
 

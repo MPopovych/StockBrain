@@ -90,11 +90,13 @@ class PSOScoreBoard(val order: Int, private val settings: PSOSettings) {
 		getAscendingFitnessList().takeLast(limit ?: scoreList.size).forEach { t ->
 			val distanceToTop = PSOUtils.modelDistance(t.current.genes, top.best.genes)
 			val distanceToBest = PSOUtils.modelDistance(t.current.genes, t.best.genes)
-			sb.append("current: ${t.current.score.roundUp(6).toString().padEnd(8)} \t" +
-					"- best: ${t.best.score.roundUp(6).toString().padEnd(8)} \t" +
-					"- db: ${distanceToBest.roundUp(3).toString().padEnd(5)} \t" +
-					"- d: ${distanceToTop.roundUp(3).toString().padEnd(5)} \t" +
-					"- h: ${t.current.genes.chromosome().hashCode().toString().padEnd(15)} \t: ${t.ordinal}" ).appendLine()
+			sb.append(
+				"current: ${t.current.score.roundUp(6).toString().padEnd(8)} \t" +
+						"- best: ${t.best.score.roundUp(6).toString().padEnd(8)} \t" +
+						"- db: ${distanceToBest.roundUp(3).toString().padEnd(5)} \t" +
+						"- d: ${distanceToTop.roundUp(3).toString().padEnd(5)} \t" +
+						"- h: ${t.current.genes.chromosome().hashCode().toString().padEnd(15)} \t: ${t.ordinal}"
+			).appendLine()
 		}
 		printGreenBr(sb.toString().trimIndent())
 	}

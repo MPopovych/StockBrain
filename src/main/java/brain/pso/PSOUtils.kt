@@ -12,8 +12,9 @@ object PSOUtils {
 		return mod.layers.values.sumOf { l -> l.map.values.sumOf { w -> w.size } }
 	}
 
-	fun modelDistance(fromMod: ModelGenes,
-	                  toRef: ModelGenes
+	fun modelDistance(
+		fromMod: ModelGenes,
+		toRef: ModelGenes,
 	): Float {
 		val totalGeneCount = countModelGenes(fromMod)
 		val totalSum = fromMod.layers.map {

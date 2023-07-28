@@ -46,7 +46,7 @@ data class ScaleMeta(
 	val min: Float,
 	val std: Float,
 	val median: Float,
-	val iqr: Float
+	val iqr: Float,
 ) {
 
 	companion object {
@@ -95,6 +95,7 @@ data class ScaleMeta(
 			ScaleMetaType.None -> array.copyOf()
 		}
 	}
+
 	fun applyToArray(nArray: Iterable<Number>): FloatArray {
 		return applyToArray(array = nArray.map { it.toFloat() }.toFloatArray())
 	}

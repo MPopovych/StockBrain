@@ -12,7 +12,7 @@ sealed interface LayerMetaData {
 		val units: Int,
 		val kernels: Int,
 		val step: Int,
-		val reverse: Boolean
+		val reverse: Boolean,
 	) : LayerMetaData
 
 	data class GRUMeta(

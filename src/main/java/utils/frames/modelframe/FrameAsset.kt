@@ -16,6 +16,7 @@ interface FrameAsset {
 
 	/** Uses an existing allocation */
 	fun fill2FArray(destination: FloatArray)
+
 	/** max index should be equal destination last index
 	 * feature masks should be sorted as features
 	 */

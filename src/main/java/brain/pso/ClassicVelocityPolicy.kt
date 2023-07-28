@@ -19,7 +19,7 @@ object ClassicVelocityPolicy {
 	fun move(
 		holder: PSOHolder,
 		mod: ModelGenes, pBest: ModelGenes, gBest: ModelGenes,
-		context: PolicyContext
+		context: PolicyContext,
 	): ModelGenes {
 		val velocity = holder.velocity
 
@@ -37,8 +37,8 @@ object ClassicVelocityPolicy {
 
 				for (i in velocityGenes.indices) {
 					val newV = inertia * (velocityGenes[i] +
-									+ (c1 * jRandom.nextFloat() * (pBestGenes[i] - currentGenes[i])) +
-									+ (c2 * jRandom.nextFloat() * (gBestGenes[i] - currentGenes[i])))
+							+(c1 * jRandom.nextFloat() * (pBestGenes[i] - currentGenes[i])) +
+							+(c2 * jRandom.nextFloat() * (gBestGenes[i] - currentGenes[i])))
 
 					velocityGenes[i] = newV
 				}

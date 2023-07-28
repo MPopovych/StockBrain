@@ -29,7 +29,7 @@ sealed class Layer {
 		MatrixMath.flush(outputBuffer)
 	}
 
-	open fun onWeightUpdate() { }
+	open fun onWeightUpdate() {}
 
 	fun getTrainable() = weights.values.filter { it.trainable }
 	fun getTrainableNumber() = getTrainable().sumOf { it.matrix.width * it.matrix.height }

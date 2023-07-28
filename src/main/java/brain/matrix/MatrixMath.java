@@ -16,6 +16,11 @@ public class MatrixMath {
 		}
 	}
 
+
+	public static void multiplyStrassen(Matrix a, Matrix b, Matrix d) {
+
+	}
+
 	public static void multiply(Matrix a, Matrix b, Matrix d) {
 		// Row major implementation, ijk algorithm
 		if (a.width != b.height) {

@@ -25,5 +25,4 @@ class GAScoreBoardWrapRooms(private val settings: GASettings) {
 	}
 
 
-
 }

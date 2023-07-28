@@ -33,11 +33,13 @@ interface WeightOptPolicy {
 	)
 }
 
-class NoneOptPolicy: WeightOptPolicy {
+class NoneOptPolicy : WeightOptPolicy {
 	override fun optimise(destination: ModelGenes) {
 	}
+
 	override fun optimise(destination: LayerGenes) {
 	}
+
 	override fun optimise(destination: WeightGenes) {
 	}
 }

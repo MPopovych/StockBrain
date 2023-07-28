@@ -1,15 +1,18 @@
 # StockBrain
+
 Lightweight Java-Kotlin based library for neural networks
 I am using this for my personal project for stock trading. Comes with risks and frequent changes.
 Feel free to fork or to explore the project
 
-#### Why in Kotlin + Java? 
+#### Why in Kotlin + Java?
+
 To focus on a CPU based use case for reinforcement learning.
 Two algorithms are supported for optimisation:
 Genetic algorithm - mostly done and stable
 PSO - in development
 
 ### Supported layers
+
 *InputLayer* - defines entry for a set of data, multiple inputs can be used in the same model
 
 *Dense* - the most basic layer, can have an activation function, bias
@@ -61,6 +64,7 @@ Concat_4 : LayerShape(width=8, height=1) : children: 0
 ### Inputs and output
 
 Models support multi-input and multi-output
+
 ``` kotlin
 val inputLayer1 = InputLayer(3, 2, name = "input1")
 val inputLayer2 = InputLayer(6, 1, name = "input2")
@@ -78,6 +82,7 @@ outputMatrix.printRed()
 ```
 
 Or singular input:
+
 ``` kotlin
 val inputLayer = InputLayer(3, 2)
 val d0 = Dense(4) { inputLayer }
@@ -103,6 +108,7 @@ val model = ModelBuilder(input, Concat(name = "output") { listOf(d0, d1) }).buil
 val sm = ModelWriter.serialize(model)
 val json = ModelWriter.toJson(sm)
 ``` 
+
 Which would produce a structure as below
 
 ``` json
@@ -177,10 +183,13 @@ Which would produce a structure as below
 ``` 
 
 Creating a model from a json should be done like this:
+
 ``` kotlin
 val model = ModelReader.modelInstance(json)
 ``` 
+
 Model summary for above:
+
 ``` 
 Total layers: 4 : inputs: [Default], outputs: [Default]
 Input_0 : LayerShape(width=3, height=1) : children: 2
@@ -192,6 +201,7 @@ output : LayerShape(width=7, height=1) : children: 0
 ## GA
 
 ### Instance building
+
 ``` kotlin
 val settings = GASettings(
     topParentCount = 5,

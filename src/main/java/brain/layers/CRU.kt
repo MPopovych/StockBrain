@@ -50,7 +50,8 @@ class CRU(
 			useBias = useBias,
 			reverse = false,
 			updateActivation = null,
-			resetActivation = null)
+			resetActivation = null
+		)
 	}
 }
 

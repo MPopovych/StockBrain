@@ -25,5 +25,4 @@ class PSOScoreBoardWrapRooms(private val settings: PSOSettings) {
 	}
 
 
-
 }

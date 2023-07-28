@@ -24,9 +24,11 @@ class ConvDelta(
 	}
 
 	override fun create(): ConvDeltaImpl {
-		return ConvDeltaImpl(activation = activation,
+		return ConvDeltaImpl(
+			activation = activation,
 			directShape = shape,
-			name = name)
+			name = name
+		)
 			.also {
 				it.init()
 			}

@@ -53,7 +53,8 @@ class GRU(
 			useBias = useBias,
 			reverse = reverse,
 			updateActivation = updateActivation?.nameType(),
-			resetActivation = resetActivation?.nameType())
+			resetActivation = resetActivation?.nameType()
+		)
 	}
 }
 
@@ -102,7 +103,7 @@ open class GRUImpl(
 	var cellStateBufferPrev: Matrix
 	override lateinit var outputBuffer: Matrix
 
-	override fun init() { }
+	override fun init() {}
 
 	init {
 		zGate = WeightData("zGate", Matrix(units, parentShape.width), trainable = true)

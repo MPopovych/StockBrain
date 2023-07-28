@@ -17,7 +17,8 @@ sealed class FutureMatch {
 	object New : FutureMatch()
 }
 
-class DefaultMatchMakingPolicy(private val repeatTop: Int, private val cataclysmEvery: Int? = null) : MatchMakingPolicy {
+class DefaultMatchMakingPolicy(private val repeatTop: Int, private val cataclysmEvery: Int? = null) :
+	MatchMakingPolicy {
 	override fun select(settings: GASettings, scoreBoard: GAScoreBoard, generation: Int): List<FutureMatch> {
 		val buffer = ArrayList<FutureMatch>()
 		if (repeatTop > 0) {
@@ -61,6 +62,7 @@ class AgingMatchMakingPolicy(private val lifespan: Int, private val cataclysmEve
 		require(lifespan > 0)
 		require(cataclysmEvery == null || cataclysmEvery > 0)
 	}
+
 	override fun select(settings: GASettings, scoreBoard: GAScoreBoard, generation: Int): List<FutureMatch> {
 		val buffer = ArrayList<FutureMatch>()
 		val freshAndOld = scoreBoard.getAscendingFitnessList().partition { it.bornOnEpoch >= generation - lifespan }

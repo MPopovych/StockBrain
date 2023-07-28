@@ -20,7 +20,7 @@ class PSOHolder(
 
 class PSOScore(
 	val score: Double,
-	val genes: ModelGenes
+	val genes: ModelGenes,
 ) {
 	companion object {
 		val NULL = PSOScore(0.0, ModelGenes(emptyMap()))
@@ -28,7 +28,7 @@ class PSOScore(
 }
 
 class PSOVelocity(
-	val layerAndWeightMap: Map<String, Map<String, FloatArray>>
+	val layerAndWeightMap: Map<String, Map<String, FloatArray>>,
 ) {
 	companion object {
 		fun getRandomVelocity(size: Int): Float {

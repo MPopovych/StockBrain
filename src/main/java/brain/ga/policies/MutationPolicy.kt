@@ -167,7 +167,7 @@ class CyclicMutationPolicy(
 			additive.mutateWeight(source, destination, totalGeneCount)
 		} else if (r < additiveRatio + upscaleRatio) {
 			upscale.mutateWeight(source, destination, totalGeneCount)
-		} else if (r < additiveRatio + upscaleRatio + inversionRatio){
+		} else if (r < additiveRatio + upscaleRatio + inversionRatio) {
 			inversion.mutateWeight(source, destination, totalGeneCount)
 		} else if (r < additiveRatio + upscaleRatio + inversionRatio + copyRatio) {
 			copy.mutateWeight(source, destination, totalGeneCount)

@@ -50,34 +50,34 @@ class GAScoreBoard(val order: Int, private val settings: GASettings) {
 		val idSet = scoreList.filter { !it.isOutDated }.map { it.id }.toSet()
 
 		batch.onEach {
-				if (it.score.isNaN() || it.score.isInfinite()) {
-					throw IllegalStateException("NaN or Infinite in score : $it")
-				}
-				if (it.parentA in idSet) {
-					scoreList.removeIf { parent ->
-						val greater =
-							if (settings.scoreBoardOrder == GAScoreBoardOrder.Ascending) {
-								it.score >= parent.score
-							} else {
-								it.score <= parent.score
-							}
-						parent.id == it.parentA && greater
-					}
-				}
-				if (it.parentB in idSet) {
-					scoreList.removeIf { parent ->
-						val greater =
-							if (settings.scoreBoardOrder == GAScoreBoardOrder.Ascending) {
-								it.score >= parent.score
-							} else {
-								it.score <= parent.score
-							}
-						parent.id == it.parentB && greater
-					}
+			if (it.score.isNaN() || it.score.isInfinite()) {
+				throw IllegalStateException("NaN or Infinite in score : $it")
+			}
+			if (it.parentA in idSet) {
+				scoreList.removeIf { parent ->
+					val greater =
+						if (settings.scoreBoardOrder == GAScoreBoardOrder.Ascending) {
+							it.score >= parent.score
+						} else {
+							it.score <= parent.score
+						}
+					parent.id == it.parentA && greater
 				}
 			}
+			if (it.parentB in idSet) {
+				scoreList.removeIf { parent ->
+					val greater =
+						if (settings.scoreBoardOrder == GAScoreBoardOrder.Ascending) {
+							it.score >= parent.score
+						} else {
+							it.score <= parent.score
+						}
+					parent.id == it.parentB && greater
+				}
+			}
+		}
 
-		scoreList.addAll(0, batch.filter { it.id !in idSet  }) // add to 0 for distinct
+		scoreList.addAll(0, batch.filter { it.id !in idSet }) // add to 0 for distinct
 		var sorted = when (settings.scoreBoardOrder) {
 			GAScoreBoardOrder.Ascending -> scoreList
 				.sortedBy { it.bornOnEpoch }
@@ -105,10 +105,12 @@ class GAScoreBoard(val order: Int, private val settings: GASettings) {
 		sb.append("Score deviation: ${stdAndPercent.first} : ${stdAndPercent.second.roundUp(2)}%").appendLine()
 		scoreList.takeLast(limit ?: scoreList.size).forEach { t ->
 			val distanceToTop = PSOUtils.modelDistance(t.genes, top.genes)
-			sb.append("score: ${t.score.roundUp(6).toString().padEnd(8)} \t" +
-					"- h: ${t.id.hashCode().toString().padEnd(12)} \t" +
-					"- d: ${distanceToTop.roundUp(3).toString().padEnd(5)} \t" +
-					"- g: ${t.bornOnEpoch}" ).appendLine()
+			sb.append(
+				"score: ${t.score.roundUp(6).toString().padEnd(8)} \t" +
+						"- h: ${t.id.hashCode().toString().padEnd(12)} \t" +
+						"- d: ${distanceToTop.roundUp(3).toString().padEnd(5)} \t" +
+						"- g: ${t.bornOnEpoch}"
+			).appendLine()
 		}
 		printGreenBr(sb.toString().trimIndent())
 	}

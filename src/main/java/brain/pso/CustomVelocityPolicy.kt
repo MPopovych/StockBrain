@@ -75,12 +75,16 @@ object CustomVelocityPolicy {
 					val wValue = wWeight[i]
 
 					val wmDirection = max(min((mValue - wValue) * (wTillMRatio), weightMoveCap), -weightMoveCap)
-					val mtDirection = max(min((tValue - mValue) * (wTillMRatio + mTillTRatio), weightMoveCap), -weightMoveCap)
+					val mtDirection =
+						max(min((tValue - mValue) * (wTillMRatio + mTillTRatio), weightMoveCap), -weightMoveCap)
 					val tbDirection = max(min((bValue - tValue) * (1f - tTillBRatio), weightMoveCap), -weightMoveCap)
 
-					val wSigned = wValue + (wmDirection + tbDirection + mtDirection) * alpha * (rBetaBase + rBetaRandom * jRandom.nextFloat())
-					val mSigned = mValue + (mtDirection - wmDirection + tbDirection) * alpha * (rBetaBase + rBetaRandom * jRandom.nextFloat())
-					val tSigned = tValue + (tbDirection - mtDirection - wmDirection) * alpha * (rBetaBase + rBetaRandom * jRandom.nextFloat())
+					val wSigned =
+						wValue + (wmDirection + tbDirection + mtDirection) * alpha * (rBetaBase + rBetaRandom * jRandom.nextFloat())
+					val mSigned =
+						mValue + (mtDirection - wmDirection + tbDirection) * alpha * (rBetaBase + rBetaRandom * jRandom.nextFloat())
+					val tSigned =
+						tValue + (tbDirection - mtDirection - wmDirection) * alpha * (rBetaBase + rBetaRandom * jRandom.nextFloat())
 
 					wWeight[i] = max(min(smoothMove(wValue, wSigned, weightHeavy), weightCap), -weightCap)
 					mWeight[i] = max(min(smoothMove(mValue, mSigned, weightHeavy), weightCap), -weightCap)

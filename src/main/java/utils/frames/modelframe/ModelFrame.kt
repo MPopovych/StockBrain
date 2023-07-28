@@ -54,7 +54,7 @@ class ModelFrame<T : FrameAsset> : ArrayList<T>(), WindowProvider<T> {
 		}
 		val dataCount = ensureDataSize()
 
-		return (0 .. size - windowSize).mapIndexed { index, i ->
+		return (0..size - windowSize).mapIndexed { index, i ->
 			WindowScope(
 				parent = this,
 				windowSize = windowSize,
@@ -94,7 +94,7 @@ class ModelFrame<T : FrameAsset> : ArrayList<T>(), WindowProvider<T> {
 		private val dataCount: Int, // horizontal
 		private val startIndex: Int, // inclusive
 		private val endIndex: Int, // inclusive
-		private val gapSize: Int
+		private val gapSize: Int,
 	) : FrameWindow<G> {
 
 		init {
@@ -155,7 +155,10 @@ class ModelFrame<T : FrameAsset> : ArrayList<T>(), WindowProvider<T> {
 			return destination
 		}
 
-		override fun fill2fArray(destination: Array<FloatArray>, mapper: ColumnScaleFilter.OrdMapper<G>): Array<FloatArray> {
+		override fun fill2fArray(
+			destination: Array<FloatArray>,
+			mapper: ColumnScaleFilter.OrdMapper<G>,
+		): Array<FloatArray> {
 			iterate { i, modelFrameEntry ->
 				modelFrameEntry.fill2FArray(destination[i], mapper)
 			}

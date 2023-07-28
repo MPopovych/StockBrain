@@ -9,7 +9,7 @@ public class MatrixF {
 	public final int height;
 
 	public MatrixF(int width, // columns
-	              int height) { // rows
+	               int height) { // rows
 		this(width, height, null);
 	}
 

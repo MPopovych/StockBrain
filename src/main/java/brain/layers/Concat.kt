@@ -8,7 +8,7 @@ class Concat(
 	override var name: String = Layer.DEFAULT_NAME,
 	parentLayerBlock: (() -> List<LayerBuilder<*>>),
 ) : LayerBuilder.MultiInput<ConcatImpl> {
-	constructor(vararg layer: LayerBuilder<*>, name: String = Layer.DEFAULT_NAME): this(name, { layer.toList() })
+	constructor(vararg layer: LayerBuilder<*>, name: String = Layer.DEFAULT_NAME) : this(name, { layer.toList() })
 
 	companion object {
 		const val defaultNameType = "Concat"
