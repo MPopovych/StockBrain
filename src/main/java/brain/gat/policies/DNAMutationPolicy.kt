@@ -22,15 +22,11 @@ object DNAMutationPolicy {
 					var current = aGenes.genes[ord]
 					val final = if (nativeRandom.nextFloat() < mutateRate) {
 						val new = nextGaussRandom() * settings.weightMod
-						if (nativeRandom.nextBoolean()) {
-							val newPreCalc = current + new
-							if (newPreCalc > settings.weightSoftCap || newPreCalc < -settings.weightSoftCap) {
-								current += (new / 2)
-							} else {
-								current = newPreCalc
-							}
+						val newPreCalc = current + new
+						if (newPreCalc > settings.weightSoftCap || newPreCalc < -settings.weightSoftCap) {
+							current += (new / 2)
 						} else {
-							current = new
+							current = newPreCalc
 						}
 						max(min(current, settings.weightHeavyCap), -settings.weightHeavyCap)
 					} else {

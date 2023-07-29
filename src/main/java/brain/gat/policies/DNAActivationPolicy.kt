@@ -3,6 +3,7 @@ package brain.gat.policies
 import brain.ga.weights.LayerGenes
 import brain.ga.weights.ModelGenes
 import brain.ga.weights.WeightGenes
+import kotlin.random.Random
 
 object DNAActivationPolicy {
 
@@ -14,9 +15,8 @@ object DNAActivationPolicy {
 				val aGenes = weight.value
 				val bGenes = layerB.map[weight.key] ?: throw IllegalStateException()
 
-				val randomPoint = (0 until aGenes.size).random()
 				val mix = FloatArray(aGenes.size) { ord ->
-					if (ord < randomPoint) {
+					if (Random.nextBoolean()) {
 						aGenes.genes[ord]
 					} else {
 						bGenes.genes[ord]

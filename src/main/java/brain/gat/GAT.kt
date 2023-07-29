@@ -81,12 +81,20 @@ class GAT(
 		generation: Int,
 		action: ((GATEvalContext) -> Double),
 	) {
-		val list = room.getAscendingFitnessList().takeLast(settings.topParentCount).asReversed()
+		val list = room.getAscendingFitnessList()
+			.takeLast(settings.topParentCount)
+			.asReversed() // REVERSED is important
+		val top = list.first()
 
 		val scores = (0 until settings.population).map {
 			val aM = list[it % list.size] // use at least once the top specimens
 			val bM = list.random()
-			val a = aM.model.produceZygote(settings)
+			val a = if (aM == top) {
+				aM.model.pheno // do not zygote the top
+			} else {
+				aM.model.produceZygote(settings)
+			}
+
 			val b = bM.model.produceZygote(settings)
 			val cell = GATCell(a, b)
 			val phenoModel = cell.produceActivation()
