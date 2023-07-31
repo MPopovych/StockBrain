@@ -18,6 +18,10 @@ dependencies {
 	implementation("com.google.code.gson:gson:2.8.9")
 
 	implementation("org.apache.commons:commons-math3:3.0")
+
+	implementation("org.jetbrains.kotlinx:multik-core:0.2.2")
+	implementation("org.jetbrains.kotlinx:multik-openblas:0.2.2")
+
 	testImplementation("org.ejml:ejml-all:0.43")
 	testImplementation("org.ujmp:ujmp-core:0.3.0")
 

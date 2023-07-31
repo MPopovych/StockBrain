@@ -1,17 +1,14 @@
 package brain.matrix
 
-//import org.ejml.data.FMatrixRMaj
-//import org.ejml.dense.row.CommonOps_FDRM
-//import org.ejml.dense.row.RandomMatrices_FDRM
-//import java.util.*
 import brain.suppliers.Suppliers
 import brain.utils.brBenchmark
 import brain.utils.printGreenBr
 import org.ejml.data.FMatrixRMaj
 import org.ejml.dense.row.CommonOps_FDRM
 import org.ejml.dense.row.RandomMatrices_FDRM
-import org.ujmp.core.DenseMatrix
-import org.ujmp.core.floatmatrix.factory.DefaultFloatMatrix2DFactory
+import org.jetbrains.kotlinx.multik.api.d2array
+import org.jetbrains.kotlinx.multik.api.linalg.dot
+import org.jetbrains.kotlinx.multik.api.mk
 import java.util.*
 import kotlin.test.Test
 
@@ -89,6 +86,24 @@ class CompareImpl {
 		brBenchmark("UJMP") {
 			repeat(iterations) {
 				val c = a.mtimes(b)
+			}
+		}
+	}
+
+	@Test
+	fun testMultikMatrix() {
+		val supplier = Suppliers.RandomBinNP
+		val a = mk.d2array<Double>(10, 20) { supplier.supply(size, 0, 0).toDouble() }
+		val b = mk.d2array<Double>(20, size) { supplier.supply(size, 0, 0).toDouble() }
+		printGreenBr(b.shape.toList())
+
+		printGreenBr("Starting Multik test")
+		brBenchmark("Multik") {
+			repeat(iterations) {
+				val c = mk.linalg.dot(a, b)
+				if (it == 0) {
+					println("shape: ${c.shape.toList()}")
+				}
 			}
 		}
 	}
