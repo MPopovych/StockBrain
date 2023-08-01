@@ -33,7 +33,11 @@ class FlattenLayerImpl(
 	override val id: String,
 ) : LayerImpl.LayerSingleInput {
 
-	override val factory = FlattenFactory.asGeneric()
+	companion object {
+		val f = FlattenFactory.asGeneric()
+	}
+
+	override val factory = f
 
 	override fun propagate(input: Matrix): Matrix {
 		return input.flatten()

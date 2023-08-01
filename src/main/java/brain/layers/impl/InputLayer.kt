@@ -32,7 +32,11 @@ class InputLayerImpl(
 	override val id: String,
 ) : LayerImpl.LayerSingleInput {
 
-	override val factory = InputFactory.asGeneric()
+	companion object {
+		val f = InputFactory.asGeneric()
+	}
+
+	override val factory = f
 
 	override fun propagate(input: Matrix): Matrix {
 		return input

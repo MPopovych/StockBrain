@@ -32,7 +32,11 @@ class ActivationLayerImpl(
 	internal val activation: ActivationFunction,
 ) : LayerImpl.LayerSingleInput {
 
-	override val factory = ActivationFactory.asGeneric()
+	companion object {
+		val f = ActivationFactory.asGeneric()
+	}
+
+	override val factory = f
 
 	override fun propagate(input: Matrix): Matrix {
 		return activation.call(input)

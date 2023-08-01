@@ -16,16 +16,3 @@ object ReLuActivationImpl : ActivationFunction {
 		return matrix.map { max(it, 0f) }
 	}
 }
-
-//object ReluFactory : ActivationTypedFactory<ReLuImpl, Boolean> {
-//	override val inputType: KClass<ReLuImpl> = ReLuImpl::class
-//	override val outputSerializer: KSerializer<Boolean> = Boolean.serializer()
-//
-//	override fun deserialize(value: Boolean): ReLuImpl {
-//		return ReLuImpl
-//	}
-//
-//	override fun serialize(value: ReLuImpl): Boolean {
-//		return false
-//	}
-//}

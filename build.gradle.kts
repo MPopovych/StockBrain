@@ -23,14 +23,12 @@ dependencies {
 	implementation("org.apache.commons:commons-math3:3.0")
 
 	implementation("org.jetbrains.kotlinx:multik-core:0.2.2")
-	implementation("org.jetbrains.kotlinx:multik-openblas:0.2.2")
+	testImplementation("org.jetbrains.kotlinx:multik-openblas:0.2.2")
+//	testImplementation("org.jetbrains.kotlinx:multik-kotlin:0.2.2")
 
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.2")
 	implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
 	implementation("org.jetbrains.kotlinx:kotlinx-serialization-protobuf:1.5.1")
-
-	testImplementation("org.ejml:ejml-all:0.43")
-	testImplementation("org.ujmp:ujmp-core:0.3.0")
 
 	testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.1")
 	testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-rx2:1.6.1")

@@ -46,7 +46,11 @@ class Concat(
 
 class ConcatLayerImpl(override val id: String) : LayerImpl.LayerMultiInput {
 
-	override val factory = ConcatFactory.asGeneric()
+	companion object {
+		val f = ConcatFactory.asGeneric()
+	}
+
+	override val factory = f
 
 	override fun propagate(inputs: List<Matrix>): Matrix {
 		return inputs.concat(1)

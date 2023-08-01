@@ -7,6 +7,7 @@ import brain.layers.impl.Dense
 import brain.layers.impl.Input
 import brain.matrix.Matrix
 import brain.matrix.describe
+import brain.multik.MultikLoader
 import brain.suppliers.Suppliers
 import brain.utils.brBenchmark
 import brain.utils.printBlueBr
@@ -18,6 +19,8 @@ class BenchmarkTest {
 
 	@Test
 	fun testModelSingle() {
+		MultikLoader.loadSync()
+
 		val input = Input(10)
 		val d10 = Dense(10) { input }
 		val relu10 = Activation(Activations.LeakyReLu(0.5f)) { d10 }

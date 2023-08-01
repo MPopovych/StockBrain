@@ -51,7 +51,11 @@ class ScaleLayerImpl(
 	internal val bias: WeightData,
 ) : LayerImpl.LayerSingleInput {
 
-	override val factory = ScaleFactory.asGeneric()
+	companion object {
+		val f = ScaleFactory.asGeneric()
+	}
+
+	override val factory = f
 
 	override fun propagate(input: Matrix): Matrix {
 		var result = input multiply1DToEachRow weight.matrix
