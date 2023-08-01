@@ -1,6 +1,7 @@
 package brain.models
 
 import brain.matrix.Matrix
+import brain.matrix.any
 
 
 class Model(
@@ -16,8 +17,6 @@ class Model(
 	}
 
 	fun copy() = Model(outputKeyByLayerName, callOrderedGraph.map { it.copy() }, debug, check)
-
-	fun getWeightMap() = callOrderedGraph.associateBy { it.id }.mapValues { it.value.impl.weightData() }
 
 	fun onWeightUpdated() = callOrderedGraph.forEach { it.impl.onWeightUpdated() }
 
@@ -38,7 +37,7 @@ class Model(
 	fun getOutputMap(inputMatrixMap: Map<String, Matrix>): Map<String, Matrix> {
 		val buffer = HashMap<String, Matrix>(inputMatrixMap)
 
-		for (node in callOrderedGraph) {
+		callOrderedGraph.forEach {  node ->
 			val result = node.invoke(buffer)
 			if (check) {
 				check(result, node.id)
@@ -54,7 +53,7 @@ class Model(
 	}
 
 	private fun check(matrix: Matrix, ioName: String) {
-		if (check && matrix.accessMutableArray().any { !it.isFinite() }) {
+		if (check && matrix.any { !it.isFinite() }) {
 			throw IllegalStateException("$ioName has NaN")
 		}
 	}

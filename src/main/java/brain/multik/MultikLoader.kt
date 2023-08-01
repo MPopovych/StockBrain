@@ -13,6 +13,7 @@ object MultikLoader {
 	@Synchronized
 	fun setOpenBlasThreads(n: Int) {
 		require(n in 1..11)
+		mk.linalg.linAlgEx
 
 	}
 }

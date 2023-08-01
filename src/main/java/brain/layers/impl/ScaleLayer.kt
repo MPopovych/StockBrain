@@ -6,7 +6,7 @@ import brain.activation.abs.ActivationFunction
 import brain.layers.abs.*
 import brain.layers.weights.WeightData
 import brain.matrix.Matrix
-import brain.matrix.add1DToEachRow
+import brain.matrix.addAssign1DToEachRow
 import brain.matrix.multiply1DToEachRow
 import brain.serialization.ActivationJsonSerialized
 import brain.serialization.WeightSerialized
@@ -60,7 +60,7 @@ class ScaleLayerImpl(
 	override fun propagate(input: Matrix): Matrix {
 		var result = input multiply1DToEachRow weight.matrix
 		if (bias.active) {
-			result = result add1DToEachRow bias.matrix
+			result = result addAssign1DToEachRow bias.matrix
 		}
 		if (activation != null) {
 			result = activation.call(result)

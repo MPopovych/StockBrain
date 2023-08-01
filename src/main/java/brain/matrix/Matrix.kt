@@ -31,7 +31,7 @@ class Matrix internal constructor(
 	fun accessMutableArray() = array.data.getFloatArray()
 
 	fun row(n: Int): MatrixRow {
-		return MatrixRow(n, width, array.writableView<Float, D2, D1>(n, 1))
+		return MatrixRow(n, width, array.writableView<Float, D2, D1>(n, 0))
 	}
 
 	companion object {

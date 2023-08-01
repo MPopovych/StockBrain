@@ -2,9 +2,6 @@ package brain.matrix
 
 import org.jetbrains.kotlinx.multik.api.linalg.dot
 import org.jetbrains.kotlinx.multik.api.mk
-import org.jetbrains.kotlinx.multik.ndarray.data.D1
-import org.jetbrains.kotlinx.multik.ndarray.data.D2
-import org.jetbrains.kotlinx.multik.ndarray.data.writableView
 import org.jetbrains.kotlinx.multik.ndarray.operations.*
 
 
@@ -27,25 +24,36 @@ infix fun Matrix.add(other: Matrix): Matrix {
 infix fun Matrix.multiply1DToEachRow(other: Matrix): Matrix {
 	require(other.height == 1)
 
-	val flat = other.array.flatten()
-	val copy = this.array.copy()
+	val flat = other.row(0).array
+	val copy = this.copy()
 	for (i in 0 until this.height) {
-		val writable = copy.writableView<Float, D2, D1>(index = i, 0)
-		writable.timesAssign(flat)
+		val writable = copy.row(i)
+		writable.array.timesAssign(flat)
 	}
-	return Matrix(copy)
+	return copy
 }
 
 infix fun Matrix.add1DToEachRow(other: Matrix): Matrix {
 	require(other.height == 1)
 
-	val flat = other.array.flatten()
-	val copy = this.array.copy()
+	val flat = other.row(0).array
+	val copy = this.copy()
 	for (i in 0 until this.height) {
-		val writable = copy.writableView<Float, D2, D1>(index = i, 0)
-		writable += flat
+		val writable = copy.row(i)
+		writable.array.plusAssign(flat)
 	}
-	return Matrix(copy)
+	return copy
+}
+
+infix fun Matrix.addAssign1DToEachRow(other: Matrix): Matrix {
+	require(other.height == 1)
+
+	val flat = other.row(0).array
+	for (i in 0 until this.height) {
+		val writable = this.row(i)
+		writable.array.plusAssign(flat)
+	}
+	return this
 }
 
 infix fun Matrix.add(other: Float): Matrix {

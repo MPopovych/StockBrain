@@ -39,14 +39,14 @@ class GraphNode(
 
 }
 
-sealed interface GraphNodeType {
-	val impl: LayerImpl
+sealed class GraphNodeType {
+	abstract val impl: LayerImpl
 	val id: String
 		get() = impl.id
 
-	data class InputIO(val ioKey: String, override val impl: LayerImpl.LayerSingleInput) : GraphNodeType
-	data class SingleParent(val parent: String, override val impl: LayerImpl.LayerSingleInput) : GraphNodeType
-	data class MultiParent(val parents: List<String>, override val impl: LayerImpl.LayerMultiInput) : GraphNodeType
+	data class InputIO(val ioKey: String, override val impl: LayerImpl.LayerSingleInput) : GraphNodeType()
+	data class SingleParent(val parent: String, override val impl: LayerImpl.LayerSingleInput) : GraphNodeType()
+	data class MultiParent(val parents: List<String>, override val impl: LayerImpl.LayerMultiInput) : GraphNodeType()
 
 	fun serialize(): LayerNodeSerialized {
 		val id = impl.id

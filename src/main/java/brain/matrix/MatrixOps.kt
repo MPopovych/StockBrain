@@ -1,8 +1,6 @@
 package brain.matrix
 
 import brain.utils.roundDisplay
-import org.jetbrains.kotlinx.multik.ndarray.data.D2
-import org.jetbrains.kotlinx.multik.ndarray.data.NDArray
 import org.jetbrains.kotlinx.multik.ndarray.data.get
 import org.jetbrains.kotlinx.multik.ndarray.operations.all
 import org.jetbrains.kotlinx.multik.ndarray.operations.any
@@ -34,7 +32,7 @@ fun Matrix.all(block: (Float) -> Boolean): Boolean {
 	return this.array.all(block)
 }
 
-fun Matrix.iterRows() = (0 until height).map { this.row(it) }
+fun Matrix.iterRows() = (0 until height).iterator().wrap { this.row(it) }
 
 fun Matrix.withPos() = this.array.data.mapIndexed { index, fl ->
 	val x = index % width
@@ -58,10 +56,7 @@ fun Matrix.mapWithPos(block: (Triple<Int, Int, Float>) -> Float): Matrix {
 }
 
 fun List<Matrix>.concat(axis: Int): Matrix {
-	val r = this.fold(null as NDArray<Float, D2>?) { a, b ->
-		return@fold a?.cat(b.array, axis) ?: b.array
-	}
-	return Matrix(r ?: throw IllegalStateException())
+	return Matrix(this.first().array.cat(this.drop(1).map { it.array }, axis))
 }
 
 fun Matrix.describe(): String {
