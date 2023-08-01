@@ -1,9 +1,8 @@
 package brain.gat.encoding
 
-import brain.ga.weights.ModelGenes
-import brain.gat.policies.DNAActivationByMinPolicy
 import brain.gat.policies.DNAActivationPolicy
 import brain.gat.policies.ZygotePolicy
+import brain.genes.ModelGenes
 
 class GATCell(
 	val parentAGenes: ModelGenes,

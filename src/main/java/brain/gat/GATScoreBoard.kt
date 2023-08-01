@@ -2,7 +2,6 @@ package brain.gat
 
 import brain.gat.context.GATScored
 import brain.gat.context.GATSettings
-import brain.pso.PSOUtils
 import brain.utils.printGreenBr
 import brain.utils.roundUp
 import kotlin.math.abs

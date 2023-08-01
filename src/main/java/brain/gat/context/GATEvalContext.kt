@@ -1,6 +1,5 @@
 package brain.gat.context
 
-import brain.ga.weights.ModelGenes
+import brain.genes.ModelGenes
 
-class GATEvalContext(val generation: Int, val genes: ModelGenes) {
-}
+class GATEvalContext(val generation: Int, val genes: ModelGenes)

@@ -1,158 +1,127 @@
 package brain.models
 
-import brain.layers.InputLayer
-import brain.layers.LB
-import brain.layers.Layer
-import brain.layers.LayerBuilder
-import brain.utils.ifAlsoBr
-import brain.utils.printCyanBr
-import brain.utils.printYellowBr
+import brain.layers.abs.InputLayerRef
+import brain.layers.abs.LayerNodeType
+import brain.layers.abs.LayerPropagationEnum
+import brain.layers.abs.LayerRef
 
 class ModelBuilder(
-	internal val inputs: Map<String, InputLayer>,
-	internal val outputs: Map<String, LayerBuilder<*>>,
+	internal val inputs: Map<String, InputLayerRef>,
+	internal val outputs: Map<String, LayerRef>,
 	private val debug: Boolean = false,
 ) {
 
-	constructor(input: InputLayer, output: LayerBuilder<*>, debug: Boolean = false)
-			: this(mapOf(Model.SINGLE_IO to input), mapOf(Model.SINGLE_IO to output), debug)
+	constructor(input: InputLayerRef, output: LayerRef, debug: Boolean = false)
+			: this(mapOf(Model.DEFAULT_INPUT to input), mapOf(Model.DEFAULT_OUTPUT to output), debug)
 
-	constructor(inputs: Map<String, InputLayer>, output: LayerBuilder<*>, debug: Boolean = false)
-			: this(inputs, mapOf(Model.SINGLE_IO to output), debug)
+	constructor(inputs: Map<String, InputLayerRef>, output: LayerRef, debug: Boolean = false)
+			: this(inputs, mapOf(Model.DEFAULT_OUTPUT to output), debug)
 
-	constructor(input: InputLayer, outputs: Map<String, LayerBuilder<*>>, debug: Boolean = false)
-			: this(mapOf(Model.SINGLE_IO to input), outputs, debug)
+	constructor(input: InputLayerRef, outputs: Map<String, LayerRef>, debug: Boolean = false)
+			: this(mapOf(Model.DEFAULT_INPUT to input), outputs, debug)
 
-	private val graph = LinkedHashMap<LayerBuilder<*>, GraphBuilderNode>()
-	internal val reverseQueue = LinkedHashMap<LayerBuilder<*>, Connection>()
-	internal val sortedConnections = LinkedHashSet<Connection>()
+	internal val graph = LinkedHashMap<LayerRef, NamedLayerNodeType>()
 
 	init {
-		buildNodes()
-		processDownGraph()
-		// used on init, as a check for structure
-		for (input in inputs.values) {
-			val root = graph[input] ?: throw IllegalStateException("input layer disconnected ${input.name}")
-			if (root !is GraphBuilderNode.DeadEnd) {
-				throw IllegalStateException("input layer should be dead end")
-			}
-		}
-		for (output in outputs.values) {
-			graph[output] ?: throw IllegalStateException("output layer disconnected")
-		}
+		initBuildNodes(graph, outputs)
 
-		if (debug) {
-			printCyanBr("Size: ${graph.size}")
+		for (output in outputs.values) {
+			graph[output] ?: throw IllegalStateException("output layer disconnected '${output}'")
 		}
 	}
 
 	fun build(debug: Boolean = this.debug): Model {
-		val graphMap = buildLayerNodes(graph, debug).mapKeys { it.value.layer.name }
+		val nodes = graph.map { entry ->
+			when (val node = entry.value) {
+				is NamedLayerNodeType.InputIO -> {
+					val safe = when (val instance = entry.key.createInstance(entry.value.name)) {
+						is LayerPropagationEnum.MultiInput -> throw IllegalStateException("Unsupported multi input")
+						is LayerPropagationEnum.SingleInput -> instance
+					}
+					GraphNode(type = GraphNodeType.InputIO(node.ioKey, safe.input))
+				}
 
-		val inputMapByKey = inputs
-			.mapValues {
-				val node = graphMap[it.value.name]
-				node as? GraphLayerNode.Input
-					?: throw IllegalStateException("Expected ${GraphLayerNode.Input::class.simpleName} at key ${it.value.name}, got: $node")
-			}
-		val outputMapByKey = outputs
-			.mapValues {
-				val node = graphMap[it.value.name]
-				node
-					?: throw IllegalStateException("Expected ${GraphLayerNode::class.simpleName} at key ${it.value.name}, got: null")
-			}
+				is NamedLayerNodeType.MultiParent -> {
+					val safe = when (val instance = entry.key.createInstance(entry.value.name)) {
+						is LayerPropagationEnum.MultiInput -> instance
+						is LayerPropagationEnum.SingleInput -> throw IllegalStateException("Single input in place of multi")
+					}
+					GraphNode(type = GraphNodeType.MultiParent(node.parents, safe.input))
+				}
 
-		return Model(this, inputMapByKey, outputMapByKey, graphMap, debug = debug)
+				is NamedLayerNodeType.SingleParent -> {
+					val safe = when (val instance = entry.key.createInstance(entry.value.name)) {
+						is LayerPropagationEnum.MultiInput -> throw IllegalStateException("Multi input in place of single")
+						is LayerPropagationEnum.SingleInput -> instance
+					}
+					GraphNode(type = GraphNodeType.SingleParent(node.parent, safe.input))
+				}
+			}
+		}
+
+		val outputMapByKey = outputs.mapValues {
+			val ref = graph[it.value] ?: throw IllegalStateException("Disconnected output for: ${it.key}")
+			ref.name
+		}
+
+		return Model(outputMapByKey, nodes, debug = debug)
 	}
 
-	private fun buildNodes() {
-		for (output in outputs.values) {
-			iterateNodes(output, 0)
+	private fun initBuildNodes(
+		graph: LinkedHashMap<LayerRef, NamedLayerNodeType>,
+		outputs: Map<String, LayerRef>,
+	) {
+		for (currentLayer in outputs.values) {
+			initIterateNodes(graph, currentLayer)
 		}
 	}
 
-	private fun iterateNodes(
-		currentLayer: LayerBuilder<*>,
-		depth: Int,
-	): GraphBuilderNode {
+	private fun initIterateNodes(
+		graph: LinkedHashMap<LayerRef, NamedLayerNodeType>,
+		currentLayer: LayerRef,
+	): NamedLayerNodeType {
 		val existing = graph[currentLayer]
 		if (existing != null) {
-			return existing.ifAlsoBr(debug) {
-				printCyanBr("already created $it")
-			}
+			return existing
 		}
-		val connection = reverseQueue.getOrPut(currentLayer) { Connection(currentLayer) }
 
-		when (currentLayer) {
-			is LayerBuilder.MultiInput -> {
-				currentLayer.parentLayers.forEach { builder ->
-					val parentCon = reverseQueue.getOrPut(builder) { Connection(builder) }
-					parentCon.children.add(connection)
-					iterateNodes(builder, depth + 1)
-				}
-				val currentNode = GraphBuilderNode.MultiParent(currentLayer, depth)
-				return currentNode
-					.also {
-						graph[currentLayer] = it
-						sortedConnections.add(connection)
-					}
-					.ifAlsoBr(debug) { printYellowBr(it) }
+		val namedNode = when (val node = currentLayer.nodeType) {
+			LayerNodeType.InputIO -> {
+				val name = "${currentLayer.typeName}_${graph.size}"
+				val ioKey = inputs.entries.find {
+					it.value == currentLayer
+				}?.key ?: throw IllegalStateException("Missing ref for input IO $name")
+				NamedLayerNodeType.InputIO(ioKey = ioKey, name, node)
 			}
 
-			is LayerBuilder.SingleInput -> {
-				// at the stage of implementation this is a single parent
-				iterateNodes(currentLayer.parentLayer, depth + 1)
-				val parentCon = reverseQueue.getOrPut(currentLayer.parentLayer) { Connection(currentLayer.parentLayer) }
-				parentCon.children.add(connection)
-				return GraphBuilderNode.SingleParent(currentLayer, depth).also {
-					graph[currentLayer] = it
-					sortedConnections.add(connection)
-				}.ifAlsoBr(debug) { printYellowBr(it) }
+			is LayerNodeType.SingleParent -> {
+				val matchedParent = initIterateNodes(graph, node.parent)
+				val name = "${currentLayer.typeName}_${graph.size}"
+				NamedLayerNodeType.SingleParent(parent = matchedParent.name, name, node)
 			}
 
-			is InputLayer -> {
-				return GraphBuilderNode.DeadEnd(currentLayer, depth).also {
-					graph[currentLayer] = it
-					sortedConnections.add(connection)
-				}.ifAlsoBr(debug) { printYellowBr(it) }
+			is LayerNodeType.MultiParent -> {
+				val matchedParents = node.parents.map { parent ->
+					initIterateNodes(graph, parent)
+				}.map { it.name }
+				val name = "${currentLayer.typeName}_${graph.size}"
+				NamedLayerNodeType.MultiParent(parents = matchedParents, name, node)
 			}
 
-			else -> {
-				throw IllegalStateException("Bad graph structure")
-			}
 		}
+		graph[currentLayer] = namedNode
+		return namedNode
 	}
 
-	private fun processDownGraph() {
-		val nameSet = HashSet<String>()
-		sortedConnections.forEachIndexed { i, con ->
-			if (con.parent.name == Layer.DEFAULT_NAME) {
-				con.parent.name = "${con.parent.nameType}_${i}"
-			}
-			if (nameSet.contains(con.parent.name)) {
-				throw IllegalStateException("Duplicate name: ${con.parent.name}")
-			} else {
-				nameSet.add(con.parent.name)
-			}
-		}
-	}
-
-}
-
-internal class Connection(val parent: LB, val children: HashSet<Connection> = HashSet()) {
-	fun describe(): String {
-		return "${parent.name} : " +
-				"${parent.getShape()} : " +
-				"children: ${children.size}"
-	}
 }
 
 fun ModelBuilder.summary(): String {
-	val layerDescription = sortedConnections
-		.joinToString("\n") { con ->
-			con.describe()
+	val layerDescription = graph
+		.map {
+			"[${it.value.name}] - ${it.key.typeName} ${it.key.outputShape.format()}"
 		}
-	return "Total layers: ${reverseQueue.size} : inputs: ${inputs.keys}, outputs: ${outputs.keys}\n" +
+		.joinToString("\n")
+	return "Total layers: ${graph.size} : inputs: ${inputs.keys}, outputs: ${outputs.keys}\n" +
 			layerDescription
 }
 

@@ -6,9 +6,6 @@ import brain.utils.printGreenBr
 import org.ejml.data.FMatrixRMaj
 import org.ejml.dense.row.CommonOps_FDRM
 import org.ejml.dense.row.RandomMatrices_FDRM
-import org.jetbrains.kotlinx.multik.api.d2array
-import org.jetbrains.kotlinx.multik.api.linalg.dot
-import org.jetbrains.kotlinx.multik.api.mk
 import java.util.*
 import kotlin.test.Test
 
@@ -16,39 +13,6 @@ class CompareImpl {
 
 	private val size = 32
 	private val iterations = 100000
-
-	@Test
-	fun testDefaultMatrix() {
-		val supplier = Suppliers.RandomBinNP
-		val a = Matrix(size, size, supplier)
-		val b = Matrix(size, size, supplier)
-		val d = Matrix(size, size)
-		printGreenBr("Starting default test")
-		brBenchmark("default") {
-			repeat(iterations) {
-
-				MatrixMath.multiply(a, b, d)
-			}
-		}
-	}
-
-	/**
-	 * for some reason this implementation is slower
-	 */
-	@Test
-	fun testUniArrayMatrix() {
-		val supplier = Suppliers.RandomBinNP
-		val a = MatrixF(size, size, supplier)
-		val b = MatrixF(size, size, supplier)
-		val d = MatrixF(size, size)
-		printGreenBr("Starting uni array test")
-		brBenchmark("uni array") {
-			repeat(iterations) {
-
-				MatrixFMath.multiply(a, b, d)
-			}
-		}
-	}
 
 	//	 this is still 30% faster, but will require rewriting everything
 	@Test
@@ -67,18 +31,7 @@ class CompareImpl {
 
 	@Test
 	fun testUJMPMatrix() {
-		val supplier = Suppliers.RandomBinNP
-		val randomAArray = Array(size) {
-			val sub = FloatArray(size)
-			supplier.fill(sub)
-			sub
-		}
 		val a = org.ujmp.core.Matrix.Factory.rand(size.toLong(), size.toLong())
-		val randomBArray = Array(size) {
-			val sub = FloatArray(size)
-			supplier.fill(sub)
-			sub
-		}
 		val b = org.ujmp.core.Matrix.Factory.rand(size.toLong(), size.toLong())
 		printGreenBr(b.size.toList())
 
@@ -92,17 +45,16 @@ class CompareImpl {
 
 	@Test
 	fun testMultikMatrix() {
-		val supplier = Suppliers.RandomBinNP
-		val a = mk.d2array<Double>(10, 20) { supplier.supply(size, 0, 0).toDouble() }
-		val b = mk.d2array<Double>(20, size) { supplier.supply(size, 0, 0).toDouble() }
-		printGreenBr(b.shape.toList())
+		val supplier = Suppliers.RandomHE
+		val a = Matrix.ofSupply(size, size, supplier)
+		val b = Matrix.ofSupply(size, size, supplier)
 
 		printGreenBr("Starting Multik test")
 		brBenchmark("Multik") {
 			repeat(iterations) {
-				val c = mk.linalg.dot(a, b)
+				val c = a multiplyDot b
 				if (it == 0) {
-					println("shape: ${c.shape.toList()}")
+					println("shape: ${c.describe()}")
 				}
 			}
 		}

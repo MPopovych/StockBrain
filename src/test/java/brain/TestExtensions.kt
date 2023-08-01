@@ -1,38 +1,28 @@
 package brain
 
-import brain.ga.weights.WeightGenes
+import brain.genes.WeightGenes
 import brain.matrix.Matrix
-import brain.utils.printBlueBr
-import brain.utils.printGrayBr
-import brain.utils.upscale
-import java.util.*
-import kotlin.test.Test
-import kotlin.test.assertEquals
 
-fun assertEqualModel(a: Matrix, b: Matrix) {
-	assert(Arrays.deepEquals(a.values, b.values))
+fun assertEqual(a: Matrix, b: Matrix) {
+	assert(equal(a, b))
 }
 
-fun assertNotEqualModel(a: Matrix, b: Matrix) {
-	assert(!Arrays.deepEquals(a.values, b.values))
+fun assertNotEqual(a: Matrix, b: Matrix) {
+	assert(!equal(a, b))
 }
 
-fun assertNotEqualModel(a: WeightGenes, b: WeightGenes) {
-	assert(!a.genes.toTypedArray().contentDeepEquals(b.genes.toTypedArray()))
+fun equal(a: Matrix, b: Matrix): Boolean {
+	return a.accessMutableArray().toTypedArray().contentDeepEquals(b.accessMutableArray().toTypedArray())
 }
 
-fun assertEqualModel(a: WeightGenes, b: WeightGenes) {
-	assert(a.genes.toTypedArray().contentDeepEquals(b.genes.toTypedArray()))
+fun assertNotEqual(a: WeightGenes, b: WeightGenes) {
+	assert(!equal(a, b))
 }
 
+fun assertEqual(a: WeightGenes, b: WeightGenes) {
+	assert(equal(a, b))
+}
 
-class TestExtensions {
-	@Test
-	fun testUpscale() {
-		val f1 = 0.2144f
-		val f2 = f1.upscale()
-		printGrayBr(f1)
-		printBlueBr(f2)
-		assertEquals(0.214f, f2)
-	}
+fun equal(a: WeightGenes, b: WeightGenes): Boolean {
+	return a.genes.toTypedArray().contentDeepEquals(b.genes.toTypedArray())
 }

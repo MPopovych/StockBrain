@@ -1,19 +1,23 @@
 package brain.gat.policies
 
-import brain.ga.weights.LayerGenes
-import brain.ga.weights.ModelGenes
-import brain.ga.weights.WeightGenes
+import brain.genes.ModelGenes
+import brain.genes.WeightGenes
 import kotlin.math.abs
 
 object DNAActivationByMinPolicy {
 
 	fun activation(parentAGenes: ModelGenes, parentBGenes: ModelGenes): ModelGenes {
-		val mixedLayers = parentAGenes.layers.mapValues { (layerKey, layerA) ->
-			val layerB = parentBGenes.layers[layerKey] ?: throw IllegalStateException()
+		val mixedLayers = parentAGenes.layerByWeightMap.mapValues { (layerKey, layerA) ->
+			val layerB = parentBGenes.layerByWeightMap[layerKey] ?: throw IllegalStateException()
 
-			val mixedWeights = layerA.map.mapValues w@{ weight ->
+			val mixedWeights = layerA.mapValues w@{ weight ->
 				val aGenes = weight.value
-				val bGenes = layerB.map[weight.key] ?: throw IllegalStateException()
+
+				if (!aGenes.trainable) {
+					return@w aGenes.copy()
+				}
+
+				val bGenes = layerB[weight.key] ?: throw IllegalStateException()
 
 				val mix = FloatArray(aGenes.size) { ord ->
 					if (abs(aGenes.genes[ord]) < abs(bGenes.genes[ord])) {
@@ -24,14 +28,13 @@ object DNAActivationByMinPolicy {
 				}
 
 				return@w WeightGenes(
-					aGenes.weightName,
-					mix,
 					aGenes.width,
 					aGenes.height,
-					aGenes.callOrder
+					mix,
+					trainable = true
 				)
 			}
-			return@mapValues LayerGenes(layerKey, mixedWeights, layerA.depth)
+			return@mapValues mixedWeights
 		}
 		return ModelGenes(mixedLayers)
 	}

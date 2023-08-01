@@ -1,19 +1,22 @@
 # StockBrain
 
-Lightweight Java-Kotlin based library for neural networks
+Lightweight Kotlin based library for neural networks
 I am using this for my personal project for stock trading. Comes with risks and frequent changes.
 Feel free to fork or to explore the project
+Uses Kotlin's **Multik** under the hood
 
-#### Why in Kotlin + Java?
+#### Why in Kotlin?
 
 To focus on a CPU based use case for reinforcement learning.
-Two algorithms are supported for optimisation:
-Genetic algorithm - mostly done and stable
-PSO - in development
+One algorithm are supported for optimisation:
+
+- GAT - is a custom implementation of a GA (genetic algorithm)
+- PSO - removed
+- GA - removed
 
 ### Supported layers
 
-*InputLayer* - defines entry for a set of data, multiple inputs can be used in the same model
+*Input* - defines entry for a set of data, multiple inputs can be used in the same model
 
 *Dense* - the most basic layer, can have an activation function, bias
 
@@ -22,14 +25,6 @@ PSO - in development
 *Flatten* - turns an {X,Y} layer into a {X*Y, 1} array
 
 *Concat* - turns a list of layers into one (layers have to be of same height)
-
-*ConvDelta* - turn a layer of {X,Y} into {X,Y-1}, applies subtraction between two rows
-
-*FeatureConv* - applies a convolution feature wise (by {X} indicies)
-Uses a sliding window of *kernelSize* to produce rows of height *units* and same width as input
-
-*FeatureDense* - applies a convolution feature wise (by {X} indicies)
-Uses a fully connected weight to produce rows of height *units* and same width as input
 
 ... and others
 

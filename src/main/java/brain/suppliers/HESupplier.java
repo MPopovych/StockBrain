@@ -14,13 +14,13 @@ public class HESupplier implements ValueFiller {
 
 	@Override
 	public float supply(int count, int x, int y) {
-		return (float) random.nextGaussian() / (42 + count);
+		return (float) ((random.nextFloat() * 2 - 1) * Math.sqrt(6.0 / count));
 	}
 
 	@Override
 	public void fill(float[] array) {
 		for (int i = 0; i < array.length; i++) {
-			array[i] += (float) random.nextGaussian() / (24 + array.length);
+			array[i] += (float) ((random.nextFloat() * 2 - 1) * Math.sqrt(6.0 / array.length));
 		}
 	}
 

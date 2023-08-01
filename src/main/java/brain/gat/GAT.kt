@@ -1,12 +1,12 @@
 package brain.gat
 
-import brain.ga.weights.ModelGenes
 import brain.gat.context.GATEvalContext
 import brain.gat.context.GATScored
 import brain.gat.context.GATSettings
 import brain.gat.encoding.GATCell
 import brain.gat.encoding.GATModel
 import brain.gat.policies.DNAMutationPolicy
+import brain.genes.ModelGenes
 import brain.models.Model
 import brain.utils.printYellowBr
 
@@ -17,7 +17,7 @@ class GAT(
 	private var earlyStopCallback: (Int, GAT) -> Boolean = { _, _ -> false },
 ) {
 
-	private val originalZygote = ModelGenes(initialModel)
+	private val originalZygote = ModelGenes.of(initialModel)
 	val scoreboard = GATScoreBoard(0, settings)
 
 	fun runFor(generations: Int, silent: Boolean = false, block: ((GATEvalContext) -> Double)): ModelGenes {

@@ -2,6 +2,8 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
 	kotlin("jvm")
+	kotlin("plugin.serialization")
+	`java-library`
 }
 
 group = "com.makki.stockBrain"
@@ -13,7 +15,8 @@ repositories {
 }
 
 dependencies {
-	testImplementation("org.jetbrains.kotlin:kotlin-test:1.6.20")
+	testImplementation(kotlin("test"))
+
 	implementation("org.jetbrains.kotlin:kotlin-reflect:1.6.20")
 	implementation("com.google.code.gson:gson:2.8.9")
 
@@ -21,6 +24,10 @@ dependencies {
 
 	implementation("org.jetbrains.kotlinx:multik-core:0.2.2")
 	implementation("org.jetbrains.kotlinx:multik-openblas:0.2.2")
+
+	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.2")
+	implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
+	implementation("org.jetbrains.kotlinx:kotlinx-serialization-protobuf:1.5.1")
 
 	testImplementation("org.ejml:ejml-all:0.43")
 	testImplementation("org.ujmp:ujmp-core:0.3.0")
