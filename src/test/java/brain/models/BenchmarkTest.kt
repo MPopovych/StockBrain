@@ -36,19 +36,17 @@ class BenchmarkTest {
 		val dc0 = Dense(10) { concat }
 		val reluC0 = Activation(Activations.LeakyReLu) { dc0 }
 
-		val builder = ModelBuilder(input, reluC0, debug = false)
-		val model = builder.build(debug = true)
+		val builder = ModelBuilder(input, reluC0)
+		val model = builder.build()
 		printBlueBr(builder.summary())
 
 		brBenchmark("iteration") {
 			for (i in 0..100000) {
-				val inputData = Matrix.ofSupply(10, 1, Suppliers.RandomRangeNP)
+				val inputData = Matrix.ofSupply(10, 1, Suppliers.UniformNegPos)
 				model.getOutput(inputData)
-				if (i == 0) {
-					printGreenBr(model.getOutput(inputData).describe())
-				}
 			}
 		}
+		printGreenBr(model.getOutput(Matrix.ofSupply(10, 1, Suppliers.UniformNegPos)).describe())
 	}
 
 }

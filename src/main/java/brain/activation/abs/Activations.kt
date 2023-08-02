@@ -4,6 +4,7 @@ import brain.activation.impl.*
 
 object Activations {
 	val ReLu = ReLuActivationImpl
+	val Tanh = TanhActivationImpl
 	val LeakyReLu = LeakyReLu(e = 0.1f)
 	val AbsCap = AbsCap(cap = 2f)
 	val Abs = AbsActivationImpl

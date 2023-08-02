@@ -6,13 +6,13 @@ import brain.activation.abs.ActivationFunction
 import brain.layers.abs.*
 import brain.layers.weights.WeightData
 import brain.matrix.Matrix
-import brain.matrix.addAssign1DToEachRow
-import brain.matrix.multiply1DToEachRow
+import brain.matrix.assignAddBroadcast
+import brain.matrix.multiplyBroadcast
 import brain.serialization.ActivationJsonSerialized
 import brain.serialization.WeightSerialized
 import brain.serialization.tools.Injector
 import brain.suppliers.Suppliers
-import brain.suppliers.ValueFiller
+import brain.suppliers.ValueSupplier
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationStrategy
@@ -20,8 +20,8 @@ import kotlin.reflect.KClass
 
 class Scale(
 	private val activation: ActivationFunction? = null,
-	private val kernelInit: ValueFiller = Suppliers.RandomHE,
-	private val biasInit: ValueFiller = Suppliers.Zero,
+	private val kernelInit: ValueSupplier = Suppliers.UniformHE,
+	private val biasInit: ValueSupplier = Suppliers.Zero,
 	private val useBias: Boolean = true,
 	uplink: () -> LayerRef,
 ) : LayerRef {
@@ -58,9 +58,9 @@ class ScaleLayerImpl(
 	override val factory = f
 
 	override fun propagate(input: Matrix): Matrix {
-		var result = input multiply1DToEachRow weight.matrix
+		var result = input multiplyBroadcast weight.matrix
 		if (bias.active) {
-			result = result addAssign1DToEachRow bias.matrix
+			result = result assignAddBroadcast bias.matrix
 		}
 		if (activation != null) {
 			result = activation.call(result)

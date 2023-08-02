@@ -1,14 +1,16 @@
 package brain.suppliers
 
 object Suppliers {
-	val Zero = ZeroSupplier.INSTANCE
-	val Ones = OnesSupplier.INSTANCE
-	val RandomZP = RandomSupplier.INSTANCE
-	val RandomBinZP = RandomBinaryZP.INSTANCE
-	val RandomBinNP = RandomBinaryNP.INSTANCE
-	val RandomHE = HESupplier.INSTANCE
-	val RandomM = MSupplier.INSTANCE
-	val RandomRangeNP = RandomRangeSupplier.INSTANCE
+	val Zero = ZeroSupplier
+	val Ones = OnesSupplier
+	val UniformHE = UniformHeSupplier
+	val UniformNegPos = UniformNegPosSupplier
+	val UniformZeroPos = UniformZeroPosSupplier
+	val BinaryZeroPos = BinaryZeroPosSupplier
+	val BinaryNegPos = BinaryNegPosSupplier
 
 	fun const(const: Float) = ConstSupplier(const)
 }
+
+object OnesSupplier: ConstSupplier(1f)
+object ZeroSupplier: ConstSupplier(0f)

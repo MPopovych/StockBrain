@@ -12,14 +12,14 @@ class CompareImpl {
 
 	@Test
 	fun testMultikMatrix() {
-		val supplier = Suppliers.RandomHE
+		val supplier = Suppliers.UniformHE
 		val a = Matrix.ofSupply(size, size, supplier)
 		val b = Matrix.ofSupply(size, size, supplier)
 
 		printGreenBr("Starting Multik test")
 		brBenchmark("Multik") {
 			repeat(iterations) {
-				val c = a multiplyDot b
+				val c = a dot b
 				if (it == 0) {
 					println("shape: ${c.describe()}")
 				}

@@ -6,8 +6,7 @@ import brain.matrix.any
 
 class Model(
 	internal val outputKeyByLayerName: Map<String, String>,
-	internal val callOrderedGraph: List<GraphNode>,
-	internal val debug: Boolean = false,
+	internal val callOrderedGraph: List<GraphNodeType>,
 	private val check: Boolean = false,
 ) {
 
@@ -16,7 +15,7 @@ class Model(
 		const val DEFAULT_OUTPUT = "DEF_O"
 	}
 
-	fun copy() = Model(outputKeyByLayerName, callOrderedGraph.map { it.copy() }, debug, check)
+	fun copy() = Model(outputKeyByLayerName, callOrderedGraph.map { it.copy() }, check)
 
 	fun onWeightUpdated() = callOrderedGraph.forEach { it.impl.onWeightUpdated() }
 
@@ -37,12 +36,10 @@ class Model(
 	fun getOutputMap(inputMatrixMap: Map<String, Matrix>): Map<String, Matrix> {
 		val buffer = HashMap<String, Matrix>(inputMatrixMap)
 
-		callOrderedGraph.forEach {  node ->
-			val result = node.invoke(buffer)
-			if (check) {
-				check(result, node.id)
+		callOrderedGraph.forEach { node ->
+			buffer[node.id] = node.invoke(buffer).also {
+				if (check) check(it, node.id)
 			}
-			buffer[node.id] = result
 		}
 
 		return outputKeyByLayerName.mapValues {
@@ -59,11 +56,9 @@ class Model(
 	}
 
 	fun summary(): String {
-		val layerDescription = callOrderedGraph
-			.map {
-				"[${it.id}] - ${it.impl.factory.typeName}"
-			}
-			.joinToString("\n")
+		val layerDescription = callOrderedGraph.joinToString("\n") {
+			"[${it.id}] - ${it.impl.factory.typeName}"
+		}
 		return "Total layers: ${callOrderedGraph.size} : outputs: ${outputKeyByLayerName.keys}\n" +
 				layerDescription
 	}

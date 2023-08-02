@@ -37,7 +37,7 @@ class MatrixTest {
 
 	@Test
 	fun testSaveAndLoadString() {
-		val a = Matrix.ofSupply(2, 3, Suppliers.RandomRangeNP)
+		val a = Matrix.ofSupply(2, 3, Suppliers.UniformNegPos)
 		println(a.describe())
 		val stringData = a.readStringData()
 		println("String data of matrix: $stringData")
@@ -53,7 +53,7 @@ class MatrixTest {
 
 	@Test
 	fun testSaveAndWrapFloat() {
-		val a = Matrix.ofSupply(2, 3, Suppliers.RandomRangeNP)
+		val a = Matrix.ofSupply(2, 3, Suppliers.UniformNegPos)
 		println(a.describe())
 		val floatData = a.readFloatData()
 		println("Float data of matrix: ${floatData.toList()}")
@@ -69,7 +69,7 @@ class MatrixTest {
 
 	@Test
 	fun testSaveAndWriteFloat() {
-		val a = Matrix.ofSupply(2, 3, Suppliers.RandomRangeNP)
+		val a = Matrix.ofSupply(2, 3, Suppliers.UniformNegPos)
 		println(a.describe())
 		val floatData = a.readFloatData()
 		println("Float data of matrix: ${floatData.toList()}")

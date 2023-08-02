@@ -5,11 +5,11 @@ import org.jetbrains.kotlinx.multik.api.mk
 import org.jetbrains.kotlinx.multik.ndarray.operations.*
 
 
-infix fun Matrix.multiplyDot(other: Matrix): Matrix {
+infix fun Matrix.dot(other: Matrix): Matrix {
 	return Matrix(mk.linalg.dot(this.array, other.array))
 }
 
-infix fun Matrix.multiplyElement(other: Matrix): Matrix {
+infix fun Matrix.multiply(other: Matrix): Matrix {
 	return Matrix(this.array.times(other.array))
 }
 
@@ -21,7 +21,7 @@ infix fun Matrix.add(other: Matrix): Matrix {
 	return Matrix(this.array.plus(other.array))
 }
 
-infix fun Matrix.multiply1DToEachRow(other: Matrix): Matrix {
+infix fun Matrix.multiplyBroadcast(other: Matrix): Matrix {
 	require(other.height == 1)
 
 	val flat = other.row(0).array
@@ -33,7 +33,7 @@ infix fun Matrix.multiply1DToEachRow(other: Matrix): Matrix {
 	return copy
 }
 
-infix fun Matrix.add1DToEachRow(other: Matrix): Matrix {
+infix fun Matrix.addBroadcast(other: Matrix): Matrix {
 	require(other.height == 1)
 
 	val flat = other.row(0).array
@@ -45,7 +45,7 @@ infix fun Matrix.add1DToEachRow(other: Matrix): Matrix {
 	return copy
 }
 
-infix fun Matrix.addAssign1DToEachRow(other: Matrix): Matrix {
+infix fun Matrix.assignAddBroadcast(other: Matrix): Matrix {
 	require(other.height == 1)
 
 	val flat = other.row(0).array

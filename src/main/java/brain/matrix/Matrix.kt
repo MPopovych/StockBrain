@@ -2,7 +2,7 @@ package brain.matrix
 
 import brain.abs.Dim
 import brain.abs.Shape
-import brain.suppliers.ValueFiller
+import brain.suppliers.ValueSupplier
 import brain.utils.encodeToBase64
 import org.jetbrains.kotlinx.multik.api.mk
 import org.jetbrains.kotlinx.multik.api.ndarray
@@ -48,6 +48,7 @@ class Matrix internal constructor(
 			while (buff.hasRemaining()) {
 				floatArray[i++] = buff.getFloat()
 			}
+			check(i == floatArray.size) { "Not a full write, i ${i}, size: ${floatArray.size}" }
 			return wrap(width, height, floatArray)
 		}
 
@@ -56,7 +57,7 @@ class Matrix internal constructor(
 			return Matrix(mk.ndarray(array, dim1 = height, dim2 = width))
 		}
 
-		fun wrap(width: Int, height: Int, array: Array<FloatArray>): Matrix {
+		fun wrapMD(width: Int, height: Int, array: Array<FloatArray>): Matrix {
 			require(height > 0 && height == array.size)
 			require(width == array[0].size)
 			return Matrix(mk.ndarray(array))
@@ -66,16 +67,12 @@ class Matrix internal constructor(
 			return Matrix(mk.zeros<Float>(dim1 = height, dim2 = width))
 		}
 
-		fun ofSupply(width: Int, height: Int, supply: ValueFiller): Matrix {
-			return Matrix(mk.zeros<Float>(dim1 = height, dim2 = width).also {
-				supply.fill(it.data.getFloatArray())
-			})
+		fun ofSupply(width: Int, height: Int, supply: ValueSupplier): Matrix {
+			return wrap(width, height, supply.create(width * height))
 		}
 
-		fun ofSupply(width: Dim.Const, height: Dim.Const, supply: ValueFiller): Matrix {
-			return Matrix(mk.zeros<Float>(height.x, dim2 = width.x).also {
-				supply.fill(it.data.getFloatArray())
-			})
+		fun ofSupply(width: Dim.Const, height: Dim.Const, supply: ValueSupplier): Matrix {
+			return wrap(width.x, height.x, supply.create(width.x * height.x))
 		}
 
 		fun ofLambda(width: Int, height: Int, block: (x: Int, y: Int, c: Int) -> Float): Matrix {
@@ -94,10 +91,7 @@ class Matrix internal constructor(
 	}
 
 	fun readFloatData(): FloatArray {
-		val count = width * height
-		val returnArray = FloatArray(count)
-		System.arraycopy(this.array.data.getFloatArray(), 0, returnArray, 0, count)
-		return returnArray
+		return this.array.data.getFloatArray().copyOf()
 	}
 
 	fun writeFloatData(data: FloatArray) {

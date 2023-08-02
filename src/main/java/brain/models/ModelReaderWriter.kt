@@ -24,7 +24,7 @@ object ModelReaderWriter {
 
 	fun serialize(model: Model): ModelSerialized {
 		return ModelSerialized(model.outputKeyByLayerName, model.callOrderedGraph.map {
-			LayerNodeSerialized.wrap(it.type)
+			LayerNodeSerialized.wrap(it)
 		})
 	}
 

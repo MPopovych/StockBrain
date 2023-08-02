@@ -8,17 +8,16 @@ import brain.layers.abs.LayerRef
 class ModelBuilder(
 	internal val inputs: Map<String, InputLayerRef>,
 	internal val outputs: Map<String, LayerRef>,
-	private val debug: Boolean = false,
 ) {
 
-	constructor(input: InputLayerRef, output: LayerRef, debug: Boolean = false)
-			: this(mapOf(Model.DEFAULT_INPUT to input), mapOf(Model.DEFAULT_OUTPUT to output), debug)
+	constructor(input: InputLayerRef, output: LayerRef)
+			: this(mapOf(Model.DEFAULT_INPUT to input), mapOf(Model.DEFAULT_OUTPUT to output))
 
-	constructor(inputs: Map<String, InputLayerRef>, output: LayerRef, debug: Boolean = false)
-			: this(inputs, mapOf(Model.DEFAULT_OUTPUT to output), debug)
+	constructor(inputs: Map<String, InputLayerRef>, output: LayerRef)
+			: this(inputs, mapOf(Model.DEFAULT_OUTPUT to output))
 
-	constructor(input: InputLayerRef, outputs: Map<String, LayerRef>, debug: Boolean = false)
-			: this(mapOf(Model.DEFAULT_INPUT to input), outputs, debug)
+	constructor(input: InputLayerRef, outputs: Map<String, LayerRef>)
+			: this(mapOf(Model.DEFAULT_INPUT to input), outputs)
 
 	internal val graph = LinkedHashMap<LayerRef, NamedLayerNodeType>()
 
@@ -30,7 +29,7 @@ class ModelBuilder(
 		}
 	}
 
-	fun build(debug: Boolean = this.debug): Model {
+	fun build(): Model {
 		val nodes = graph.map { entry ->
 			when (val node = entry.value) {
 				is NamedLayerNodeType.InputIO -> {
@@ -38,7 +37,7 @@ class ModelBuilder(
 						is LayerPropagationEnum.MultiInput -> throw IllegalStateException("Unsupported multi input")
 						is LayerPropagationEnum.SingleInput -> instance
 					}
-					GraphNode(type = GraphNodeType.InputIO(node.ioKey, safe.input))
+					GraphNodeType.InputIO(node.ioKey, safe.input)
 				}
 
 				is NamedLayerNodeType.MultiParent -> {
@@ -46,7 +45,7 @@ class ModelBuilder(
 						is LayerPropagationEnum.MultiInput -> instance
 						is LayerPropagationEnum.SingleInput -> throw IllegalStateException("Single input in place of multi")
 					}
-					GraphNode(type = GraphNodeType.MultiParent(node.parents, safe.input))
+					GraphNodeType.MultiParent(node.parents, safe.input)
 				}
 
 				is NamedLayerNodeType.SingleParent -> {
@@ -54,7 +53,7 @@ class ModelBuilder(
 						is LayerPropagationEnum.MultiInput -> throw IllegalStateException("Multi input in place of single")
 						is LayerPropagationEnum.SingleInput -> instance
 					}
-					GraphNode(type = GraphNodeType.SingleParent(node.parent, safe.input))
+					GraphNodeType.SingleParent(node.parent, safe.input)
 				}
 			}
 		}
@@ -64,7 +63,7 @@ class ModelBuilder(
 			ref.name
 		}
 
-		return Model(outputMapByKey, nodes, debug = debug)
+		return Model(outputMapByKey, nodes)
 	}
 
 	private fun initBuildNodes(

@@ -19,8 +19,8 @@ class ModelTest {
 		val input = Input(3, 2)
 		val d1 = Dense(2, kernelInit = Suppliers.const(0.5f), biasInit = Suppliers.Ones) { input }
 
-		val builder = ModelBuilder(input, d1, debug = false)
-		val model = builder.build(debug = true)
+		val builder = ModelBuilder(input, d1)
+		val model = builder.build()
 
 		val inputData = Matrix.ofLambda(3, 2) { x, y, _ ->
 			(x + y).toFloat()
@@ -41,8 +41,8 @@ class ModelTest {
 		val input = Input(3, 2)
 		val d1 = Scale(kernelInit = Suppliers.const(0.5f), biasInit = Suppliers.Ones) { input }
 
-		val builder = ModelBuilder(input, d1, debug = false)
-		val model = builder.build(debug = true)
+		val builder = ModelBuilder(input, d1)
+		val model = builder.build()
 
 		val inputData = Matrix.ofLambda(3, 2) { x, y, c ->
 			(x + y).toFloat()
@@ -64,8 +64,8 @@ class ModelTest {
 		val input = Input(3, 3)
 		val d1 = Flatten { input }
 
-		val builder = ModelBuilder(input, d1, debug = false)
-		val model = builder.build(debug = true)
+		val builder = ModelBuilder(input, d1)
+		val model = builder.build()
 
 		val inputData = Matrix.ofLambda(3, 3) { x, y, _ ->
 			(x + 1f) * (y + 1f)
@@ -90,8 +90,8 @@ class ModelTest {
 		val input2 = Input(3, 2)
 		val c1 = Concat { listOf(input1, input2) }
 
-		val builder = ModelBuilder(mapOf("i1" to input1, "i2" to input2), c1, debug = false)
-		val model = builder.build(debug = true)
+		val builder = ModelBuilder(mapOf("i1" to input1, "i2" to input2), c1)
+		val model = builder.build()
 
 		val inputData1 = Matrix.ofLambda(3, 1) { _, x, y ->
 			return@ofLambda (x + 1f) * (y + 1f)
