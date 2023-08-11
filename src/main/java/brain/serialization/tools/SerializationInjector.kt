@@ -86,6 +86,7 @@ private fun defaultInjector(): Injector {
 	val default = SerializationInjector()
 	default.push(Activations.Abs)
 	default.push(Activations.ReLu)
+	default.push(Activations.ShiftedReLu)
 	default.push(Activations.Tanh)
 	default.push(Activations.Zero)
 	default.push(Activations.Test)
@@ -95,6 +96,7 @@ private fun defaultInjector(): Injector {
 	default.push(DenseFactory)
 	default.push(ScaleFactory)
 	default.push(ConcatFactory)
+	default.push(AttentionFactory)
 	default.push(FlattenFactory)
 	default.push(ActivationFactory)
 	return default
