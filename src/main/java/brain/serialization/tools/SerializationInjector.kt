@@ -86,6 +86,7 @@ private fun defaultInjector(): Injector {
 	val default = SerializationInjector()
 	default.push(Activations.Abs)
 	default.push(Activations.ReLu)
+	default.push(Activations.CapReLu)
 	default.push(Activations.ShiftedReLu)
 	default.push(Activations.Tanh)
 	default.push(Activations.Zero)
