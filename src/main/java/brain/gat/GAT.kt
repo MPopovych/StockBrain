@@ -1,12 +1,12 @@
 package brain.gat
 
-import brain.ga.weights.ModelGenes
 import brain.gat.context.GATEvalContext
 import brain.gat.context.GATScored
 import brain.gat.context.GATSettings
 import brain.gat.encoding.GATCell
 import brain.gat.encoding.GATModel
 import brain.gat.policies.DNAMutationPolicy
+import brain.genes.ModelGenes
 import brain.models.Model
 import brain.utils.printYellowBr
 
@@ -17,7 +17,7 @@ class GAT(
 	private var earlyStopCallback: (Int, GAT) -> Boolean = { _, _ -> false },
 ) {
 
-	private val originalZygote = ModelGenes(initialModel)
+	private val originalZygote = ModelGenes.of(initialModel)
 	val scoreboard = GATScoreBoard(0, settings)
 
 	fun runFor(generations: Int, silent: Boolean = false, block: ((GATEvalContext) -> Double)): ModelGenes {
@@ -54,7 +54,7 @@ class GAT(
 	private fun runInitGeneration(
 		room: GATScoreBoard,
 		generation: Int,
-		action: ((GATEvalContext) -> Double)
+		action: ((GATEvalContext) -> Double),
 	) {
 		val scores = (0 until settings.population).map { ord ->
 			if (ord == 0) {
@@ -79,14 +79,22 @@ class GAT(
 	private fun runGeneration(
 		room: GATScoreBoard,
 		generation: Int,
-		action: ((GATEvalContext) -> Double)
+		action: ((GATEvalContext) -> Double),
 	) {
-		val list = room.getAscendingFitnessList().takeLast(settings.topParentCount)
+		val list = room.getAscendingFitnessList()
+			.takeLast(settings.topParentCount)
+			.asReversed() // REVERSED is important
+		val top = list.first()
 
 		val scores = (0 until settings.population).map {
-			val aM = list.random()
+			val aM = list[it % list.size] // use at least once the top specimens
 			val bM = list.random()
-			val a = aM.model.produceZygote(settings)
+			val a = if (aM == top) {
+				aM.model.pheno // do not zygote the top
+			} else {
+				aM.model.produceZygote(settings)
+			}
+
 			val b = bM.model.produceZygote(settings)
 			val cell = GATCell(a, b)
 			val phenoModel = cell.produceActivation()

@@ -1,8 +1,8 @@
 package brain.gat.encoding
 
-import brain.ga.weights.ModelGenes
 import brain.gat.context.GATSettings
 import brain.gat.policies.DNAMutationPolicy
+import brain.genes.ModelGenes
 
 class GATModel(
 	val bornOnEpoch: Int,

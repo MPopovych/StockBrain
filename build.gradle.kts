@@ -1,37 +1,48 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm")
+	kotlin("jvm")
+	kotlin("plugin.serialization")
+	`java-library`
 }
 
 group = "com.makki.stockBrain"
 version = "1.0-SNAPSHOT"
 
 repositories {
-    mavenCentral()
-    maven("https://jitpack.io")
+	mavenCentral()
+	maven("https://jitpack.io")
 }
 
 dependencies {
-    testImplementation("org.jetbrains.kotlin:kotlin-test:1.6.20")
-    implementation("org.jetbrains.kotlin:kotlin-reflect:1.6.20")
-    implementation("com.google.code.gson:gson:2.8.9")
+	testImplementation(kotlin("test"))
 
-    implementation("org.apache.commons:commons-math3:3.0")
+	implementation("org.jetbrains.kotlin:kotlin-reflect:1.6.20")
+	implementation("com.google.code.gson:gson:2.8.9")
 
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.1")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-rx2:1.6.1")
+	implementation("org.apache.commons:commons-math3:3.0")
+
+	implementation("org.jetbrains.kotlinx:multik-core:0.2.2")
+	testImplementation("org.jetbrains.kotlinx:multik-openblas:0.2.2")
+//	testImplementation("org.jetbrains.kotlinx:multik-kotlin:0.2.2")
+
+	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.2")
+	implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
+	implementation("org.jetbrains.kotlinx:kotlinx-serialization-protobuf:1.5.1")
+
+	testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.1")
+	testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-rx2:1.6.1")
 
 }
 
 tasks.test {
-    useJUnitPlatform()
+	useJUnitPlatform()
 }
 
-tasks.withType<KotlinCompile>() {
-    kotlinOptions.jvmTarget = "16"
+tasks.withType<KotlinCompile> {
+	kotlinOptions.jvmTarget = "16"
 }
 java {
-    sourceCompatibility = JavaVersion.VERSION_16
-    targetCompatibility = JavaVersion.VERSION_16
+	sourceCompatibility = JavaVersion.VERSION_16
+	targetCompatibility = JavaVersion.VERSION_16
 }

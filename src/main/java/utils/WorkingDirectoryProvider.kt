@@ -10,11 +10,14 @@ class WorkingDirectoryProvider(
 	private val gson: Gson = GsonBuilder().disableHtmlEscaping().create(),
 	private val checkExists: Boolean = false,
 ) {
+
+	constructor(folder: String) : this(folder, GsonBuilder().disableHtmlEscaping().create(), false)
+
 	constructor(
 		folder: String,
 		gson: Gson = GsonBuilder().disableHtmlEscaping().create(),
 		checkExists: Boolean = false,
-	): this(File(folder.trimStart('/').trimEnd('.')).absoluteFile, gson, checkExists)
+	) : this(File(folder.trimStart('/').trimEnd('.')).absoluteFile, gson, checkExists)
 
 	private val wd = wdFile.absolutePath
 
