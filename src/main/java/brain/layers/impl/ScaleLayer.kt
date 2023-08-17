@@ -20,8 +20,9 @@ import kotlin.reflect.KClass
 
 class Scale(
 	private val activation: ActivationFunction? = null,
-	private val kernelInit: ValueSupplier = Suppliers.UniformHE,
+	private val kernelInit: ValueSupplier = Suppliers.BinaryNegPos,
 	private val biasInit: ValueSupplier = Suppliers.Zero,
+	private val useWeight: Boolean = true,
 	private val useBias: Boolean = true,
 	uplink: () -> LayerRef,
 ) : LayerRef {
@@ -37,7 +38,7 @@ class Scale(
 	override fun createInstance(name: String): LayerPropagationEnum {
 		val weightMatrix = Matrix.ofSupply(parentWidth, Dim.Const(1), kernelInit)
 		val biasMatrix = Matrix.ofSupply(parentWidth, Dim.Const(1), biasInit)
-		val weight = WeightData("weight", weightMatrix, active = true, trainable = true)
+		val weight = WeightData("weight", weightMatrix, active = useWeight, trainable = useWeight)
 		val bias = WeightData("bias", biasMatrix, active = useBias, trainable = useBias)
 		val impl = ScaleLayerImpl(name, activation = activation, weight = weight, bias = bias)
 		return LayerPropagationEnum.SingleInput(impl)
@@ -58,7 +59,10 @@ class ScaleLayerImpl(
 	override val factory = f
 
 	override fun propagate(input: Matrix): Matrix {
-		var result = input multiplyBroadcast weight.matrix
+		var result = input
+		if (weight.active) {
+			result = result multiplyBroadcast weight.matrix
+		}
 		if (bias.active) {
 			result = result assignAddBroadcast bias.matrix
 		}
@@ -82,7 +86,8 @@ object ScaleFactory : LayerTypedFactory<ScaleLayerImpl, ScaleSerialized> {
 		return ScaleLayerImpl(
 			value.id,
 			activation = value.activation,
-			weight = value.weight.copy(), bias = value.bias.copy()
+			weight = value.weight.copy(),
+			bias = value.bias.copy()
 		)
 	}
 

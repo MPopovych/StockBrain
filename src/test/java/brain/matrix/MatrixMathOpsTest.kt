@@ -9,6 +9,15 @@ import kotlin.test.assertFails
 class MatrixMathOpsTest {
 
 	@Test
+	fun testSumHorizontal() {
+		val a = Matrix.ofSupply(2, 3, Suppliers.const(1f))
+		val b = a.sumHorizontal()
+
+		assertEquals(1, b.width)
+		assertEquals(3, b.height)
+	}
+
+	@Test
 	fun testMatrixAdd() {
 		val a = Matrix.ofSupply(2, 3, Suppliers.const(1f))
 		val b = Matrix.ofSupply(2, 3, Suppliers.const(-1f))
