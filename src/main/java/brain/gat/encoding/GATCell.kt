@@ -15,8 +15,8 @@ class GATCell(
 	}
 
 	fun produceActivation(): ModelGenes {
-		return DNAActivationByMinPolicy.activation(parentAGenes, parentBGenes)
-//		return DNAActivationPolicy.activation(parentAGenes, parentBGenes)
+//		return DNAActivationByMinPolicy.activation(parentAGenes, parentBGenes)
+		return DNAActivationPolicy.activation(parentAGenes, parentBGenes)
 	}
 
 }
