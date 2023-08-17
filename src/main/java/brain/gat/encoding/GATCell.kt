@@ -1,12 +1,13 @@
 package brain.gat.encoding
 
+import brain.gat.policies.DNAActivationByMinPolicy
 import brain.gat.policies.DNAActivationPolicy
 import brain.gat.policies.ZygotePolicy
 import brain.genes.ModelGenes
 
 class GATCell(
-	val parentAGenes: ModelGenes,
-	val parentBGenes: ModelGenes,
+	private val parentAGenes: ModelGenes,
+	private val parentBGenes: ModelGenes,
 ) {
 
 	fun produceZygote(): ModelGenes {
@@ -14,8 +15,8 @@ class GATCell(
 	}
 
 	fun produceActivation(): ModelGenes {
-//		return DNAActivationByMinPolicy.activation(parentAGenes, parentBGenes)
-		return DNAActivationPolicy.activation(parentAGenes, parentBGenes)
+		return DNAActivationByMinPolicy.activation(parentAGenes, parentBGenes)
+//		return DNAActivationPolicy.activation(parentAGenes, parentBGenes)
 	}
 
 }

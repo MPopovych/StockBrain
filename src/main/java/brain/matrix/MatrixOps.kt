@@ -16,6 +16,14 @@ fun Matrix.transpose(): Matrix {
 	return Matrix(this.array.transpose())
 }
 
+fun Matrix.sumHorizontal(): Matrix {
+	val output = Array(this.height) { FloatArray(1) }
+	this.iteratorWithPos().forEach { (x, y, v) ->
+		output[y][0] += v
+	}
+	return Matrix.wrapMD(1, this.height, output)
+}
+
 fun Matrix.flatten(): Matrix {
 	return Matrix.wrap(this.width * this.height, 1, this.readFloatData())
 }

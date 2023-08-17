@@ -1,9 +1,13 @@
 package brain.matrix
 
 import org.jetbrains.kotlinx.multik.api.linalg.dot
+import org.jetbrains.kotlinx.multik.api.math.exp
 import org.jetbrains.kotlinx.multik.api.mk
 import org.jetbrains.kotlinx.multik.ndarray.operations.*
 
+fun Matrix.exp(): Matrix {
+	return Matrix(this.array.exp())
+}
 
 infix fun Matrix.dot(other: Matrix): Matrix {
 	return Matrix(mk.linalg.dot(this.array, other.array))

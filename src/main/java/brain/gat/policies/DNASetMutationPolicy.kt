@@ -6,7 +6,7 @@ import brain.genes.WeightGenes
 import kotlin.math.max
 import kotlin.math.min
 
-object DNAMutationPolicy {
+object DNASetMutationPolicy {
 
 	private val nativeRandom = java.util.Random()
 	private fun nextGaussRandom() = nativeRandom.nextGaussian().toFloat()
@@ -24,17 +24,11 @@ object DNAMutationPolicy {
 				val mix = FloatArray(aGenes.size) { ord ->
 					val current = aGenes.genes[ord]
 					val final = if (nativeRandom.nextFloat() < mutateRate) {
-						val new = nextGaussRandom() * settings.weightMod
-						val newPreCalc = current + new
-						if (newPreCalc > settings.weightSoftCap || newPreCalc < -settings.weightSoftCap) {
-							current + (new / 2)
-						} else {
-							newPreCalc
-						}
+						nextGaussRandom() * settings.weightMod
 					} else {
 						current // no modification
 					}
-					return@FloatArray max(min(final, settings.weightHeavyCap), -settings.weightHeavyCap)
+					return@FloatArray final
 				}
 				return@w WeightGenes(
 					aGenes.width,
