@@ -31,6 +31,7 @@ object DNAMutationPolicy {
 						} else {
 							newPreCalc
 						}
+						max(min(current, settings.weightHeavyCap), -settings.weightHeavyCap)
 					} else {
 						current // no modification
 					}
