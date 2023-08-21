@@ -5,17 +5,16 @@ import brain.activation.abs.ActivationFunctionFactory
 import brain.activation.abs.objectFactory
 import brain.matrix.Matrix
 import brain.matrix.map
-import kotlin.math.cos
-import kotlin.math.max
-import kotlin.math.min
-import kotlin.math.sin
+import kotlin.math.abs
 
-object TestActivationImpl : ActivationFunction {
+object SigmoidActivationImpl : ActivationFunction {
 
-	override val typeName: String = "Test"
+	override val typeName: String = "Sigmoid"
 	override val factory: ActivationFunctionFactory<*> = this.objectFactory()
+	private const val alpha = 2f
+
 
 	override fun call(matrix: Matrix): Matrix {
-		return matrix.map { x -> cos(x) }
+		return matrix.map { x -> (x * alpha / (1f + abs(x * alpha))) + 0.5f }
 	}
 }
