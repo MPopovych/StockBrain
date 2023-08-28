@@ -16,6 +16,7 @@ object Activations {
 	val Abs = AbsActivationImpl
 	val Zero = ZeroActivationImpl
 	val Test = TestActivationImpl
+	val Sin = SinActivationImpl
 	val BinZP = BinZeroPosActivationImpl
 
 	fun CapLeReLu(cap: Float, e: Float) = CapLeReLuActivationImpl(cap = cap, e = e)

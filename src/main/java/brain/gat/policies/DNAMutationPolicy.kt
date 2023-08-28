@@ -14,6 +14,8 @@ object DNAMutationPolicy {
 //	private fun random() = nativeRandom.nextFloat() * 2f - 1f
 
 	fun mutate(genes: ModelGenes, settings: GATSettings, initial: Boolean): ModelGenes {
+//		if (nativeRandom.nextBoolean()) DNASetMutationPolicy.mutate(genes, settings, initial)
+
 		val mutateRate = if (initial) settings.initialMutationRate else settings.mutationRate
 		val mixedLayers = genes.layerByWeightMap.mapValues { (layerKey, layerA) ->
 			val mixedWeights = layerA.mapValues w@{ weight ->
