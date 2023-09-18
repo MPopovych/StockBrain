@@ -2,6 +2,7 @@ package brain.layers.abs
 
 import brain.layers.weights.WeightData
 import brain.matrix.Matrix
+import brain.propagation.PropagationContext
 
 sealed interface LayerImpl {
 	val id: String
@@ -11,10 +12,10 @@ sealed interface LayerImpl {
 	val factory: LayerTypedFactory<LayerImpl, *>
 
 	interface LayerSingleInput: LayerImpl {
-		fun propagate(input: Matrix): Matrix
+		fun propagate(input: Matrix, propagationContext: PropagationContext? = null): Matrix
 	}
 
 	interface LayerMultiInput: LayerImpl {
-		fun propagate(inputs: List<Matrix>): Matrix
+		fun propagate(inputs: List<Matrix>, propagationContext: PropagationContext? = null): Matrix
 	}
 }

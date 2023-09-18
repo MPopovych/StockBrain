@@ -8,8 +8,10 @@ class GATSettings(
 	val mutationRate: Float,
 	val initialMutationRate: Float = 0.50f,
 	val weightMod: Float,
-	val weightSoftCap: Float = 1.5f,
 	val weightHeavyCap: Float = 6.0f,
+	val normMomentum: Float = 0.00001f,
+	val removeAncestors: Boolean = false,
+	val useTwoSetOfGenes: Boolean = false,
 	val clearEveryGeneration: Boolean,
 	val order: GATScoreBoardOrder,
 )

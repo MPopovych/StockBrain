@@ -2,6 +2,7 @@ package brain.models
 
 import brain.matrix.Matrix
 import brain.matrix.any
+import brain.propagation.PropagationContext
 
 
 class Model(
@@ -20,27 +21,29 @@ class Model(
 	fun onWeightUpdated() = callOrderedGraph.forEach { it.impl.onWeightUpdated() }
 
 	// single
-	fun getOutput(inputMatrix: Matrix): Matrix {
-		return getOutputMap(mapOf(DEFAULT_INPUT to inputMatrix))[DEFAULT_OUTPUT] ?: throw IllegalStateException()
+	fun getOutput(inputMatrix: Matrix, prop: PropagationContext? = null): Matrix {
+		return getOutputMap(mapOf(DEFAULT_INPUT to inputMatrix), prop)[DEFAULT_OUTPUT] ?: throw IllegalStateException()
 	}
 
-	fun getOutput(inputMap: Map<String, Matrix>): Matrix {
-		return getOutputMap(inputMap)[DEFAULT_OUTPUT] ?: throw IllegalStateException()
+	fun getOutput(inputMap: Map<String, Matrix>, prop: PropagationContext? = null): Matrix {
+		return getOutputMap(inputMap, prop)[DEFAULT_OUTPUT] ?: throw IllegalStateException()
 	}
 
-	fun getOutputMap(inputMatrix: Matrix): Map<String, Matrix> {
-		return getOutputMap(mapOf(DEFAULT_INPUT to inputMatrix))
+	fun getOutputMap(inputMatrix: Matrix, prop: PropagationContext? = null): Map<String, Matrix> {
+		return getOutputMap(mapOf(DEFAULT_INPUT to inputMatrix), prop)
 	}
 
 	// map
-	fun getOutputMap(inputMatrixMap: Map<String, Matrix>): Map<String, Matrix> {
+	fun getOutputMap(inputMatrixMap: Map<String, Matrix>, prop: PropagationContext? = null): Map<String, Matrix> {
 		val buffer = HashMap<String, Matrix>(inputMatrixMap)
 
 		callOrderedGraph.forEach { node ->
-			buffer[node.id] = node.invoke(buffer).also {
+			buffer[node.id] = node.invoke(buffer, prop).also {
 				if (check) check(it, node.id)
 			}
 		}
+
+		prop?.acceptBuffer(buffer)
 
 		return outputKeyByLayerName.mapValues {
 			return@mapValues buffer[it.value] ?: throw IllegalStateException()
@@ -57,9 +60,12 @@ class Model(
 
 	fun summary(): String {
 		val layerDescription = callOrderedGraph.joinToString("\n") {
-			"[${it.id}] - ${it.impl.factory.typeName}"
+			"[${it.id}] - ${it.impl.weightData().map { it.matrix.shape() }}"
 		}
-		return "Total layers: ${callOrderedGraph.size} : outputs: ${outputKeyByLayerName.keys}\n" +
+		val params = callOrderedGraph.sumOf {
+			it.impl.weightData().filter { m -> m.active }.sumOf { m -> m.matrix.width * m.matrix.height }
+		}
+		return "Total layers: ${callOrderedGraph.size}, param: ${params}, outputs: ${outputKeyByLayerName.keys}\n" +
 				layerDescription
 	}
 

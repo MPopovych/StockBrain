@@ -5,9 +5,11 @@ import brain.activation.impl.*
 object Activations {
 	val ReLu = ReLuActivationImpl
 	val CapLeReLu = CapLeReLuActivationImpl(cap = 6f, e = 0.1f)
+	val CapReLu1 = CapLeReLuActivationImpl(cap = 1f, e = 0f)
 	val ShiftedReLu = ShiftedReLuActivationImpl
 	val Tanh = TanhActivationImpl
 	val Sigmoid = SigmoidActivationImpl
+	val SiLU = SiLUActivationImpl
 	val FT = FTActivationImpl
 	val HardTanh = HardTanhActivationImpl
 	val Softmax = SoftMaxActivationImpl

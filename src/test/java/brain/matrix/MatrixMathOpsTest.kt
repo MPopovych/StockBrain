@@ -70,9 +70,11 @@ class MatrixMathOpsTest {
 		val a = Matrix.ofSupply(2, 3, Suppliers.const(1f))
 		val b = Matrix.ofSupply(2, 1, Suppliers.const(-1f))
 		val c = a addBroadcast b
+		println(c.describe())
 		assert(c.all { it == 0f })
 
 		val d = b addBroadcast b
+		println(d.describe())
 		assert(d.all { it == -2f })
 
 		assertFails {
@@ -85,18 +87,57 @@ class MatrixMathOpsTest {
 		val a = Matrix.ofSupply(2, 3, Suppliers.const(10f))
 		val b = Matrix.ofSupply(2, 1, Suppliers.const(0f))
 		val c = a multiplyBroadcast b
+		println(c.describe())
 		assert(c.all { it == 0f })
 
 		val d = Matrix.ofSupply(2, 1, Suppliers.const(-1f))
 		val e = a multiplyBroadcast d
+		println(e.describe())
 		assert(e.all { it == -10f })
 
 		val f = d multiplyBroadcast d
+		println(f.describe())
 		assert(f.all { it == 1f })
 
 		assertFails {
 			a multiplyBroadcast a
 		}
+	}
+
+	@Test
+	fun testMatrixAddRowWiseDiff() {
+		val a = Matrix.ofLambda(2, 4) { x: Int, y: Int, c: Int ->
+			y.toFloat()
+		}
+		val b = Matrix.ofSupply(2, 1, Suppliers.const(1f))
+		val c = a addBroadcast b
+		println(a.describe())
+		println()
+		println(c.describe())
+	}
+
+	@Test
+	fun testMatrixAddAssignRowWiseDiff() {
+		val a = Matrix.ofLambda(2, 4) { x: Int, y: Int, c: Int ->
+			y.toFloat()
+		}
+		val b = Matrix.ofSupply(2, 1, Suppliers.const(1f))
+		val c = a assignAddBroadcast b
+		println(a.describe())
+		println()
+		println(c.describe())
+	}
+
+	@Test
+	fun testMatrixMultiplyRowWiseDiff() {
+		val a = Matrix.ofLambda(2, 4) { x: Int, y: Int, c: Int ->
+			y.toFloat()
+		}
+		val b = Matrix.ofSupply(2, 1, Suppliers.const(2f))
+		val c = a multiplyBroadcast b
+		println(a.describe())
+		println()
+		println(c.describe())
 	}
 
 }

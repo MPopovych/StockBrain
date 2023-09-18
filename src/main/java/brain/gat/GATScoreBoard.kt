@@ -54,7 +54,7 @@ class GATScoreBoard(val order: Int, private val settings: GATSettings) {
 			if (it.score.isNaN() || it.score.isInfinite()) {
 				throw IllegalStateException("NaN or Infinite in score : $it")
 			}
-			if (it.parentA in idSet) {
+			if (settings.removeAncestors && it.parentA in idSet) {
 				scoreList.removeIf { parent ->
 					val greater =
 						if (settings.order == GATScoreBoardOrder.Ascending) {
@@ -65,7 +65,7 @@ class GATScoreBoard(val order: Int, private val settings: GATSettings) {
 					parent.id == it.parentA && greater
 				}
 			}
-			if (it.parentB in idSet) {
+			if (settings.removeAncestors && it.parentB in idSet) {
 				scoreList.removeIf { parent ->
 					val greater =
 						if (settings.order == GATScoreBoardOrder.Ascending) {

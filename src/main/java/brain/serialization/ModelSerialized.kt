@@ -18,6 +18,8 @@ data class ModelSerialized(
 			outputKeyByLayerName = outputs,
 			callOrderedGraph = layers.map { it.deserialize(injector) },
 			check = check
-		)
+		).also {
+			it.onWeightUpdated()
+		}
 	}
 }

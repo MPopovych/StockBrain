@@ -2,10 +2,7 @@ package brain.matrix
 
 import brain.utils.roundDisplay
 import org.jetbrains.kotlinx.multik.ndarray.data.get
-import org.jetbrains.kotlinx.multik.ndarray.operations.all
-import org.jetbrains.kotlinx.multik.ndarray.operations.any
-import org.jetbrains.kotlinx.multik.ndarray.operations.map
-import org.jetbrains.kotlinx.multik.ndarray.operations.toList
+import org.jetbrains.kotlinx.multik.ndarray.operations.*
 import utils.wrap
 
 operator fun Matrix.get(x: Int, y: Int): Float {
@@ -40,6 +37,12 @@ fun Matrix.all(block: (Float) -> Boolean): Boolean {
 	return this.array.all(block)
 }
 
+fun Matrix.mapRows(block: (FloatArray) -> FloatArray): Matrix {
+	return (0 until height).map {
+		this.row(it).mapToMatrix(block)
+	}.stackVertical()
+}
+
 fun Matrix.iterRows() = (0 until height).iterator().wrap { this.row(it) }
 
 fun Matrix.withPos() = this.array.data.mapIndexed { index, fl ->
@@ -64,7 +67,16 @@ fun Matrix.mapWithPos(block: (Triple<Int, Int, Float>) -> Float): Matrix {
 }
 
 fun List<Matrix>.concat(axis: Int): Matrix {
+	if (this.size == 1) return this.first()
 	return Matrix(this.first().array.cat(this.drop(1).map { it.array }, axis))
+}
+
+fun List<Matrix>.concatHorizontal(): Matrix {
+	return concat(1)
+}
+
+fun List<Matrix>.stackVertical(): Matrix {
+	return concat(0)
 }
 
 fun Matrix.describe(): String {

@@ -2,12 +2,12 @@ package brain.layers.impl
 
 import brain.abs.Dim
 import brain.abs.DimShape
+import brain.abs.toDim
 import brain.activation.abs.ActivationFunction
 import brain.layers.abs.*
 import brain.layers.weights.WeightData
-import brain.matrix.Matrix
+import brain.matrix.*
 import brain.matrix.assignAddBroadcast
-import brain.matrix.multiplyBroadcast
 import brain.propagation.PropagationContext
 import brain.serialization.ActivationJsonSerialized
 import brain.serialization.WeightSerialized
@@ -19,34 +19,37 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationStrategy
 import kotlin.reflect.KClass
 
-class Scale(
+class UnBiasedDense(
+	featureDim: Int,
 	private val activation: ActivationFunction? = null,
-	private val kernelInit: ValueSupplier = Suppliers.BinaryNegPos,
+	private val kernelInit: ValueSupplier = Suppliers.UniformHE,
 	private val biasInit: ValueSupplier = Suppliers.Zero,
-	private val useWeight: Boolean = true,
 	private val useBias: Boolean = true,
 	uplink: () -> LayerRef,
 ) : LayerRef {
 
+	private val featuresDim = featureDim.toDim()
+
 	private val parent = uplink()
 	private val parentWidth = parent.outputShape.width.requireConst()
-	private val timeDim: Dim = parent.outputShape.height
 
-	override val outputShape: DimShape = DimShape(parentWidth, timeDim)
+	private val stepsDim: Dim = parent.outputShape.height
+
+	override val outputShape: DimShape = DimShape(featureDim.toDim(), stepsDim)
 	override val nodeType: LayerNodeType = LayerNodeType.SingleParent(parent)
-	override val factory = ScaleFactory
+	override val factory = UnBiasedDenseFactory
 
 	override fun createInstance(name: String): LayerPropagationEnum {
-		val weightMatrix = Matrix.ofSupply(parentWidth, Dim.Const(1), kernelInit)
-		val biasMatrix = Matrix.ofSupply(parentWidth, Dim.Const(1), biasInit)
-		val weight = WeightData("weight", weightMatrix, active = useWeight, trainable = useWeight)
+		val weightMatrix = Matrix.ofSupply(featuresDim, parentWidth, kernelInit)
+		val biasMatrix = Matrix.ofSupply(featuresDim, Dim.Const(1), biasInit)
+		val weight = WeightData("weight", weightMatrix, active = true, trainable = true)
 		val bias = WeightData("bias", biasMatrix, active = useBias, trainable = useBias)
-		val impl = ScaleLayerImpl(name, activation = activation, weight = weight, bias = bias)
+		val impl = UnBiasedDenseLayerImpl(name, activation = activation, weight = weight, bias = bias)
 		return LayerPropagationEnum.SingleInput(impl)
 	}
 }
 
-class ScaleLayerImpl(
+class UnBiasedDenseLayerImpl(
 	override val id: String,
 	internal val activation: ActivationFunction?,
 	internal val weight: WeightData,
@@ -54,21 +57,21 @@ class ScaleLayerImpl(
 ) : LayerImpl.LayerSingleInput {
 
 	companion object {
-		val f = ScaleFactory.asGeneric()
+		val f = UnBiasedDenseFactory.asGeneric()
 	}
 
 	override val factory = f
 
 	override fun propagate(input: Matrix, propagationContext: PropagationContext?): Matrix {
-		var result = input
-		if (weight.active) {
-			result = result multiplyBroadcast weight.matrix
-		}
+		var result = input dot weight.matrix
 		if (bias.active) {
 			result = result assignAddBroadcast bias.matrix
 		}
 		if (activation != null) {
 			result = activation.call(result)
+		}
+		if (bias.active) {
+			result = result assignSubBroadcast bias.matrix
 		}
 		return result
 	}
@@ -76,45 +79,36 @@ class ScaleLayerImpl(
 	override fun weightData(): List<WeightData> = listOf(weight, bias)
 }
 
-object ScaleFactory : LayerTypedFactory<ScaleLayerImpl, ScaleSerialized> {
-	override val typeName: String = "Scale"
+object UnBiasedDenseFactory : LayerTypedFactory<UnBiasedDenseLayerImpl, DenseSerialized> {
+	override val typeName: String = "UnBiasedDense"
 
-	override val inputType: KClass<ScaleLayerImpl> = ScaleLayerImpl::class
-	override val outputSerializer: SerializationStrategy<ScaleSerialized> = ScaleSerialized.serializer()
-	override val outputDeserializer: DeserializationStrategy<ScaleSerialized> = ScaleSerialized.serializer()
+	override val inputType: KClass<UnBiasedDenseLayerImpl> = UnBiasedDenseLayerImpl::class
+	override val outputSerializer: SerializationStrategy<DenseSerialized> = DenseSerialized.serializer()
+	override val outputDeserializer: DeserializationStrategy<DenseSerialized> = DenseSerialized.serializer()
 
-	override fun copy(value: ScaleLayerImpl): ScaleLayerImpl {
-		return ScaleLayerImpl(
+	override fun copy(value: UnBiasedDenseLayerImpl): UnBiasedDenseLayerImpl {
+		return UnBiasedDenseLayerImpl(
 			value.id,
 			activation = value.activation,
-			weight = value.weight.copy(),
-			bias = value.bias.copy()
+			weight = value.weight.copy(), bias = value.bias.copy()
 		)
 	}
 
-	override fun serialize(value: ScaleLayerImpl): ScaleSerialized {
+	override fun serialize(value: UnBiasedDenseLayerImpl): DenseSerialized {
 		val activationWrap = value.activation?.let { ActivationJsonSerialized.wrap(it) }
-		return ScaleSerialized(
+		return DenseSerialized(
 			value.id,
 			activation = activationWrap,
 			weight = value.weight.serialize(), bias = value.bias.serialize()
 		)
 	}
 
-	override fun deserialize(injector: Injector, value: ScaleSerialized): ScaleLayerImpl {
+	override fun deserialize(injector: Injector, value: DenseSerialized): UnBiasedDenseLayerImpl {
 		val activation = value.activation?.read(injector)
-		return ScaleLayerImpl(
+		return UnBiasedDenseLayerImpl(
 			value.id,
 			activation = activation,
 			weight = value.weight.toWeightData(), bias = value.bias.toWeightData()
 		)
 	}
 }
-
-@Serializable
-data class ScaleSerialized(
-	val id: String,
-	val activation: ActivationJsonSerialized?,
-	val weight: WeightSerialized,
-	val bias: WeightSerialized,
-)

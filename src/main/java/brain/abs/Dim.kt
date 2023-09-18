@@ -19,6 +19,13 @@ sealed interface Dim {
 		}
 	}
 
+	fun mapConst(block: (Const) -> Dim): Dim {
+		return when(this) {
+			is Const -> block(this)
+			Variable -> this
+		}
+	}
+
 	fun isConst(): Boolean = this is Const
 	fun isVariable(): Boolean = this is Variable
 }

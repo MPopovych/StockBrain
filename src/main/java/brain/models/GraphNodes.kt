@@ -2,6 +2,7 @@ package brain.models
 
 import brain.layers.abs.LayerImpl
 import brain.matrix.Matrix
+import brain.propagation.PropagationContext
 import brain.serialization.LayerJsonSerialized
 import brain.serialization.LayerNodeSerialized
 import brain.serialization.LayerNodeTypeSerialized
@@ -12,9 +13,9 @@ sealed interface GraphNodeType {
 		get() = impl.id
 
 	data class InputIO(val ioKey: String, override val impl: LayerImpl.LayerSingleInput) : GraphNodeType {
-		override fun invoke(buffer: Map<String, Matrix>): Matrix {
+		override fun invoke(buffer: Map<String, Matrix>, prop: PropagationContext?): Matrix {
 			val input = buffer[ioKey] ?: throw IllegalStateException("Missing data in graph: $ioKey")
-			return impl.propagate(input)
+			return impl.propagate(input, prop)
 		}
 
 		override fun copy(): GraphNodeType {
@@ -23,9 +24,9 @@ sealed interface GraphNodeType {
 	}
 
 	data class SingleParent(val parent: String, override val impl: LayerImpl.LayerSingleInput) : GraphNodeType {
-		override fun invoke(buffer: Map<String, Matrix>): Matrix {
+		override fun invoke(buffer: Map<String, Matrix>, prop: PropagationContext?): Matrix {
 			val input = buffer[parent] ?: throw IllegalStateException("Missing data in graph: $parent")
-			return impl.propagate(input)
+			return impl.propagate(input, prop)
 		}
 
 		override fun copy(): GraphNodeType {
@@ -34,11 +35,11 @@ sealed interface GraphNodeType {
 	}
 
 	data class MultiParent(val parents: List<String>, override val impl: LayerImpl.LayerMultiInput) : GraphNodeType {
-		override fun invoke(buffer: Map<String, Matrix>): Matrix {
+		override fun invoke(buffer: Map<String, Matrix>, prop: PropagationContext?): Matrix {
 			val input = parents.map { parent ->
 				buffer[parent] ?: throw IllegalStateException("Missing data in graph: $parent")
 			}
-			return impl.propagate(input)
+			return impl.propagate(input, prop)
 		}
 
 		override fun copy(): GraphNodeType {
@@ -46,7 +47,7 @@ sealed interface GraphNodeType {
 		}
 	}
 
-	fun invoke(buffer: Map<String, Matrix>): Matrix
+	fun invoke(buffer: Map<String, Matrix>, prop: PropagationContext?): Matrix
 	fun copy(): GraphNodeType
 
 	fun serialize(): LayerNodeSerialized {

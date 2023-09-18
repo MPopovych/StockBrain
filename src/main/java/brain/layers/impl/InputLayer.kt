@@ -5,6 +5,7 @@ import brain.abs.DimShape
 import brain.layers.abs.*
 import brain.layers.weights.WeightData
 import brain.matrix.Matrix
+import brain.propagation.PropagationContext
 import brain.serialization.tools.Injector
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.Serializable
@@ -38,7 +39,7 @@ class InputLayerImpl(
 
 	override val factory = f
 
-	override fun propagate(input: Matrix): Matrix {
+	override fun propagate(input: Matrix, propagationContext: PropagationContext?): Matrix {
 		return input
 	}
 

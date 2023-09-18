@@ -6,10 +6,13 @@ import brain.layers.abs.*
 import brain.layers.weights.WeightData
 import brain.matrix.Matrix
 import brain.matrix.concat
+import brain.propagation.PropagationContext
 import brain.serialization.tools.Injector
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationStrategy
+import org.jetbrains.kotlinx.multik.api.Multik
+import org.jetbrains.kotlinx.multik.ndarray.operations.stack
 import kotlin.reflect.KClass
 
 class Concat(
@@ -28,7 +31,8 @@ class Concat(
 			Dim.Variable
 		}
 		val timeDim = if (parents.all { it.outputShape.height.isConst() }) {
-			Dim.Const(parents.sumOf { it.outputShape.height.requireConst().x })
+			val f = parents.first().outputShape.height.requireConst().x
+			Dim.Const(f)
 		} else {
 			Dim.Variable
 		}
@@ -52,7 +56,7 @@ class ConcatLayerImpl(override val id: String) : LayerImpl.LayerMultiInput {
 
 	override val factory = f
 
-	override fun propagate(inputs: List<Matrix>): Matrix {
+	override fun propagate(inputs: List<Matrix>, propagationContext: PropagationContext?): Matrix {
 		return inputs.concat(1)
 	}
 

@@ -32,7 +32,7 @@ object CapReluFactory : ActivationFunctionTypedFactory<CapLeReLuActivationImpl, 
 	}
 
 	override fun serialize(value: CapLeReLuActivationImpl): CapLeReluSerialized {
-		return CapLeReluSerialized(value.cap, value.e)
+		return CapLeReluSerialized(cap = value.cap, e = value.e)
 	}
 }
 

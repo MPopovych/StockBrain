@@ -60,6 +60,17 @@ infix fun Matrix.assignAddBroadcast(other: Matrix): Matrix {
 	return this
 }
 
+infix fun Matrix.assignSubBroadcast(other: Matrix): Matrix {
+	require(other.height == 1)
+
+	val flat = other.row(0).array
+	for (i in 0 until this.height) {
+		val writable = this.row(i)
+		writable.array.minusAssign(flat)
+	}
+	return this
+}
+
 infix fun Matrix.add(other: Float): Matrix {
 	return Matrix(this.array.plus(other))
 }

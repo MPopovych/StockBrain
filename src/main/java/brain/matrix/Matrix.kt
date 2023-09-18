@@ -79,7 +79,7 @@ class Matrix internal constructor(
 			val size = width * height
 			val array = FloatArray(size) {
 				val x = it % width
-				val y = (it - x) / height
+				val y = (it - x) / width
 				block(x, y, it)
 			}
 			return wrap(width, height, array)

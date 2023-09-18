@@ -5,6 +5,7 @@ import brain.activation.abs.ActivationFunction
 import brain.layers.abs.*
 import brain.layers.weights.WeightData
 import brain.matrix.Matrix
+import brain.propagation.PropagationContext
 import brain.serialization.ActivationJsonSerialized
 import brain.serialization.tools.Injector
 import kotlinx.serialization.DeserializationStrategy
@@ -38,7 +39,7 @@ class ActivationLayerImpl(
 
 	override val factory = f
 
-	override fun propagate(input: Matrix): Matrix {
+	override fun propagate(input: Matrix, propagationContext: PropagationContext?): Matrix {
 		return activation.call(input)
 	}
 

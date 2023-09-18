@@ -5,6 +5,7 @@ import brain.abs.DimShape
 import brain.layers.abs.*
 import brain.layers.weights.WeightData
 import brain.matrix.*
+import brain.propagation.PropagationContext
 import brain.serialization.tools.Injector
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.Serializable
@@ -21,7 +22,7 @@ class Flatten(
 
 	override val outputShape: DimShape = DimShape(parentWidth, timeDim)
 	override val nodeType: LayerNodeType = LayerNodeType.SingleParent(parent)
-	override val factory = ScaleFactory
+	override val factory = FlattenFactory
 
 	override fun createInstance(name: String): LayerPropagationEnum {
 		val impl = FlattenLayerImpl(name)
@@ -39,7 +40,7 @@ class FlattenLayerImpl(
 
 	override val factory = f
 
-	override fun propagate(input: Matrix): Matrix {
+	override fun propagate(input: Matrix, propagationContext: PropagationContext?): Matrix {
 		return input.flatten()
 	}
 

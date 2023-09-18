@@ -13,7 +13,10 @@ class GATModel(
 	val phenoId = pheno.chromosome()
 
 	fun produceZygote(settings: GATSettings): ModelGenes {
-		val zygote = cell.produceZygote()
-		return DNAMutationPolicy.mutate(zygote, settings, false)
+		if (settings.useTwoSetOfGenes) {
+			val zygote = cell.produceZygote()
+			return DNAMutationPolicy.mutate(zygote, settings, false)
+		}
+		return DNAMutationPolicy.mutate(pheno, settings, false)
 	}
 }
